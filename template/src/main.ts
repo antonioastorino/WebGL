@@ -16,8 +16,10 @@ function main() {
 	let fragment_shader: WebGLShader;
 
 	function shader_loaded() {
-		vertex_shader = gl.createShader(gl.VERTEX_SHADER);
-		fragment_shader = gl.createShader(gl.FRAGMENT_SHADER);
+		if (!gl) { return; }
+		
+		vertex_shader = <WebGLShader> gl.createShader(gl.VERTEX_SHADER);
+		fragment_shader = <WebGLShader> gl.createShader(gl.FRAGMENT_SHADER);
 		
 		gl.shaderSource(vertex_shader, vertex_shader_text);
 		gl.shaderSource(fragment_shader, fragment_shader_text);
@@ -33,6 +35,9 @@ function main() {
 		}
 
 		let program = gl.createProgram();
+		if (!program) {
+			return;
+		}
 		gl.attachShader(program, vertex_shader);
 		gl.attachShader(program, fragment_shader);
 		gl.linkProgram(program);
