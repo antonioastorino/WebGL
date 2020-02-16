@@ -1,0 +1,72 @@
+#!/bin/bash
+
+cd $(dirname $0)
+
+cat <<EOF > uninstall-mac
+#!/bin/bash
+
+ps aux | grep "php -S 127.0.0.1:8080" | grep -v "grep" | awk '{print \$2}' | xargs kill
+cd \$(dirname \$0)
+rm -rf dist node_modules localServer8080 run-all tsc-restart package-lock.json
+EOF
+chmod +x uninstall-mac
+
+npm install --save @types/jquery
+
+cat <<EOF > localServer8080
+#!/bin/bash
+
+cd \$(dirname \$0)
+sleep 1
+php -S 127.0.0.1:8080
+EOF
+chmod +x localServer8080
+
+cat <<EOF > tsc-restart
+#!/bin/bash
+
+cd \$(dirname \$0)/dist
+tsc -w
+EOF
+chmod +x tsc-restart
+
+cat <<EOF > run-all
+#!/bin/bash
+
+cd \$(dirname \$0)
+open -a Terminal.app tsc-restart && open -a Terminal.app localServer8080 && sleep 4 && open -a Google\ Chrome.app http://127.0.0.1:8080/index.html
+EOF
+chmod +x run-all
+
+# create dist folder and pertinent files
+mkdir -pv dist
+pushd dist
+
+cat <<EOF > tsconfig.json
+{
+  "include": ["../"],
+  "compilerOptions": {
+    /* Basic Options */
+    // "incremental": true,                   /* Enable incremental compilation */
+    "target": "es6",                          /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019' or 'ESNEXT'. */
+    "module": "commonjs",                     /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */
+	"outDir": "../dist/",                        /* Redirect output structure to the directory. */
+    "rootDir": "../src/",                       /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
+	"strict": true,                           /* Enable all strict type-checking options. */
+	"typeRoots": [ "/usr/local/lib/node_modules/types" ],
+    "types": [ "jquery" ],
+    "esModuleInterop": true,                  /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
+    "forceConsistentCasingInFileNames": true  /* Disallow inconsistently-cased references to the same file. */
+  }
+}
+EOF
+
+popd
+
+
+
+
+
+
+
+# cp ../config/tsconfig.json ./

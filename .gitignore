@@ -1,0 +1,8 @@
+.DS_Store
+template/package-lock.json
+template/tsc-restart
+template/dist/
+template/localServer8080
+template/run-all
+template/uninstall-mac
+template/node_modules/
