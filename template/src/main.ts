@@ -7,63 +7,90 @@ function main() {
 		return
 	}
 
-	gl.clearColor(0.75, 0.85, 0.8, 1.0);
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-	let vertex_shader_text: string;
-	let fragment_shader_text: string;
-	let vertex_shader: WebGLShader;
-	let fragment_shader: WebGLShader;
+	let vertexShaderText: string;
+	let fragmentShaderText: string;
+	let vertexShader: WebGLShader;
+	let fragmentShader: WebGLShader;
 
 	function shader_loaded() {
 		if (!gl) { return; }
+
+		gl.clearColor(0.75, 0.85, 0.8, 1.0);
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+		vertexShader = <WebGLShader> gl.createShader(gl.VERTEX_SHADER);
+		fragmentShader = <WebGLShader> gl.createShader(gl.FRAGMENT_SHADER);
 		
-		vertex_shader = <WebGLShader> gl.createShader(gl.VERTEX_SHADER);
-		fragment_shader = <WebGLShader> gl.createShader(gl.FRAGMENT_SHADER);
-		
-		gl.shaderSource(vertex_shader, vertex_shader_text);
-		gl.shaderSource(fragment_shader, fragment_shader_text);
-		gl.compileShader(vertex_shader)
-		if (!gl.getShaderParameter(vertex_shader, gl.COMPILE_STATUS)) {
-			console.error('ERROR compiling vertex shader', gl.getShaderInfoLog(vertex_shader));
+		gl.shaderSource(vertexShader, vertexShaderText);
+		gl.shaderSource(fragmentShader, fragmentShaderText);
+		gl.compileShader(vertexShader)
+		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+			console.error('ERROR compiling vertex shader', gl.getShaderInfoLog(vertexShader));
 			return;
 		}
-		gl.compileShader(fragment_shader)
-		if (!gl.getShaderParameter(fragment_shader, gl.COMPILE_STATUS)) {
-			console.error('ERROR compiling fragment shader', gl.getShaderInfoLog(fragment_shader));
+		gl.compileShader(fragmentShader)
+		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+			console.error('ERROR compiling fragment shader', gl.getShaderInfoLog(fragmentShader));
 			return;
 		}
 
-		let program = gl.createProgram();
-		if (!program) {
+		let shaderProgram = gl.createProgram();
+		if (!shaderProgram) {
 			return;
 		}
-		gl.attachShader(program, vertex_shader);
-		gl.attachShader(program, fragment_shader);
-		gl.linkProgram(program);
+		gl.attachShader(shaderProgram, vertexShader);
+		gl.attachShader(shaderProgram, fragmentShader);
+		gl.linkProgram(shaderProgram);
 
-		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-			console.error('ERROR linking program!', gl.getProgramInfoLog(program));
+		if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+			console.error('ERROR linking program!', gl.getProgramInfoLog(shaderProgram));
 			return;
 		}
 
-		gl.validateProgram(program);
-		if (!gl.getProgramParameter(program, gl.VALIDATE_STATUS)) {
-			console.error('ERROR validating program!', gl.getProgramInfoLog(program));
+		gl.validateProgram(shaderProgram);
+		if (!gl.getProgramParameter(shaderProgram, gl.VALIDATE_STATUS)) {
+			console.error('ERROR validating program!', gl.getProgramInfoLog(shaderProgram));
 			return;
 		}
+
+		let vertices =
+		[
+			0.0, 0.5,
+			-0.5, -0.5,
+			0.5, -0.5
+		];
+
+		let vertexArrayBufferObject = gl.createBuffer(); // get buffer ID
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertexArrayBufferObject); // select buffer
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW); // load data
+
+		let positionAttributeLocation = gl.getAttribLocation(shaderProgram, 'vertPosition'); // get position ID
+		gl.vertexAttribPointer(
+			positionAttributeLocation, // ID
+			2, // size
+			gl.FLOAT, // type,
+			false, // normalized
+			2 * Float32Array.BYTES_PER_ELEMENT, // stride
+			0 // offset
+		);
+		gl.enableVertexAttribArray(positionAttributeLocation);
+
+		gl.useProgram(shaderProgram);
+		gl.drawArrays(gl.TRIANGLES, 0, 3);
 
 	}
 
-	$.get("src/shaders/vertex-shader.glsl").then(
-		function(data: string) { 
-			vertex_shader_text = data;
-			$.get("src/shaders/fragment-shader.glsl").then(
-				function(data: string) {
-					fragment_shader_text = data;
-					shader_loaded();
-				}
-			);
-		}
-	);
+	$.get("src/shaders/vertex-shader.glsl")
+		.then(
+			function (data: string) {
+				vertexShaderText = data;
+				$.get("src/shaders/fragment-shader.glsl")
+					.then(
+						function (data: string) {
+							fragmentShaderText = data;
+							shader_loaded();
+						}
+					);
+			}
+		);
 }
