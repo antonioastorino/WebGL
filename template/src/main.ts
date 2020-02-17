@@ -55,9 +55,9 @@ function main() {
 
 		let vertices =
 		[
-			0.0, 0.5,
-			-0.5, -0.5,
-			0.5, -0.5
+			0.0, 0.5,	1.0, 0.0, 0.0,
+			-0.5, -0.5,	0.0, 1.0, 0.0,
+			0.5, -0.5,	0.0, 0.0, 1.0
 		];
 
 		let vertexArrayBufferObject = gl.createBuffer(); // get buffer ID
@@ -65,19 +65,30 @@ function main() {
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW); // load data
 
 		let positionAttributeLocation = gl.getAttribLocation(shaderProgram, 'vertPosition'); // get position ID
+		let colorAttributeLocation = gl.getAttribLocation(shaderProgram, 'vertColor'); // get position ID
 		gl.vertexAttribPointer(
 			positionAttributeLocation, // ID
 			2, // size
 			gl.FLOAT, // type,
 			false, // normalized
-			2 * Float32Array.BYTES_PER_ELEMENT, // stride
+			5 * Float32Array.BYTES_PER_ELEMENT, // stride
 			0 // offset
 		);
+
+		gl.vertexAttribPointer(
+			colorAttributeLocation, // ID
+			3, // size
+			gl.FLOAT, // type,
+			false, // normalized
+			5 * Float32Array.BYTES_PER_ELEMENT, // stride
+			2 * Float32Array.BYTES_PER_ELEMENT // offset
+		);
+
 		gl.enableVertexAttribArray(positionAttributeLocation);
+		gl.enableVertexAttribArray(colorAttributeLocation);
 
 		gl.useProgram(shaderProgram);
 		gl.drawArrays(gl.TRIANGLES, 0, 3);
-
 	}
 
 	$.get("src/shaders/vertex-shader.glsl")
