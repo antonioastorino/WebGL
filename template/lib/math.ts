@@ -60,7 +60,7 @@ class squareMatrix {
 		this._matrix[row][col] = val;
 	}
 
-	multiplyBy(other: squareMatrix): squareMatrix {
+	multiplyBy = (other: squareMatrix): squareMatrix => {
 		if (other.getSize() == this._size) {
 			var outMatrix = new squareMatrix(this._size);
 			for (var i = 0; i < this._size; i++) { // s
