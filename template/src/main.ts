@@ -1,3 +1,6 @@
+
+
+//var hello = create();
 function main() {
 	console.log("Hello Main");
 	let canvas = <HTMLCanvasElement> document.getElementById("glCanvas");
