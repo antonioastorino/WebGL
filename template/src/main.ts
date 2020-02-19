@@ -1,6 +1,4 @@
 
-
-//var hello = create();
 function main() {
 	console.log("Hello Main");
 	let canvas = <HTMLCanvasElement> document.getElementById("glCanvas");
@@ -57,24 +55,29 @@ function main() {
 		}
 
 		let vertices =
-		[
-			0.0, 0.5,	1.0, 0.0, 0.0,
-			-0.5, -0.5,	0.0, 1.0, 0.0,
-			0.5, -0.5,	0.0, 0.0, 1.0
+		[	// x, y, z			r, g, b
+			0.0, 0.5, 0.0,		1.0, 0.0, 0.0,
+			-0.5, -0.5, 0.0,	0.0, 1.0, 0.0,
+			0.5, -0.5, 0.0,		0.0, 0.0, 1.0
 		];
 
 		let vertexArrayBufferObject = gl.createBuffer(); // get buffer ID
 		gl.bindBuffer(gl.ARRAY_BUFFER, vertexArrayBufferObject); // select buffer
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW); // load data
 
+		gl.useProgram(shaderProgram); // Set program in use before getting locations
 		let positionAttributeLocation = gl.getAttribLocation(shaderProgram, 'vertPosition'); // get position ID
 		let colorAttributeLocation = gl.getAttribLocation(shaderProgram, 'vertColor'); // get position ID
+		let mWorldUniformLocation = gl.getUniformLocation(shaderProgram, 'mWorld'); // get mWorld ID
+		let mViewUniformLocation = gl.getUniformLocation(shaderProgram, 'mView'); // get mWorld ID
+		let mProjUniformLocation = gl.getUniformLocation(shaderProgram, 'mProj'); // get mWorld ID
+
 		gl.vertexAttribPointer(
 			positionAttributeLocation, // ID
-			2, // size
+			3, // size
 			gl.FLOAT, // type,
 			false, // normalized
-			5 * Float32Array.BYTES_PER_ELEMENT, // stride
+			6 * Float32Array.BYTES_PER_ELEMENT, // stride
 			0 // offset
 		);
 
@@ -83,14 +86,23 @@ function main() {
 			3, // size
 			gl.FLOAT, // type,
 			false, // normalized
-			5 * Float32Array.BYTES_PER_ELEMENT, // stride
-			2 * Float32Array.BYTES_PER_ELEMENT // offset
+			6 * Float32Array.BYTES_PER_ELEMENT, // stride
+			3 * Float32Array.BYTES_PER_ELEMENT // offset
 		);
+
+		let mWorld = (new Matrix(4,4)).identity();
+		let mView = (new Matrix(4,4)).identity();
+		let mProj = (new Matrix(4,4)).identity();
+		mWorld.setElement(3,0,0.2);
+
+		// Set uniform values
+		gl.uniformMatrix4fv(mWorldUniformLocation, false, mWorld.getFloat32Array());
+		gl.uniformMatrix4fv(mViewUniformLocation, false, mView.getFloat32Array());
+		gl.uniformMatrix4fv(mProjUniformLocation, false, mProj.getFloat32Array());
 
 		gl.enableVertexAttribArray(positionAttributeLocation);
 		gl.enableVertexAttribArray(colorAttributeLocation);
 
-		gl.useProgram(shaderProgram);
 		gl.drawArrays(gl.TRIANGLES, 0, 3);
 	}
 
@@ -103,8 +115,6 @@ function main() {
 						function (data: string) {
 							fragmentShaderText = data;
 							shader_loaded();
-						}
-					);
-			}
-		);
+						});
+			});
 }
