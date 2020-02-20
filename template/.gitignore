@@ -6,3 +6,4 @@ localServer8080
 run-all
 uninstall-mac
 node_modules/
+tsconfig.json

@@ -7,7 +7,7 @@ cat <<EOF > uninstall-mac
 
 ps aux | grep "php -S 127.0.0.1:8080" | grep -v "grep" | awk '{print \$2}' | xargs kill
 cd \$(dirname \$0)
-rm -rf dist node_modules localServer8080 run-all tsc-restart package-lock.json
+rm -rf dist node_modules localServer8080 run-all tsc-restart package-lock.json tsconfig.json
 EOF
 chmod +x uninstall-mac
 
@@ -38,10 +38,10 @@ open -a Terminal.app tsc-restart && open -a Terminal.app localServer8080 && slee
 EOF
 chmod +x run-all
 
-# create dist folder and pertinent files
+# create dist folder
 mkdir -pv dist
-pushd dist
 
+# Create typescript configuration file
 cat <<EOF > tsconfig.json
 {
   "include": ["../"],
@@ -50,8 +50,8 @@ cat <<EOF > tsconfig.json
     // "incremental": true,                   /* Enable incremental compilation */
     "target": "es6",                          /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019' or 'ESNEXT'. */
     "module": "commonjs",                     /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */
-	"outDir": "../dist/",                        /* Redirect output structure to the directory. */
-    "rootDir": "../src/",                       /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
+	"outDir": "./dist",                        /* Redirect output structure to the directory. */
+    "rootDirs": ["./src", "./lib"],                       /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
 	"strict": true,                           /* Enable all strict type-checking options. */
 	"typeRoots": [ "/usr/local/lib/node_modules/types" ],
     "types": [ "jquery" ],
@@ -60,8 +60,6 @@ cat <<EOF > tsconfig.json
   }
 }
 EOF
-
-popd
 
 
 
