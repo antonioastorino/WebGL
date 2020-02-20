@@ -1,5 +1,9 @@
 
-function main() {
+import { Matrix } from "../lib/math.js";
+import { Vector } from "../lib/math.js";
+import { MatLab } from "../lib/math.js";
+
+export function main() {
 	console.log("Hello Main");
 	let canvas = <HTMLCanvasElement>document.getElementById("glCanvas");
 	let gl = canvas.getContext('webgl');

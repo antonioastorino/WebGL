@@ -4,7 +4,7 @@
  * non-mutating counterpart can be found in the
  * {@link MatLab} class
  */
-class Matrix {
+export class Matrix {
 	private _matrix: Array<Array<number>>;
 	private _rows: number;
 	private _cols: number;
@@ -97,7 +97,7 @@ class Matrix {
 	}
 }
 
-class Vector extends Matrix {
+export class Vector extends Matrix {
 	constructor(elements: number[]) {
 		super (elements.length, 1);
 		for (var i = 0; i < this.getRows(); i++) {
@@ -106,7 +106,7 @@ class Vector extends Matrix {
 	}
 }
 
-class MatLab {
+export class MatLab {
 	static multiplyMatrixBy = (a: Matrix, b: Matrix | number): Matrix => {
 		let outMatrix = a.makeCopy();
 		return outMatrix.multiplyBy(b);
