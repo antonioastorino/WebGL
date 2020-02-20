@@ -1,9 +1,5 @@
 .DS_Store
-package-lock.json
-tsc-restart
 dist/
-localServer8080
-run-all
-uninstall-mac
 node_modules/
-tsconfig.json
+scripts/
+*.json
