@@ -63,8 +63,18 @@ class Matrix {
 
 	setElement = (row: number, col: number, val: number) => { this._matrix[row][col] = val; }
 
-	multiplyBy = (other: Matrix): Matrix => {
-		if (other.getRows() == this._cols) {
+	multiplyBy = (other: Matrix | number): Matrix => {
+		if (typeof(other) == 'number') {
+			var outMatrix = new Matrix(this._rows, this._cols);
+			for (var i = 0; i < this._rows; i++) { // row number
+				for (var j = 0; j < this._cols; j++) { // col number
+					outMatrix.setElement(i, j, this._matrix[i][j] * other);
+				}
+			}
+			this._matrix = outMatrix.getMatrix();
+			return outMatrix;
+		}
+		else if (other.getRows() == this._cols) {
 			let P = this._cols;
 			let N = this._rows;
 			let M = other.getCols();
@@ -87,7 +97,7 @@ class Matrix {
 	}
 }
 class MatLab {
-	static multiplyMatrices = (a: Matrix, b: Matrix): Matrix => {
+	static multiplyMatrixBy = (a: Matrix, b: Matrix | number): Matrix => {
 		let outMatrix = a.makeCopy();
 		return outMatrix.multiplyBy(b);
 	}

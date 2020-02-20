@@ -1,7 +1,7 @@
 
 function main() {
 	console.log("Hello Main");
-	let canvas = <HTMLCanvasElement> document.getElementById("glCanvas");
+	let canvas = <HTMLCanvasElement>document.getElementById("glCanvas");
 	let gl = canvas.getContext('webgl');
 
 	if (!gl) {
@@ -19,9 +19,9 @@ function main() {
 		gl.clearColor(0.75, 0.85, 0.8, 1.0);
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-		vertexShader = <WebGLShader> gl.createShader(gl.VERTEX_SHADER);
-		fragmentShader = <WebGLShader> gl.createShader(gl.FRAGMENT_SHADER);
-		
+		vertexShader = <WebGLShader>gl.createShader(gl.VERTEX_SHADER);
+		fragmentShader = <WebGLShader>gl.createShader(gl.FRAGMENT_SHADER);
+
 		gl.shaderSource(vertexShader, vertexShaderText);
 		gl.shaderSource(fragmentShader, fragmentShaderText);
 		gl.compileShader(vertexShader)
@@ -55,7 +55,7 @@ function main() {
 		}
 
 		let vertices =
-		[	// x, y, z			r, g, b
+			[	// x, y, z			r, g, b
 			0.0, 0.5, 0.0,		1.0, 0.0, 0.0,
 			-0.5, -0.5, 0.0,	0.0, 1.0, 0.0,
 			0.5, -0.5, 0.0,		0.0, 0.0, 1.0
@@ -90,10 +90,12 @@ function main() {
 			3 * Float32Array.BYTES_PER_ELEMENT // offset
 		);
 
-		let mWorld = (new Matrix(4,4)).identity();
-		let mView = (new Matrix(4,4)).identity();
-		let mProj = (new Matrix(4,4)).identity();
-		mWorld.setElement(3,0,0.2);
+		let mWorld = (new Matrix(4, 4)).identity();
+		let mView = (new Matrix(4, 4)).identity();
+		let mProj = (new Matrix(4, 4)).identity();
+		mWorld.setElement(3, 0, 0.2);
+		console.log(MatLab.multiplyMatrixBy(mProj, 2).getMatrix());
+		console.log(mProj.getMatrix());
 
 		// Set uniform values
 		gl.uniformMatrix4fv(mWorldUniformLocation, false, mWorld.getFloat32Array());
