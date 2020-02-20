@@ -94,7 +94,8 @@ function main() {
 		let mView = (new Matrix(4, 4)).identity();
 		let mProj = (new Matrix(4, 4)).identity();
 		mWorld.setElement(3, 0, 0.2);
-		console.log(MatLab.multiplyMatrixBy(mProj, 2).getMatrix());
+		let v1 = new Vector([1,2,3,4]);
+		console.log(MatLab.multiplyMatrixBy(mWorld, v1).getMatrix());
 		console.log(mProj.getMatrix());
 
 		// Set uniform values

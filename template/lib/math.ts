@@ -63,7 +63,7 @@ class Matrix {
 
 	setElement = (row: number, col: number, val: number) => { this._matrix[row][col] = val; }
 
-	multiplyBy = (other: Matrix | number): Matrix => {
+	multiplyBy = (other: Matrix | number ): Matrix => {
 		if (typeof(other) == 'number') {
 			var outMatrix = new Matrix(this._rows, this._cols);
 			for (var i = 0; i < this._rows; i++) { // row number
@@ -96,6 +96,16 @@ class Matrix {
 		throw "Incompatible matrices"
 	}
 }
+
+class Vector extends Matrix {
+	constructor(elements: number[]) {
+		super (elements.length, 1);
+		for (var i = 0; i < this.getRows(); i++) {
+			this.setElement(i, 0, elements[i]);
+		}
+	}
+}
+
 class MatLab {
 	static multiplyMatrixBy = (a: Matrix, b: Matrix | number): Matrix => {
 		let outMatrix = a.makeCopy();
