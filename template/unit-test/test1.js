@@ -1,14 +1,14 @@
-import { Matrix } from '../dist/lib/math.js';
-import { Vector } from '../dist/lib/math.js';
-import { MatLab } from '../dist/lib/math.js';
+import { XYZMatrix } from '../dist/lib/math.js';
+import { XYZVector } from '../dist/lib/math.js';
+import { XYZMatLab } from '../dist/lib/math.js';
 
 console.log("Hello Unit test!");
 
-var mat = (new Matrix(3, 3)).identity()
-var vec = new Vector([1, 2, 3]);
-var prod = MatLab.multiplyMatrixBy(mat, vec);
+var mat = (new XYZMatrix(3, 3)).identity()
+var vec = new XYZVector([1, 2, 3]);
+var prod = XYZMatLab.multiplyMatrixBy(mat, vec);
 
 QUnit.module("Hello test");
 QUnit.test('test matrix * vector product', (assert) => {
-	assert.equal(prod, new Vector([1, 2, 3]), "Very good");
+	assert.equal(prod, new XYZVector([1, 2, 3]), "Very good");
 })

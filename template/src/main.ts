@@ -1,7 +1,7 @@
 
-import { Matrix } from "../lib/math.js";
-import { Vector } from "../lib/math.js";
-import { MatLab } from "../lib/math.js";
+import { XYZMatrix } from "../lib/math.js";
+import { XYZVector } from "../lib/math.js";
+import { XYZMatLab } from "../lib/math.js";
 
 export function main() {
 	console.log("Hello Main");
@@ -94,13 +94,10 @@ export function main() {
 			3 * Float32Array.BYTES_PER_ELEMENT // offset
 		);
 
-		let mWorld = (new Matrix(4, 4)).identity();
-		let mView = (new Matrix(4, 4)).identity();
-		let mProj = (new Matrix(4, 4)).identity();
+		let mWorld = (new XYZMatrix(4, 4)).identity();
+		let mView = (new XYZMatrix(4, 4)).identity();
+		let mProj = (new XYZMatrix(4, 4)).identity();
 		mWorld.setElement(3, 0, 0.2);
-		let v1 = new Vector([1,2,3,4]);
-		console.log(MatLab.multiplyMatrixBy(mWorld, v1).getMatrix());
-		console.log(mProj.getMatrix());
 
 		// Set uniform values
 		gl.uniformMatrix4fv(mWorldUniformLocation, false, mWorld.getFloat32Array());
