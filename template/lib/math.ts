@@ -8,17 +8,31 @@ export class XYZMatrix {
 	protected _matrix: Array<Array<number>>;
 	protected _rows: number;
 	protected _cols: number;
-	constructor(rows: number, cols: number) {
-		let matrix: number[][] = new Array(rows);
-		for (var i = 0; i < rows; i++) {
-			matrix[i] = new Array(cols);
-			for (var j = 0; j < cols; j++) {
-				matrix[i][j] = 0;
-			}
+	constructor(elements: number[][]);
+	constructor(rows: number, cols: number);
+	constructor(x: number | number[][], y?: number) {
+		if (!y) {
+			let matrix = <number[][]>x;
+			let rows = matrix.length;
+			let cols = matrix[0].length;
+			this._matrix = matrix;
+			this._rows = rows;
+			this._cols = cols;
 		}
-		this._rows = rows;
-		this._cols = cols;
-		this._matrix = matrix;
+		else {
+			let rows = <number>x;
+			let cols = y;
+			let matrix: number[][] = new Array(rows);
+			for (var i = 0; i < rows; i++) {
+				matrix[i] = new Array(cols);
+				for (var j = 0; j < cols; j++) {
+					matrix[i][j] = 0;
+				}
+			}
+			this._rows = rows;
+			this._cols = cols;
+			this._matrix = matrix;
+		}
 	}
 
 	identity = (): XYZMatrix => {
@@ -61,7 +75,10 @@ export class XYZMatrix {
 		return new Float32Array(outArray);
 	}
 
-	setElement = (row: number, col: number, val: number) => { this._matrix[row][col] = val; }
+	setElement = (row: number, col: number, val: number): XYZMatrix => {
+		this._matrix[row][col] = val;
+		return this;
+	}
 
 	multiplyBy = (other: XYZMatrix | number ): XYZMatrix => {
 		if (typeof(other) == 'number') {
@@ -107,13 +124,13 @@ export class XYZVector extends XYZMatrix {
 
 	normalize = (): XYZVector => {
 		let norm = 0;
-		norm = Math.sqrt(XYZMatLab.multiplyMatrixBy(XYZMatLab.transpose(this), this).getElement(0,0));
+		norm = Math.sqrt(XYZMatLab.multiply(XYZMatLab.transpose(this), this).getElement(0,0));
 		return <XYZVector>this.multiplyBy(1.0/norm);;
 	}
 }
 
 export class XYZMatLab {
-	static multiplyMatrixBy = (a: XYZMatrix, b: XYZMatrix | number): XYZMatrix => {
+	static multiply = (a: XYZMatrix, b: XYZMatrix | number): XYZMatrix => {
 		let outMatrix = a.makeCopy();
 		return outMatrix.multiplyBy(b);
 	}
