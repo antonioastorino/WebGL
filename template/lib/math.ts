@@ -5,9 +5,9 @@
  * {@link XYZMatLab} class
  */
 export class XYZMatrix {
-	private _matrix: Array<Array<number>>;
-	private _rows: number;
-	private _cols: number;
+	protected _matrix: Array<Array<number>>;
+	protected _rows: number;
+	protected _cols: number;
 	constructor(rows: number, cols: number) {
 		let matrix: number[][] = new Array(rows);
 		for (var i = 0; i < rows; i++) {
@@ -104,6 +104,12 @@ export class XYZVector extends XYZMatrix {
 			this.setElement(i, 0, elements[i]);
 		}
 	}
+
+	normalize = (): XYZVector => {
+		let norm = 0;
+		norm = Math.sqrt(XYZMatLab.multiplyMatrixBy(XYZMatLab.transpose(this), this).getElement(0,0));
+		return <XYZVector>this.multiplyBy(1.0/norm);;
+	}
 }
 
 export class XYZMatLab {
@@ -112,7 +118,7 @@ export class XYZMatLab {
 		return outMatrix.multiplyBy(b);
 	}
 
-	static transpose = (a: XYZMatrix): XYZMatrix => {
+	static transpose = (a: XYZMatrix): XYZMatrix | XYZVector => {
 		var outMatrix = a.makeCopy();
 		outMatrix.transpose();
 		return outMatrix;
