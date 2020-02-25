@@ -80,16 +80,29 @@ export class XYZMatrix {
 		return this;
 	}
 
-	multiplyBy = (other: XYZMatrix | number ): XYZMatrix => {
-		if (typeof(other) == 'number') {
-			var outMatrix = new XYZMatrix(this._rows, this._cols);
-			for (var i = 0; i < this._rows; i++) { // row number
-				for (var j = 0; j < this._cols; j++) { // col number
-					outMatrix.setElement(i, j, this._matrix[i][j] * other);
+	multiplyBy = (other: XYZMatrix | number ): XYZMatrix | XYZVector => {
+		if (typeof (other) == 'number') {
+			if (this instanceof XYZVector) {
+				var outVector = new XYZVector(new Array<number>(this._rows));
+				for (var i = 0; i < this._rows; i++) { // col number
+					outVector.setElement(i, 0, this._matrix[i][0] * other);
 				}
+				this._matrix = outVector.getMatrix();
+				return outVector;
 			}
-			this._matrix = outMatrix.getMatrix();
-			return outMatrix;
+			else {
+				var outMatrix = new XYZMatrix(this._rows, this._cols);
+				for (var i = 0; i < this._rows; i++) { // row number
+					for (var j = 0; j < this._cols; j++) { // col number
+						outMatrix.setElement(i, j, this._matrix[i][j] * other);
+					}
+				}
+				this._matrix = outMatrix.getMatrix();
+				return outMatrix;
+			}
+		}
+		else if (this._cols == 1) {
+			throw "Use dot product"
 		}
 		else if (other.getRows() == this._cols) {
 			let P = this._cols;
@@ -122,10 +135,54 @@ export class XYZVector extends XYZMatrix {
 		}
 	}
 
+	makeCopy = (): XYZVector => {
+		let size = this.getRows()
+		let newMatrix = Array<number>(size);
+		for (let i = 0; i < size; i++) {
+			newMatrix[i] = this.getElement(i, 0);
+		}
+		var other = new XYZVector(newMatrix);
+		return other;
+	}
+
+	dot = (other: XYZVector): number => {
+		if (this._rows == other._rows) {
+			let tr = other.makeCopy().transpose();
+			let prod = tr.multiplyBy(this);
+			return prod.getElement(0, 0);
+		}
+		else throw "Vector with different sizes!"
+	}
+
+	cross = (other: XYZVector): XYZVector => {
+		if (this._rows == 3 && other._rows == 3) {
+			let a0 = this.getElement(0,0);
+			let a1 = this.getElement(1,0);
+			let a2 = this.getElement(2,0);
+
+			let b0 = other.getElement(0,0);
+			let b1 = other.getElement(1,0);
+			let b2 = other.getElement(2,0);
+
+			let x = a1*b2 - b1*a2;
+			let y = a2*b0 - b2*a0;
+			let z = a0*b1 - b0*a1;			
+			return new XYZVector([x, y, z]);
+		}
+		else throw "Wrong vector dimensions"
+	}
+
+	norm = (): number => {
+		return Math.sqrt(this.dot(this));
+	}
+
 	normalize = (): XYZVector => {
-		let norm = 0;
-		norm = Math.sqrt(XYZMatLab.multiply(XYZMatLab.transpose(this), this).getElement(0,0));
-		return <XYZVector>this.multiplyBy(1.0/norm);;
+		return <XYZVector>this.multiplyBy(1.0/this.norm());
+	}
+
+	getDirection = (): XYZVector => {
+		let tmp = this.makeCopy();
+		return tmp.normalize();
 	}
 }
 
