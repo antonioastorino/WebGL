@@ -75,3 +75,18 @@ QUnit.test('Normalization', (assert) => {
 	assert.deepEqual(norm1, Math.sqrt(a*a + b*b + c*c), "Norm correctly calculated");
 	assert.deepEqual(1, norm2, "Normalize vector has norm = 1");
 })
+
+QUnit.module("Special matrix creation");
+QUnit.test('Translation', (assert) => {
+	let a = 1,
+	b = 3,
+	c = 0.8;
+	let vec1 = new XYZVector([a, b, c]);
+	let mat1 = XYZMatLab.makeTranslationMatrix(vec1);
+	let vec2 = new XYZVector([a, b, c, 1]);
+	let vec3 = XYZMatLab.multiply(mat1.transpose(), vec2)
+	assert.deepEqual(vec3.getElement(0,0), 2*a, "x-translation correct");
+	assert.deepEqual(vec3.getElement(1,0), 2*b, "y-translation correct");
+	assert.deepEqual(vec3.getElement(2,0), 2*c, "z-translation correct");
+	
+})

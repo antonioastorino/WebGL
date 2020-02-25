@@ -101,9 +101,6 @@ export class XYZMatrix {
 				return outMatrix;
 			}
 		}
-		else if (this._cols == 1) {
-			throw "Use dot product"
-		}
 		else if (other.getRows() == this._cols) {
 			let P = this._cols;
 			let N = this._rows;
@@ -177,7 +174,11 @@ export class XYZVector extends XYZMatrix {
 	}
 
 	normalize = (): XYZVector => {
-		return <XYZVector>this.multiplyBy(1.0/this.norm());
+		let norm = this.norm()
+		if (norm > 0) {
+			return <XYZVector>this.multiplyBy(1.0/this.norm());
+		}
+		throw "A zero vector cannot be normalized" 
 	}
 
 	getDirection = (): XYZVector => {
@@ -196,5 +197,13 @@ export class XYZMatLab {
 		var outMatrix = a.makeCopy();
 		outMatrix.transpose();
 		return outMatrix;
+	}
+
+	static makeTranslationMatrix = (vector: XYZVector): XYZMatrix => {
+		let matTranslation = (new XYZMatrix(4,4)).identity();
+		matTranslation.setElement(3,0,vector.getElement(0,0));
+		matTranslation.setElement(3,1,vector.getElement(1,0));
+		matTranslation.setElement(3,2,vector.getElement(2,0));
+		return matTranslation;
 	}
 }
