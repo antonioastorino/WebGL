@@ -1,7 +1,7 @@
 
-import { XYZMatrix } from "../lib/math.js";
-import { XYZVector } from "../lib/math.js";
-import { XYZMatLab } from "../lib/math.js";
+import { XYZMatrix } from "../lib/Math/XYZMatrix.js";
+import { XYZVector } from "../lib/Math/XYZVector.js";
+import { XYZMatLab } from "../lib/Math/XYZMatLab.js";
 
 export function main() {
 	console.log("Hello Main");

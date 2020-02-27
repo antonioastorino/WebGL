@@ -83,26 +83,16 @@ export class XYZMatrix {
 		return this;
 	}
 
-	multiplyBy = (other: XYZMatrix | number ): XYZMatrix | XYZVector => {
+	multiplyBy = (other: XYZMatrix | number ): XYZMatrix => {
 		if (typeof (other) == 'number') {
-			if (this instanceof XYZVector) {
-				var outVector = new XYZVector(new Array<number>(this._rows));
-				for (var i = 0; i < this._rows; i++) { // col number
-					outVector.setElement(i, 0, this._matrix[i][0] * other);
+			var outMatrix = new XYZMatrix(this._rows, this._cols);
+			for (var i = 0; i < this._rows; i++) { // row number
+				for (var j = 0; j < this._cols; j++) { // col number
+					outMatrix.setElement(i, j, this._matrix[i][j] * other);
 				}
-				this._matrix = outVector.getMatrix();
-				return outVector;
 			}
-			else {
-				var outMatrix = new XYZMatrix(this._rows, this._cols);
-				for (var i = 0; i < this._rows; i++) { // row number
-					for (var j = 0; j < this._cols; j++) { // col number
-						outMatrix.setElement(i, j, this._matrix[i][j] * other);
-					}
-				}
-				this._matrix = outMatrix.getMatrix();
-				return outMatrix;
-			}
+			this._matrix = outMatrix.getMatrix();
+			return outMatrix;
 		}
 		else if (other.getRows() == this._cols) {
 			let P = this._cols;
@@ -124,89 +114,5 @@ export class XYZMatrix {
 			return outMatrix;
 		}
 		throw "Incompatible matrices"
-	}
-}
-
-export class XYZVector extends XYZMatrix {
-	constructor(elements: number[]) {
-		super (elements.length, 1);
-		for (var i = 0; i < this.getRows(); i++) {
-			this.setElement(i, 0, elements[i]);
-		}
-	}
-
-	makeCopy = (): XYZVector => {
-		let size = this.getRows()
-		let newMatrix = Array<number>(size);
-		for (let i = 0; i < size; i++) {
-			newMatrix[i] = this.getElement(i, 0);
-		}
-		var other = new XYZVector(newMatrix);
-		return other;
-	}
-
-	dot = (other: XYZVector): number => {
-		if (this._rows == other._rows) {
-			let tr = other.makeCopy().transpose();
-			let prod = tr.multiplyBy(this);
-			return prod.getElement(0, 0);
-		}
-		else throw "Vector with different sizes!"
-	}
-
-	cross = (other: XYZVector): XYZVector => {
-		if (this._rows == 3 && other._rows == 3) {
-			let a0 = this.getElement(0,0);
-			let a1 = this.getElement(1,0);
-			let a2 = this.getElement(2,0);
-
-			let b0 = other.getElement(0,0);
-			let b1 = other.getElement(1,0);
-			let b2 = other.getElement(2,0);
-
-			let x = a1*b2 - b1*a2;
-			let y = a2*b0 - b2*a0;
-			let z = a0*b1 - b0*a1;			
-			return new XYZVector([x, y, z]);
-		}
-		else throw "Wrong vector dimensions"
-	}
-
-	norm = (): number => {
-		return Math.sqrt(this.dot(this));
-	}
-
-	normalize = (): XYZVector => {
-		let norm = this.norm()
-		if (norm > 0) {
-			return <XYZVector>this.multiplyBy(1.0/this.norm());
-		}
-		throw "A zero vector cannot be normalized" 
-	}
-
-	getDirection = (): XYZVector => {
-		let tmp = this.makeCopy();
-		return tmp.normalize();
-	}
-}
-
-export class XYZMatLab {
-	static multiply = (a: XYZMatrix, b: XYZMatrix | number): XYZMatrix => {
-		let outMatrix = a.makeCopy();
-		return outMatrix.multiplyBy(b);
-	}
-
-	static transpose = (a: XYZMatrix): XYZMatrix | XYZVector => {
-		var outMatrix = a.makeCopy();
-		outMatrix.transpose();
-		return outMatrix;
-	}
-
-	static makeTranslationMatrix = (vector: XYZVector): XYZMatrix => {
-		let matTranslation = (new XYZMatrix(4,4)).identity();
-		matTranslation.setElement(0,3,vector.getElement(0,0));
-		matTranslation.setElement(1,3,vector.getElement(1,0));
-		matTranslation.setElement(2,3,vector.getElement(2,0));
-		return matTranslation;
 	}
 }

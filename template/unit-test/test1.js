@@ -1,6 +1,6 @@
-import { XYZMatrix } from '../dist/lib/math.js';
-import { XYZVector } from '../dist/lib/math.js';
-import { XYZMatLab } from '../dist/lib/math.js';
+import { XYZMatrix } from '../dist/lib/Math/XYZMatrix.js';
+import { XYZVector } from '../dist/lib/Math/XYZVector.js';
+import { XYZMatLab } from '../dist/lib/Math/XYZMatLab.js';
 
 console.log("Hello Unit test!");
 

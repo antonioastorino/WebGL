@@ -7,7 +7,7 @@ mkdir -p scripts; pushd scripts
 cat <<EOF > uninstall-mac
 #!/bin/bash
 
-ps aux | grep "php -S 127.0.0.1:808" | grep -v "grep" | awk '{print \$2}' | xargs kill
+ps aux | grep "php -S 127.0.0.1:8080" | grep -v "grep" | awk '{print \$2}' | xargs kill
 cd \$(dirname \$0)/..
 rm -rf dist node_modules scripts *.json
 EOF
@@ -20,14 +20,6 @@ cd \$(dirname \$0)/..
 php -S 127.0.0.1:8080
 EOF
 chmod +x localServer8080
-
-cat <<EOF > localServer8081
-#!/bin/bash
-
-cd \$(dirname \$0)/..
-php -S 127.0.0.1:8081
-EOF
-chmod +x localServer8081
 
 cat <<EOF > tsc-restart
 #!/bin/bash
@@ -49,7 +41,7 @@ cat <<EOF > run-unit-test
 #!/bin/bash
 
 cd \$(dirname \$0)
-open -a Terminal.app localServer8081 && sleep 3 && open -a Google\ Chrome.app http://127.0.0.1:8081/unit-test/index.html
+open -a Terminal.app localServer8080 && sleep 3 && open -a Google\ Chrome.app http://127.0.0.1:8080/unit-test/index.html
 EOF
 chmod +x run-unit-test
 
