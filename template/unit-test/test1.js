@@ -12,6 +12,13 @@ QUnit.test("Create vector from array", (assert) => {
 	assert.deepEqual(mat.getElement(1,1), 3, "Correct element value");
 });
 
+QUnit.test("Create float32array from matrix", (assert) => {
+	let mat = new XYZMatrix(2,3);
+	mat.setElement(1,0, 4.2);
+	let arr = mat.getFloat32Array();
+	assert.deepEqual(arr[1], new Float32Array([4.2])[0], "Correct element value");
+});
+
 QUnit.module("Non mutating matrix functions");
 QUnit.test('Multiplication', (assert) => {
 	var mat = (new XYZMatrix(3, 3)).identity().setElement(2,1,4);
@@ -84,7 +91,7 @@ QUnit.test('Translation', (assert) => {
 	let vec1 = new XYZVector([a, b, c]);
 	let mat1 = XYZMatLab.makeTranslationMatrix(vec1);
 	let vec2 = new XYZVector([a, b, c, 1]);
-	let vec3 = XYZMatLab.multiply(mat1.transpose(), vec2)
+	let vec3 = XYZMatLab.multiply(mat1, vec2)
 	assert.deepEqual(vec3.getElement(0,0), 2*a, "x-translation correct");
 	assert.deepEqual(vec3.getElement(1,0), 2*b, "y-translation correct");
 	assert.deepEqual(vec3.getElement(2,0), 2*c, "z-translation correct");

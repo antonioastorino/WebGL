@@ -68,9 +68,12 @@ export class XYZMatrix {
 	getElement = (row: number, col: number): number => { return this._matrix[row][col]; }
 	getMatrix = (): Array<Array<number>> => { return this._matrix; }
 	getFloat32Array = (): Float32Array => {
-		let outArray: Array<number> = [];
-		for (let i = 0; i < this._rows; i++) {
-			outArray = outArray.concat(this._matrix[i]);
+		let outArray = new Array<number>(this._rows * this._cols);
+		// scans by rows first (column major)
+		for (let i = 0; i < this._cols; i++) {
+			for (let j = 0; j < this._rows; j++) {
+				outArray[i*this._cols + j] = this._matrix[j][i];
+			}
 		}
 		return new Float32Array(outArray);
 	}
@@ -201,9 +204,9 @@ export class XYZMatLab {
 
 	static makeTranslationMatrix = (vector: XYZVector): XYZMatrix => {
 		let matTranslation = (new XYZMatrix(4,4)).identity();
-		matTranslation.setElement(3,0,vector.getElement(0,0));
-		matTranslation.setElement(3,1,vector.getElement(1,0));
-		matTranslation.setElement(3,2,vector.getElement(2,0));
+		matTranslation.setElement(0,3,vector.getElement(0,0));
+		matTranslation.setElement(1,3,vector.getElement(1,0));
+		matTranslation.setElement(2,3,vector.getElement(2,0));
 		return matTranslation;
 	}
 }

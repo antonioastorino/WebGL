@@ -94,10 +94,12 @@ export function main() {
 			3 * Float32Array.BYTES_PER_ELEMENT // offset
 		);
 
-		let mWorld = (new XYZMatrix(4, 4)).identity();
+		let mWorld = XYZMatLab.makeTranslationMatrix(
+			new XYZVector([-.2, 0,0])
+			);
 		let mView = (new XYZMatrix(4, 4)).identity();
 		let mProj = (new XYZMatrix(4, 4)).identity();
-		mWorld.setElement(3, 0, 0.2);
+		
 
 		// Set uniform values
 		gl.uniformMatrix4fv(mWorldUniformLocation, false, mWorld.getFloat32Array());
