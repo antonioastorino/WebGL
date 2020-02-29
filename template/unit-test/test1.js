@@ -89,9 +89,21 @@ QUnit.test('Translation', (assert) => {
 	let vec2 = new XYZVector([a, b, c, 1]);
 	let vec3 = XYZMatLab.multiply(mat1, vec2)
 	assert.deepEqual(vec3.x, 2*a, "x-translation correct");
-	assert.deepEqual(vec3.getElement(1), 2*b, "y-translation correct");
-	assert.deepEqual(vec3.getElement(2), 2*c, "z-translation correct");
-	
+	assert.deepEqual(vec3.y, 2*b, "y-translation correct");
+	assert.deepEqual(vec3.z, 2*c, "z-translation correct");
+})
+
+QUnit.test('Rotation', (assert) => {
+	let vecX = new XYZVector([1, 0, 0, 1]);
+	let vecY = new XYZVector([0, 1, 0, 1]);
+	let vecZ = new XYZVector([0, 0, 1, 1]);
+	let angle = 90;
+	let matX = XYZMatLab.makeRotationMatrix(angle, vecX);
+	let matY = XYZMatLab.makeRotationMatrix(angle, vecY);
+	let matZ = XYZMatLab.makeRotationMatrix(angle, vecZ);
+	assert.deepEqual(matZ.multiplyBy(vecX).y, 1, "rotation about z correct");
+	assert.deepEqual(matY.multiplyBy(vecZ).x, 1, "rotation about y correct");
+	assert.deepEqual(matX.multiplyBy(vecY).z, 1, "rotation about x correct");
 })
 
 QUnit.module("Quaternions");
