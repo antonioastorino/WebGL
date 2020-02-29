@@ -94,13 +94,13 @@ QUnit.test('Translation', (assert) => {
 	
 })
 
-// QUnit.module("Quaternions");
-// QUnit.test('Creation', (assert) => {
-// 	let x = 2*Math.random() - 1;
-// 	let y = 2*Math.random() - 1;
-// 	let z = 2*Math.random() - 1;
-// 	let theta = 380*(Math.random() - 0.5);
-// 	let q1 = new XYZQuaternion(theta, x, y, z);
-// 	let vec1 = (new XYZVector([x, y, z])).normalize();
-// 	assert.deepEqual(vec1, q1.getVector(), "Vector part correctly normalized");	
-// })
+QUnit.module("Quaternions");
+QUnit.test('Creation', (assert) => {
+	let x = 2*Math.random() - 1;
+	let y = 2*Math.random() - 1;
+	let z = 2*Math.random() - 1;
+	let theta = 380*(Math.random() - 0.5);
+	let q1 = new XYZQuaternion(theta, x, y, z);
+	let vec1 = (new XYZVector([x, y, z])).normalize();
+	assert.deepEqual(vec1, q1.getVector(), "Vector part correctly normalized");	
+})
