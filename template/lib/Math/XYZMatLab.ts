@@ -23,7 +23,7 @@ export class XYZMatLab {
 
 	public static makeRotationMatrix = (angle_deg: number, x: XYZVector | number, y?: number, z?: number): XYZMatrix => {
 		let quat: XYZQuaternion;
-		if (!y || !z) {
+		if (y == undefined || z == undefined) {
 			quat = new XYZQuaternion(angle_deg, <XYZVector>x);
 		}
 		else {

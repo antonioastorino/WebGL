@@ -94,9 +94,11 @@ export function main() {
 			3 * Float32Array.BYTES_PER_ELEMENT // offset
 		);
 
-		let mWorld = XYZMatLab.makeTranslationMatrix(
-			new XYZVector([-.2, 0,0])
-			);
+		// let mWorld = XYZMatLab.makeTranslationMatrix(
+			// new XYZVector([-.2, 0,0])
+			// );
+
+		let mWorld = XYZMatLab.makeRotationMatrix(90, 0,0,1);
 		let mView = (new XYZMatrix(4, 4)).identity();
 		let mProj = (new XYZMatrix(4, 4)).identity();
 		

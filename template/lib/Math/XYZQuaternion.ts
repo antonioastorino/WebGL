@@ -14,7 +14,7 @@ export class XYZQuaternion {
 		y?: number,
 		z?:number)
 		{
-		if (!y || !z) {
+		if (y == undefined || z == undefined) {
 			this._vec = <XYZVector>x;
 		}
 		else {

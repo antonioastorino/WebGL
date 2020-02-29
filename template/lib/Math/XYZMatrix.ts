@@ -18,7 +18,7 @@ export class XYZMatrix {
 	constructor(elements: number[][]);
 	constructor(rows: number, cols: number);
 	constructor(x: number | number[][], y?: number) {
-		if (!y) {
+		if (y == undefined) {
 			let matrix = <number[][]>x;
 			let cols = matrix.length;
 			let rows = matrix[0].length;
