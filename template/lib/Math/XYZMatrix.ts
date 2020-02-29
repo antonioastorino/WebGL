@@ -1,3 +1,5 @@
+import { XYZVector } from "./XYZVector.js";
+
 /**
  * @class Matrix
  * Methods in this class may be mutating. For them, the 
@@ -33,6 +35,12 @@ export class XYZMatrix {
 			this._cols = cols;
 			this._matrix = matrix;
 		}
+		if (this._rows == 0 || this._cols == 0) { 
+			throw "Zero size not allowed";
+		}
+		else if (this._rows == 1 && this._cols == 1) {
+			throw "This is a scalar!"
+		}
 	}
 
 	identity = (): XYZMatrix => {
@@ -63,6 +71,8 @@ export class XYZMatrix {
 		return other;
 	}
 
+	public get type(): string { return "matrix"; }
+
 	getRows = (): number => { return this._rows; }
 	getCols = (): number => { return this._cols; }
 	getElement = (row: number, col: number): number => { return this._matrix[row][col]; }
@@ -83,7 +93,7 @@ export class XYZMatrix {
 		return this;
 	}
 
-	multiplyBy = (other: XYZMatrix | number ): XYZMatrix => {
+	public multiplyBy = (other: XYZMatrix | XYZVector | number ): XYZMatrix | XYZVector => {
 		if (typeof (other) == 'number') {
 			var outMatrix = new XYZMatrix(this._rows, this._cols);
 			for (var i = 0; i < this._rows; i++) { // row number
@@ -91,13 +101,22 @@ export class XYZMatrix {
 					outMatrix.setElement(i, j, this._matrix[i][j] * other);
 				}
 			}
-			this._matrix = outMatrix.getMatrix();
 			return outMatrix;
 		}
-		else if (other.getRows() == this._cols) {
+		else if (other.type == "vector") {
+			let elements = Array<number>(this._rows)
+			for (var i = 0; i < this._rows; i++) {
+				elements[i] = 0;
+				for (var j = 0; j < this._cols; j++) {
+					elements[i] += this._matrix[i][j] * (<XYZVector>other).getElement(j);
+				}
+			}
+			return new XYZVector(elements);
+		}
+		else if (other.type == "matrix") {
 			let P = this._cols;
 			let N = this._rows;
-			let M = other.getCols();
+			let M = (<XYZMatrix>other).getCols();
 			var outMatrix = new XYZMatrix(N, M);
 			for (var i = 0; i < N; i++) { // row number
 				for (var j = 0; j < M; j++) { // col number
@@ -108,9 +127,6 @@ export class XYZMatrix {
 					outMatrix.setElement(i, j, sum);
 				}
 			}
-			this._matrix = outMatrix.getMatrix();
-			this._rows = outMatrix.getRows();
-			this._cols = outMatrix.getCols();
 			return outMatrix;
 		}
 		throw "Incompatible matrices"

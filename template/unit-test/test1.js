@@ -1,13 +1,14 @@
 import { XYZMatrix } from '../dist/lib/Math/XYZMatrix.js';
 import { XYZVector } from '../dist/lib/Math/XYZVector.js';
 import { XYZMatLab } from '../dist/lib/Math/XYZMatLab.js';
+import { XYZQuaternion } from '../dist/lib/Math/XYZQuaternion.js'
 
 console.log("Hello Unit test!");
 
 QUnit.module("Object creation");
 QUnit.test("Create vector from array", (assert) => {
-	let arr = new XYZVector([0, 2, 1.2]);
-	assert.deepEqual(arr.getElement(2,0), 1.2, "Correct element value");
+	let vec = new XYZVector([0, 2, 1.2]);
+	assert.deepEqual(vec.getElement(2), 1.2, "Correct element value");
 	let mat = new XYZMatrix([[0, 1],[2, 3]]);
 	assert.deepEqual(mat.getElement(1,1), 3, "Correct element value");
 });
@@ -20,16 +21,18 @@ QUnit.test("Create float32array from matrix", (assert) => {
 });
 
 QUnit.module("Non mutating matrix functions");
+QUnit.test('Matrix times vector', (assert) => {
+	var mat = (new XYZMatrix(3, 3)).identity().setElement(2,1,4);
+	var vec = new XYZVector([1, 2, 3]);
+	var prod = XYZMatLab.multiply(mat, vec);
+	assert.deepEqual(prod, new XYZVector([1, 2, 11]), "Very good");
+})
+
 QUnit.test('Multiplication', (assert) => {
 	var mat = (new XYZMatrix(3, 3)).identity().setElement(2,1,4);
 	let scalar = 3.31;
 	let mat2 = mat.makeCopy();
-	mat.multiplyBy(scalar);
-	assert.deepEqual(XYZMatLab.multiply(mat2, scalar), mat, 'Very good!');
-	let tmp = (new XYZMatrix(3, 3)).identity().setElement(1, 2, 12)
-	mat2 = mat.makeCopy();
-	mat.multiplyBy(tmp);
-	assert.deepEqual(XYZMatLab.multiply(mat2, tmp), mat, 'Very good!');
+	assert.deepEqual(XYZMatLab.multiply(mat2, scalar), mat.multiplyBy(scalar), 'Very good!');
 })
 
 QUnit.test('Transposition', (assert) => {
@@ -64,13 +67,6 @@ QUnit.test("Cross product", (assert) => {
 });
 
 QUnit.module("Mutating matrix functions");
-QUnit.test('Matrix times vector', (assert) => {
-	var mat = (new XYZMatrix(3, 3)).identity().setElement(2,1,4);
-	var vec = new XYZVector([1, 2, 3]);
-	var prod = XYZMatLab.multiply(mat, vec);
-	assert.deepEqual(prod.getMatrix(), (new XYZVector([1, 2, 11]).getMatrix()), "Very good");
-})
-
 QUnit.test('Normalization', (assert) => {
 	let a = 1,
 	b = 3,
@@ -92,8 +88,19 @@ QUnit.test('Translation', (assert) => {
 	let mat1 = XYZMatLab.makeTranslationMatrix(vec1);
 	let vec2 = new XYZVector([a, b, c, 1]);
 	let vec3 = XYZMatLab.multiply(mat1, vec2)
-	assert.deepEqual(vec3.getElement(0,0), 2*a, "x-translation correct");
-	assert.deepEqual(vec3.getElement(1,0), 2*b, "y-translation correct");
-	assert.deepEqual(vec3.getElement(2,0), 2*c, "z-translation correct");
+	assert.deepEqual(vec3.x, 2*a, "x-translation correct");
+	assert.deepEqual(vec3.getElement(1), 2*b, "y-translation correct");
+	assert.deepEqual(vec3.getElement(2), 2*c, "z-translation correct");
 	
 })
+
+// QUnit.module("Quaternions");
+// QUnit.test('Creation', (assert) => {
+// 	let x = 2*Math.random() - 1;
+// 	let y = 2*Math.random() - 1;
+// 	let z = 2*Math.random() - 1;
+// 	let theta = 380*(Math.random() - 0.5);
+// 	let q1 = new XYZQuaternion(theta, x, y, z);
+// 	let vec1 = (new XYZVector([x, y, z])).normalize();
+// 	assert.deepEqual(vec1, q1.getVector(), "Vector part correctly normalized");	
+// })
