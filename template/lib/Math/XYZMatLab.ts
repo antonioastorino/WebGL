@@ -40,4 +40,21 @@ export class XYZMatLab {
 			[0, 0, 0, 1]
 		])
 	}
+
+	public static makeProjectionMatrix(aspect: number, fov_deg: number, near: number, far: number) {
+		let t: number = Math.tan(fov_deg * Math.PI / 180 / 2); // tangent of the FOV
+		let a: number = 1 / (aspect * t)
+		let b: number = 1 / t
+		let c: number = ( far / (near - far))
+		let d: number = (( far * near ) / (near - far))
+		
+		var outMatrix = new XYZMatrix([
+			[a, 0, 0, 0],
+			[0, b, 0, 0],
+			[0, 0, c, -1],
+			[0, 0, d, 0]
+		])
+
+		return outMatrix;
+	}
 }

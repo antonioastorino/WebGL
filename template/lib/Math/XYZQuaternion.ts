@@ -9,11 +9,7 @@ export class XYZQuaternion {
 	private _r: number;
 	constructor(angle_deg: number, axis: XYZVector);
 	constructor(angle_deg: number, x: number, y: number, z: number); 
-	constructor(angle_deg: number,
-		x: XYZVector | number,
-		y?: number,
-		z?:number)
-		{
+	constructor(angle_deg: number, x: XYZVector | number, y?: number, z?:number) {
 		if (y == undefined || z == undefined) {
 			this._vec = <XYZVector>x;
 		}

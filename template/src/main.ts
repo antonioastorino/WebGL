@@ -60,9 +60,9 @@ export function main() {
 
 		let vertices =
 			[	// x, y, z			r, g, b
-			0.0, 0.5, 0.0,		1.0, 0.0, 0.0,
-			-0.5, -0.5, 0.0,	0.0, 1.0, 0.0,
-			0.5, -0.5, 0.0,		0.0, 0.0, 1.0
+			0.0, 0.5, -2.0,		1.0, 0.0, 0.0,
+			-0.5, -0.5, -2.0,	0.0, 1.0, 0.0,
+			0.5, -0.5, -2.0,		0.0, 0.0, 1.0
 		];
 
 		let vertexArrayBufferObject = gl.createBuffer(); // get buffer ID
@@ -100,8 +100,7 @@ export function main() {
 
 		let mWorld = XYZMatLab.makeRotationMatrix(90, 0,0,1);
 		let mView = (new XYZMatrix(4, 4)).identity();
-		let mProj = (new XYZMatrix(4, 4)).identity();
-		
+		let mProj = XYZMatLab.makeProjectionMatrix(canvas.width/canvas.height, 55, 0.1, 1000);
 
 		// Set uniform values
 		gl.uniformMatrix4fv(mWorldUniformLocation, false, mWorld.makeFloat32Array());
