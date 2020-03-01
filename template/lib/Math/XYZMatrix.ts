@@ -82,12 +82,12 @@ export class XYZMatrix {
 	getCols = (): number => { return this._cols; }
 	getElement = (row: number, col: number): number => { return this._matrix[row][col]; }
 	getMatrix = (): Array<Array<number>> => { return this._matrix; }
-	getFloat32Array = (): Float32Array => {
+	makeFloat32Array = (): Float32Array => {
 		let outArray = new Array<number>(this._rows * this._cols);
 		// scans by rows first (column major)
-		for (let i = 0; i < this._cols; i++) {
-			for (let j = 0; j < this._rows; j++) {
-				outArray[i*this._cols + j] = this._matrix[i][j];
+		for (let col = 0; col < this._cols; col++) {
+			for (let row = 0; row < this._rows; row++) {
+				outArray[col*this._rows + row] = this._matrix[col][row];
 			}
 		}
 		return new Float32Array(outArray);

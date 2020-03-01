@@ -15,9 +15,9 @@ QUnit.test("Create vector from array", (assert) => {
 
 QUnit.test("Create float32array from matrix", (assert) => {
 	let mat = new XYZMatrix(2,3);
-	mat.setElement(1,0, 4.2);
-	let arr = mat.getFloat32Array();
-	assert.deepEqual(arr[1], new Float32Array([4.2])[0], "Correct element value");
+	mat.setElement(1,1, 4.2);
+	let arr = mat.makeFloat32Array();
+	assert.deepEqual(arr[3], new Float32Array([4.2])[0], "Correct element value");
 });
 
 QUnit.module("Non mutating matrix functions");

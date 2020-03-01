@@ -104,9 +104,9 @@ export function main() {
 		
 
 		// Set uniform values
-		gl.uniformMatrix4fv(mWorldUniformLocation, false, mWorld.getFloat32Array());
-		gl.uniformMatrix4fv(mViewUniformLocation, false, mView.getFloat32Array());
-		gl.uniformMatrix4fv(mProjUniformLocation, false, mProj.getFloat32Array());
+		gl.uniformMatrix4fv(mWorldUniformLocation, false, mWorld.makeFloat32Array());
+		gl.uniformMatrix4fv(mViewUniformLocation, false, mView.makeFloat32Array());
+		gl.uniformMatrix4fv(mProjUniformLocation, false, mProj.makeFloat32Array());
 
 		gl.enableVertexAttribArray(positionAttributeLocation);
 		gl.enableVertexAttribArray(colorAttributeLocation);
