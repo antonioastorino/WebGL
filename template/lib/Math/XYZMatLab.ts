@@ -45,9 +45,9 @@ export class XYZMatLab {
 		let t: number = Math.tan(fov_deg * Math.PI / 180 / 2); // tangent of the FOV
 		let a: number = 1 / (aspect * t)
 		let b: number = 1 / t
-		let c: number = ( far / (near - far))
-		let d: number = (( far * near ) / (near - far))
-		
+		let c: number = ((far + near) / (near - far))
+		let d: number = (2 * (far * near) / (near - far))
+
 		var outMatrix = new XYZMatrix([
 			[a, 0, 0, 0],
 			[0, b, 0, 0],
