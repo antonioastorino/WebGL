@@ -41,7 +41,7 @@ export class XYZMatLab {
 		])
 	}
 
-	public static makeProjectionMatrix(aspect: number, fov_deg: number, near: number, far: number) {
+	public static makePerspectiveMatrix(aspect: number, fov_deg: number, near: number, far: number) {
 		let t: number = Math.tan(fov_deg * Math.PI / 180 / 2); // tangent of the FOV
 		let a: number = 1 / (aspect * t)
 		let b: number = 1 / t
@@ -56,5 +56,12 @@ export class XYZMatLab {
 		])
 
 		return outMatrix;
+	}
+
+	public static makeLookAtMatrix = (quat: XYZQuaternion, pos: XYZVector): XYZMatrix => {
+		let rotationMatrix = XYZMatLab.makeRotationMatrix(-quat.getAngleDeg(), quat.getVector());
+		let translationMatrix = XYZMatLab.makeTranslationMatrix(pos.multiplyBy(-1));
+
+		return <XYZMatrix>rotationMatrix.multiplyBy(translationMatrix);
 	}
 }

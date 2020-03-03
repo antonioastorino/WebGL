@@ -18,9 +18,9 @@ export class XYZQuaternion {
 		}
 		this._angle_deg = angle_deg;
 		let s = Math.sin(this.getAngleRad()/2);
-		this._i = s * this._vec.getElement(0);
-		this._j = s * this._vec.getElement(1);
-		this._k = s * this._vec.getElement(2);
+		this._i = s * this._vec.x;
+		this._j = s * this._vec.y;
+		this._k = s * this._vec.z;
 		this._r = Math.cos(this.getAngleRad()/2);
 	}
 

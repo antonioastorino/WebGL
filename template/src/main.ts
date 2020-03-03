@@ -2,6 +2,8 @@
 import { XYZMatrix } from "../lib/Math/XYZMatrix.js";
 import { XYZVector } from "../lib/Math/XYZVector.js";
 import { XYZMatLab } from "../lib/Math/XYZMatLab.js";
+import { XYZQuaternion } from "../lib/Math/XYZQuaternion.js";
+import { XYZTriangle } from "../lib/Objects/XYZTriangle.js";
 
 export function main() {
 	console.log("Hello Main");
@@ -22,6 +24,10 @@ export function main() {
 
 		gl.clearColor(0.75, 0.85, 0.8, 1.0);
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+		gl.enable(gl.DEPTH_TEST);
+		gl.enable(gl.CULL_FACE);
+		gl.frontFace(gl.CCW);
+		gl.cullFace(gl.BACK);
 
 		vertexShader = <WebGLShader>gl.createShader(gl.VERTEX_SHADER);
 		fragmentShader = <WebGLShader>gl.createShader(gl.FRAGMENT_SHADER);
@@ -58,16 +64,11 @@ export function main() {
 			return;
 		}
 
-		let vertices =
-			[	// x, y, z			r, g, b
-			0.0, 0.5, -2.0,		1.0, 0.0, 0.0,
-			-0.5, -0.5, -2.0,	0.0, 1.0, 0.0,
-			0.5, -0.5, -2.0,		0.0, 0.0, 1.0
-		];
+		let triangle1 = new XYZTriangle({x: -0.5, y:1, z: 0.3})
 
 		let vertexArrayBufferObject = gl.createBuffer(); // get buffer ID
 		gl.bindBuffer(gl.ARRAY_BUFFER, vertexArrayBufferObject); // select buffer
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW); // load data
+		gl.bufferData(gl.ARRAY_BUFFER, triangle1.makeFloat32Array(), gl.STATIC_DRAW); // load data
 
 		gl.useProgram(shaderProgram); // Set program in use before getting locations
 		let positionAttributeLocation = gl.getAttribLocation(shaderProgram, 'vertPosition'); // get position ID
@@ -99,18 +100,29 @@ export function main() {
 			// );
 
 		let mWorld = XYZMatLab.makeRotationMatrix(90, 0,0,1);
-		let mView = (new XYZMatrix(4, 4)).identity();
-		let mProj = XYZMatLab.makeProjectionMatrix(canvas.width/canvas.height, 55, 0.1, 1000);
+		let mView = XYZMatLab.makeLookAtMatrix(new XYZQuaternion(25, 0, 1, 0), new XYZVector([0, 0, 3]));
+		let mProj = XYZMatLab.makePerspectiveMatrix(canvas.width/canvas.height, 55, 0.1, 1000);
 
 		// Set uniform values
-		gl.uniformMatrix4fv(mWorldUniformLocation, false, mWorld.makeFloat32Array());
-		gl.uniformMatrix4fv(mViewUniformLocation, false, mView.makeFloat32Array());
-		gl.uniformMatrix4fv(mProjUniformLocation, false, mProj.makeFloat32Array());
+		gl.uniformMatrix4fv(mWorldUniformLocation, /*transpose =*/ false, mWorld.makeFloat32Array());
+		gl.uniformMatrix4fv(mViewUniformLocation,  /*transpose =*/ false, mView.makeFloat32Array());
+		gl.uniformMatrix4fv(mProjUniformLocation,  /*transpose =*/ false, mProj.makeFloat32Array());
 
 		gl.enableVertexAttribArray(positionAttributeLocation);
 		gl.enableVertexAttribArray(colorAttributeLocation);
 
-		gl.drawArrays(gl.TRIANGLES, 0, 3);
+		let angle = 0;
+		let rps = 0.5
+		let loop = () => {
+			if (!gl) { return; }
+			angle = performance.now() / 1000 * 360 * rps;
+			mWorld = XYZMatLab.makeRotationMatrix(angle, 0,1,0);
+			gl.uniformMatrix4fv(mWorldUniformLocation, /*transpose =*/ false, mWorld.makeFloat32Array());
+			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+			gl.drawArrays(gl.TRIANGLES, 0, 3);
+			requestAnimationFrame(loop);
+		}
+		requestAnimationFrame(loop);
 	}
 
 	$.get("src/shaders/vertex-shader.glsl")
