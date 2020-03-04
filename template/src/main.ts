@@ -64,19 +64,30 @@ export function main() {
 			return;
 		}
 
-		let triangle1 = new XYZTriangle({x: -0.5, y:1, z: 0.3})
+		let triangle1 = new XYZTriangle({x: -0.5, y:1, z: 0.3}, {r:0,g:.3,b:0}, {x:0,y:0,z:0},{x:0,y:0,z:0});
 
-		let vertexArrayBufferObject = gl.createBuffer(); // get buffer ID
-		gl.bindBuffer(gl.ARRAY_BUFFER, vertexArrayBufferObject); // select buffer
-		gl.bufferData(gl.ARRAY_BUFFER, triangle1.makeFloat32Array(), gl.STATIC_DRAW); // load data
-
+		
 		gl.useProgram(shaderProgram); // Set program in use before getting locations
 		let positionAttributeLocation = gl.getAttribLocation(shaderProgram, 'vertPosition'); // get position ID
 		let colorAttributeLocation = gl.getAttribLocation(shaderProgram, 'vertColor'); // get position ID
 		let mWorldUniformLocation = gl.getUniformLocation(shaderProgram, 'mWorld'); // get mWorld ID
 		let mViewUniformLocation = gl.getUniformLocation(shaderProgram, 'mView'); // get mWorld ID
 		let mProjUniformLocation = gl.getUniformLocation(shaderProgram, 'mProj'); // get mWorld ID
+		
 
+		let mWorld = XYZMatLab.makeRotationMatrix(90, 0,0,1);
+		let mView = XYZMatLab.makeLookAtMatrix(new XYZQuaternion(25, 0, 1, 0), new XYZVector([0, 0, 3]));
+		let mProj = XYZMatLab.makePerspectiveMatrix(canvas.width/canvas.height, 55, 0.1, 1000);
+
+		// Set uniform values
+		gl.uniformMatrix4fv(mWorldUniformLocation, /*transpose =*/ false, mWorld.makeFloat32Array());
+		gl.uniformMatrix4fv(mViewUniformLocation,  /*transpose =*/ false, mView.makeFloat32Array());
+		gl.uniformMatrix4fv(mProjUniformLocation,  /*transpose =*/ false, mProj.makeFloat32Array());
+
+		let vertexArrayBufferObject = gl.createBuffer(); // get buffer ID
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertexArrayBufferObject); // select buffer
+		gl.bufferData(gl.ARRAY_BUFFER, triangle1.makeFloat32Array(), gl.STATIC_DRAW); // load data
+		
 		gl.vertexAttribPointer(
 			positionAttributeLocation, // ID
 			3, // size
@@ -94,19 +105,6 @@ export function main() {
 			6 * Float32Array.BYTES_PER_ELEMENT, // stride
 			3 * Float32Array.BYTES_PER_ELEMENT // offset
 		);
-
-		// let mWorld = XYZMatLab.makeTranslationMatrix(
-			// new XYZVector([-.2, 0,0])
-			// );
-
-		let mWorld = XYZMatLab.makeRotationMatrix(90, 0,0,1);
-		let mView = XYZMatLab.makeLookAtMatrix(new XYZQuaternion(25, 0, 1, 0), new XYZVector([0, 0, 3]));
-		let mProj = XYZMatLab.makePerspectiveMatrix(canvas.width/canvas.height, 55, 0.1, 1000);
-
-		// Set uniform values
-		gl.uniformMatrix4fv(mWorldUniformLocation, /*transpose =*/ false, mWorld.makeFloat32Array());
-		gl.uniformMatrix4fv(mViewUniformLocation,  /*transpose =*/ false, mView.makeFloat32Array());
-		gl.uniformMatrix4fv(mProjUniformLocation,  /*transpose =*/ false, mProj.makeFloat32Array());
 
 		gl.enableVertexAttribArray(positionAttributeLocation);
 		gl.enableVertexAttribArray(colorAttributeLocation);
