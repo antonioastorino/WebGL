@@ -1,5 +1,6 @@
 import { XYZShaderReader } from "./XYZShaderReader.js";
 import { XYZApplication } from "./XYZApplication.js";
+import { XYZMatrix } from "../../lib/Math/XYZMatrix.js";
 
 class XYZShader {
 	protected _program: WebGLProgram = -1;
@@ -66,9 +67,9 @@ export class XYZBasicShader extends XYZShader {
 	
 	public get positionAttributeLocation() { return this._positionAttributeLocation; }
 	public get colorAttributeLocation() { return this._colorAttributeLocation; }
-	public get mWorldUniformLocation() { return this._mWorldUniformLocation; }
-	public get mViewUniformLocation() { return this._mViewUniformLocation; }
-	public get mProjUniformLocation() { return this._mProjUniformLocation; }
+	public set worldMatrix(matrix: XYZMatrix) { XYZApplication.gl.uniformMatrix4fv(this._mWorldUniformLocation, /*transpose =*/ false, matrix.makeFloat32Array()); }
+	public set viewMatrix(matrix: XYZMatrix)  { XYZApplication.gl.uniformMatrix4fv(this._mViewUniformLocation,  /*transpose =*/ false, matrix.makeFloat32Array());}
+	public set projMatrix(matrix: XYZMatrix)  { XYZApplication.gl.uniformMatrix4fv(this._mProjUniformLocation,  /*transpose =*/ false, matrix.makeFloat32Array());}
 
 	public enableAttributes = () => {
 		XYZApplication.gl.enableVertexAttribArray(this._positionAttributeLocation);
