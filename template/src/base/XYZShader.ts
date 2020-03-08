@@ -48,10 +48,8 @@ class XYZShader {
 export class XYZBasicShader extends XYZShader {
 	private _positionAttributeLocation: number = -1;
 	private _colorAttributeLocation: number = -1;
-	private _mWorldUniformLocation: WebGLUniformLocation | null = -1;
-	private _mViewUniformLocation: WebGLUniformLocation | null = -1;
-	private _mProjUniformLocation: WebGLUniformLocation | null = -1;
-
+	private _mMVP: WebGLUniformLocation | null = -1;
+	
 	public initialize = async () => {
 		const shaderText = await XYZShaderReader.load("src/shaders/vertex-shader.glsl", "src/shaders/fragment-shader.glsl");
 
@@ -60,20 +58,16 @@ export class XYZBasicShader extends XYZShader {
 
 		this._positionAttributeLocation = XYZApplication.gl.getAttribLocation(shaderProgram, 'vertPosition'); // get position ID
 		this._colorAttributeLocation = XYZApplication.gl.getAttribLocation(shaderProgram, 'vertColor'); // get position ID
-		this._mWorldUniformLocation = XYZApplication.gl.getUniformLocation(shaderProgram, 'mWorld'); // get mWorld ID
-		this._mViewUniformLocation = XYZApplication.gl.getUniformLocation(shaderProgram, 'mView'); // get mWorld ID
-		this._mProjUniformLocation = XYZApplication.gl.getUniformLocation(shaderProgram, 'mProj'); // get mWorld ID
+		this._mMVP = XYZApplication.gl.getUniformLocation(shaderProgram, 'mMVP'); // get mWorld ID
 	}
 	
 	public get positionAttributeLocation() { return this._positionAttributeLocation; }
 	public get colorAttributeLocation() { return this._colorAttributeLocation; }
-	public set worldMatrix(matrix: XYZMatrix) { XYZApplication.gl.uniformMatrix4fv(this._mWorldUniformLocation, /*transpose =*/ false, matrix.makeFloat32Array()); }
-	public set viewMatrix(matrix: XYZMatrix)  { XYZApplication.gl.uniformMatrix4fv(this._mViewUniformLocation,  /*transpose =*/ false, matrix.makeFloat32Array());}
-	public set projMatrix(matrix: XYZMatrix)  { XYZApplication.gl.uniformMatrix4fv(this._mProjUniformLocation,  /*transpose =*/ false, matrix.makeFloat32Array());}
+	public set mMVP(matrix: XYZMatrix) { XYZApplication.gl.uniformMatrix4fv(this._mMVP, /*transpose =*/ false, matrix.makeFloat32Array()); }
+	
 
 	public enableAttributes = () => {
 		XYZApplication.gl.enableVertexAttribArray(this._positionAttributeLocation);
 		XYZApplication.gl.enableVertexAttribArray(this._colorAttributeLocation);
 	}
-
 }
