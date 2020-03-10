@@ -1,43 +1,43 @@
 import { XYZShaderReader } from "./XYZShaderReader.js";
-import { XYZApplication } from "./XYZApplication.js";
+import { XYZRenderer } from "./XYZRenderer.js";
 import { XYZMatrix } from "../../lib/Math/XYZMatrix.js";
 
 class XYZShader {
 	protected _program: WebGLProgram = -1;
 
 	public static createShaderProgram = (vertexShaderText: string, fragmentShaderText: string): WebGLProgram => {
-		let vertexShader = <WebGLShader>XYZApplication.gl.createShader(XYZApplication.gl.VERTEX_SHADER);
-		let fragmentShader = <WebGLShader>XYZApplication.gl.createShader(XYZApplication.gl.FRAGMENT_SHADER);
+		let vertexShader = <WebGLShader>XYZRenderer.gl.createShader(XYZRenderer.gl.VERTEX_SHADER);
+		let fragmentShader = <WebGLShader>XYZRenderer.gl.createShader(XYZRenderer.gl.FRAGMENT_SHADER);
 
-		XYZApplication.gl.shaderSource(vertexShader, vertexShaderText);
-		XYZApplication.gl.shaderSource(fragmentShader, fragmentShaderText);
-		XYZApplication.gl.compileShader(vertexShader)
-		if (!XYZApplication.gl.getShaderParameter(vertexShader, XYZApplication.gl.COMPILE_STATUS)) {
-			console.error('ERROR compiling vertex shader', XYZApplication.gl.getShaderInfoLog(vertexShader));
+		XYZRenderer.gl.shaderSource(vertexShader, vertexShaderText);
+		XYZRenderer.gl.shaderSource(fragmentShader, fragmentShaderText);
+		XYZRenderer.gl.compileShader(vertexShader)
+		if (!XYZRenderer.gl.getShaderParameter(vertexShader, XYZRenderer.gl.COMPILE_STATUS)) {
+			console.error('ERROR compiling vertex shader', XYZRenderer.gl.getShaderInfoLog(vertexShader));
 			throw "error";
 		}
-		XYZApplication.gl.compileShader(fragmentShader)
-		if (!XYZApplication.gl.getShaderParameter(fragmentShader, XYZApplication.gl.COMPILE_STATUS)) {
-			console.error('ERROR compiling fragment shader', XYZApplication.gl.getShaderInfoLog(fragmentShader));
+		XYZRenderer.gl.compileShader(fragmentShader)
+		if (!XYZRenderer.gl.getShaderParameter(fragmentShader, XYZRenderer.gl.COMPILE_STATUS)) {
+			console.error('ERROR compiling fragment shader', XYZRenderer.gl.getShaderInfoLog(fragmentShader));
 			throw "error";
 		}
 
-		let shaderProgram = XYZApplication.gl.createProgram();
+		let shaderProgram = XYZRenderer.gl.createProgram();
 		if (!shaderProgram) {
 			throw "error";
 		}
-		XYZApplication.gl.attachShader(shaderProgram, vertexShader);
-		XYZApplication.gl.attachShader(shaderProgram, fragmentShader);
-		XYZApplication.gl.linkProgram(shaderProgram);
+		XYZRenderer.gl.attachShader(shaderProgram, vertexShader);
+		XYZRenderer.gl.attachShader(shaderProgram, fragmentShader);
+		XYZRenderer.gl.linkProgram(shaderProgram);
 
-		if (!XYZApplication.gl.getProgramParameter(shaderProgram, XYZApplication.gl.LINK_STATUS)) {
-			console.error('ERROR linking program!', XYZApplication.gl.getProgramInfoLog(shaderProgram));
+		if (!XYZRenderer.gl.getProgramParameter(shaderProgram, XYZRenderer.gl.LINK_STATUS)) {
+			console.error('ERROR linking program!', XYZRenderer.gl.getProgramInfoLog(shaderProgram));
 			throw "error";
 		}
 
-		XYZApplication.gl.validateProgram(shaderProgram);
-		if (!XYZApplication.gl.getProgramParameter(shaderProgram, XYZApplication.gl.VALIDATE_STATUS)) {
-			console.error('ERROR validating program!', XYZApplication.gl.getProgramInfoLog(shaderProgram));
+		XYZRenderer.gl.validateProgram(shaderProgram);
+		if (!XYZRenderer.gl.getProgramParameter(shaderProgram, XYZRenderer.gl.VALIDATE_STATUS)) {
+			console.error('ERROR validating program!', XYZRenderer.gl.getProgramInfoLog(shaderProgram));
 			throw "error";
 		}
 		return shaderProgram;
@@ -54,20 +54,20 @@ export class XYZBasicShader extends XYZShader {
 		const shaderText = await XYZShaderReader.load("src/shaders/vertex-shader.glsl", "src/shaders/fragment-shader.glsl");
 
 		let shaderProgram = XYZShader.createShaderProgram(shaderText.vertexShaderText, shaderText.fragmentShaderText);
-		XYZApplication.gl.useProgram(shaderProgram); // Set program in use before getting locations
+		XYZRenderer.gl.useProgram(shaderProgram); // Set program in use before getting locations
 
-		this._positionAttributeLocation = XYZApplication.gl.getAttribLocation(shaderProgram, 'vertPosition'); // get position ID
-		this._colorAttributeLocation = XYZApplication.gl.getAttribLocation(shaderProgram, 'vertColor'); // get position ID
-		this._mMVP = XYZApplication.gl.getUniformLocation(shaderProgram, 'mMVP'); // get mWorld ID
+		this._positionAttributeLocation = XYZRenderer.gl.getAttribLocation(shaderProgram, 'vertPosition'); // get position ID
+		this._colorAttributeLocation = XYZRenderer.gl.getAttribLocation(shaderProgram, 'vertColor'); // get position ID
+		this._mMVP = XYZRenderer.gl.getUniformLocation(shaderProgram, 'mMVP'); // get mWorld ID
 	}
 	
 	public get positionAttributeLocation() { return this._positionAttributeLocation; }
 	public get colorAttributeLocation() { return this._colorAttributeLocation; }
-	public set mMVP(matrix: XYZMatrix) { XYZApplication.gl.uniformMatrix4fv(this._mMVP, /*transpose =*/ false, matrix.makeFloat32Array()); }
+	public set mMVP(matrix: XYZMatrix) { XYZRenderer.gl.uniformMatrix4fv(this._mMVP, /*transpose =*/ false, matrix.makeFloat32Array()); }
 	
 
 	public enableAttributes = () => {
-		XYZApplication.gl.enableVertexAttribArray(this._positionAttributeLocation);
-		XYZApplication.gl.enableVertexAttribArray(this._colorAttributeLocation);
+		XYZRenderer.gl.enableVertexAttribArray(this._positionAttributeLocation);
+		XYZRenderer.gl.enableVertexAttribArray(this._colorAttributeLocation);
 	}
 }

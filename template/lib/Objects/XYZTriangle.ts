@@ -1,6 +1,6 @@
 import { Vec3, RGB } from "../DataTypes/XYZVertex.js";
 import { XYZMesh } from './XYZMesh.js'
-import { XYZApplication } from "../../src/base/XYZApplication.js";
+import { XYZRenderer } from "../../src/base/XYZRenderer.js";
 import { XYZBasicShader } from "../../src/base/XYZShader.js";
 
 export class XYZTriangle extends XYZMesh {
@@ -18,31 +18,30 @@ export class XYZTriangle extends XYZMesh {
 			V2.x + position.x, V2.y + position.y, V2.z + position.z, color.r, color.g, color.b,
 			V3.x + position.x, V3.y + position.y, V3.z + position.z, color.r, color.g, color.b
 		]
+		this._numOfVertices = 3;
 	}
 
 	public attachShader = (shader: XYZBasicShader) => {
-		let vertexArrayBufferObject = XYZApplication.gl.createBuffer(); // get buffer ID
-		XYZApplication.gl.bindBuffer(XYZApplication.gl.ARRAY_BUFFER, vertexArrayBufferObject); // select buffer
-		XYZApplication.gl.bufferData(XYZApplication.gl.ARRAY_BUFFER, this.makeFloat32Array(), XYZApplication.gl.STATIC_DRAW); // load data
+		let vertexArrayBufferObject = XYZRenderer.gl.createBuffer(); // get buffer ID
+		XYZRenderer.gl.bindBuffer(XYZRenderer.gl.ARRAY_BUFFER, vertexArrayBufferObject); // select buffer
+		XYZRenderer.gl.bufferData(XYZRenderer.gl.ARRAY_BUFFER, this.makeFloat32Array(), XYZRenderer.gl.STATIC_DRAW); // load data
 
-		XYZApplication.gl.vertexAttribPointer(
+		XYZRenderer.gl.vertexAttribPointer(
 			shader.positionAttributeLocation, // ID
-			3, // size
-			XYZApplication.gl.FLOAT, // type,
+			this._numOfVertices, // size
+			XYZRenderer.gl.FLOAT, // type,
 			false, // normalized
 			6 * Float32Array.BYTES_PER_ELEMENT, // stride
 			0 // offset
 		);
 
-		XYZApplication.gl.vertexAttribPointer(
+		XYZRenderer.gl.vertexAttribPointer(
 			shader.colorAttributeLocation, // ID
-			3, // size
-			XYZApplication.gl.FLOAT, // type,
+			this._numOfVertices, // size
+			XYZRenderer.gl.FLOAT, // type,
 			false, // normalized
 			6 * Float32Array.BYTES_PER_ELEMENT, // stride
 			3 * Float32Array.BYTES_PER_ELEMENT // offset
 		);
 	}
-
-	public draw = () => { XYZApplication.gl.drawArrays(XYZApplication.gl.TRIANGLES, 0, 3); }
 }

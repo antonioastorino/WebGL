@@ -1,7 +1,6 @@
 import { XYZMatrix } from "../../lib/Math/XYZMatrix.js";
-import { XYZMatLab } from "../../lib/Math/XYZMatLab.js";
 
-export class XYZApplication {
+export class XYZRenderer {
 	private static _gl: WebGLRenderingContext;
 	public static _canvas: HTMLCanvasElement;
 	private static _mView: XYZMatrix = (new XYZMatrix(4,4)).identity();

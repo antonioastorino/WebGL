@@ -1,6 +1,6 @@
 
 
-import { XYZApplication } from "./base/XYZApplication.js"
+import { XYZRenderer } from "./base/XYZRenderer.js"
 import { XYZMatrix } from "../lib/Math/XYZMatrix.js";
 import { XYZVector } from "../lib/Math/XYZVector.js";
 import { XYZMatLab } from "../lib/Math/XYZMatLab.js";
@@ -10,13 +10,13 @@ import { XYZBasicShader } from "./base/XYZShader.js";
 
 export async function main() {
 	console.log("Hello Main");
-	XYZApplication.init();
+	XYZRenderer.init();
 	
 	let basicShader = new XYZBasicShader();
 	await basicShader.initialize();
 	
-	XYZApplication.viewMatrix =  XYZMatLab.makeLookAtMatrix(new XYZQuaternion(0, 0, 1, 0), new XYZVector([0, 0, 5]));
-	XYZApplication.projMatrix =  XYZMatLab.makePerspectiveMatrix(XYZApplication.aspectRatio, 55, 0.1, 1000);
+	XYZRenderer.viewMatrix =  XYZMatLab.makeLookAtMatrix(new XYZQuaternion(0, 0, 1, 0), new XYZVector([0, 0, 5]));
+	XYZRenderer.projMatrix =  XYZMatLab.makePerspectiveMatrix(XYZRenderer.aspectRatio, 55, 0.1, 1000);
 	basicShader.enableAttributes();
 	
 	let triangle1 = new XYZTriangle({ x: 0, y: 0, z: 0 }, { r: 0, g: .3, b: 0 }, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 });
@@ -28,8 +28,8 @@ export async function main() {
 	let loop = () => {
 		angle = performance.now() / 1000 * 360 * rps;
 		modelMatrix = XYZMatLab.makeRotationMatrix(angle, 0, 1, 0);
-		basicShader.mMVP = <XYZMatrix>XYZApplication.worldMatrix.multiplyBy(modelMatrix);
-		XYZApplication.gl.clear(XYZApplication.gl.COLOR_BUFFER_BIT | XYZApplication.gl.DEPTH_BUFFER_BIT);
+		basicShader.mMVP = <XYZMatrix>XYZRenderer.worldMatrix.multiplyBy(modelMatrix);
+		XYZRenderer.gl.clear(XYZRenderer.gl.COLOR_BUFFER_BIT | XYZRenderer.gl.DEPTH_BUFFER_BIT);
 		triangle1.draw();
 		requestAnimationFrame(loop);
 	}
