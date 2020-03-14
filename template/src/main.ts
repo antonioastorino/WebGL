@@ -16,8 +16,16 @@ export async function main() {
 	let testShader = new XYZShader("test"); await testShader.initialize();
 	
 	XYZRenderer.viewMatrix =  XYZMatLab.makeLookAtMatrix(new XYZQuaternion(0, 0, 1, 0), new XYZVector([0, 0, 5]));
-	XYZRenderer.projMatrix =  XYZMatLab.makePerspectiveMatrix(XYZRenderer.aspectRatio, 55, 0.1, 1000);
-	
+	function updateAspectRatio() {
+		XYZRenderer._canvas.width  = window.innerWidth;
+		XYZRenderer._canvas.height = window.innerHeight;
+		XYZRenderer.gl.viewport(0,0,window.innerWidth, window.innerHeight);
+		XYZRenderer.projMatrix =  XYZMatLab.makePerspectiveMatrix(XYZRenderer.aspectRatio, 55, 0.1, 1000);
+	}
+	updateAspectRatio()
+	window.addEventListener('resize', updateAspectRatio);
+
+
 	let triangle1 = new XYZTriangle();
 	triangle1.attachShader(basicShader);
 	let triangle2 = new XYZTriangle();
