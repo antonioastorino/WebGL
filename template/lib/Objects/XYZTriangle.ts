@@ -23,7 +23,7 @@ export class XYZTriangle extends XYZMesh {
 		shader.enableAttributes()
 		XYZRenderer.gl.bindBuffer(XYZRenderer.gl.ARRAY_BUFFER, this._vertexArrayBufferObject); // select buffer
 		XYZRenderer.gl.bufferData(XYZRenderer.gl.ARRAY_BUFFER, this.makeFloat32Array(), XYZRenderer.gl.STATIC_DRAW); // load data
-
+		XYZRenderer.gl.bindBuffer(XYZRenderer.gl.ARRAY_BUFFER, null)
 		shader.addMesh(this);
 	}
 }

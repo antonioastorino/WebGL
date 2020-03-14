@@ -93,5 +93,6 @@ export class XYZMesh {
 		}
 
 		XYZRenderer.gl.drawArrays(XYZRenderer.gl.TRIANGLES, 0, this._numOfVertices);
+		XYZRenderer.gl.bindBuffer(XYZRenderer.gl.ARRAY_BUFFER, null);
 	}
 }
