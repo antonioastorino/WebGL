@@ -1,7 +1,7 @@
 import { Vec3, RotationVec4 } from "../DataTypes/XYZVertex.js";
 import { XYZRenderer } from "../../src/base/XYZRenderer.js";
-import { XYZShader } from "../base/XYZShader";
-import { XYZMatLab } from "../Math/XYZMatLab";
+import { XYZShader } from "../base/XYZShader.js";
+import { XYZMatLab } from "../Math/XYZMatLab.js";
 import { XYZMatrix } from "../Math/XYZMatrix.js";
 
 export class XYZMesh {
@@ -13,12 +13,14 @@ export class XYZMesh {
 	private _modelMatrix: XYZMatrix;
 	protected _position: Vec3;
 	protected _rotation: RotationVec4;
+	protected _scale: Vec3;
 	protected _linearVel: Vec3;
 	protected _angularVel: Vec3;
 
 	constructor() {
 		this._position = {x: 0, y: 0, z:0};
 		this._rotation = {x: 0, y: 1, z:0, angle: 0};
+		this._scale = {x: 1, y: 1, z:1 };
 		this._linearVel = {x: 0, y: 0, z:0};
 		this._angularVel = {x: 0, y: 0, z:0};
 		this._modelMatrix = (new XYZMatrix(4,4)).identity()
@@ -39,17 +41,20 @@ export class XYZMesh {
 		}
 	}
 
-	public setPosition = (x: number, y: number, z: number) => {
-		this._position = {x: x, y: y, z: z};
-	}
+	/* TODO: it should not be possible to access the position directly but
+		only through forces. Only the initial position should be accessible upon
+		initialization. Same goes for the orientation
+	*/
+	public setPosition = (position: Vec3) => { this._position = position; }
+	public setOrientation = (orientation: RotationVec4) => { this._rotation = orientation; }
+	public setScale = (scale: Vec3) => { this._scale = scale; }
 
 	protected update = () => {
-		let x = this._position.x
-		let y = this._position.y
-		let z = this._position.z
-		this._modelMatrix.setElement(0, 3, x);
-		this._modelMatrix.setElement(1, 3, y);
-		this._modelMatrix.setElement(2, 3, z);
+		this._modelMatrix = XYZMatLab.makeModelMatrix(
+			this._position,
+			this._rotation,
+			this._scale
+			);
 	}
 
 	public draw = () => {
@@ -57,6 +62,7 @@ export class XYZMesh {
 		XYZRenderer.gl.bindBuffer(XYZRenderer.gl.ARRAY_BUFFER, this._vertexArrayBufferObject);
 		let stride = 6 * Float32Array.BYTES_PER_ELEMENT;
 		let shader = <XYZShader>this._shader;
+		// TODO: Fix stride based on vertex attribute
 		if (shader.colorAttributeLocation > -1) {
 			// stride += 3 * Float32Array.BYTES_PER_ELEMENT;
 			XYZRenderer.gl.vertexAttribPointer(

@@ -21,13 +21,18 @@ export async function main() {
 	let triangle1 = new XYZTriangle();
 	triangle1.attachShader(basicShader);
 	let triangle2 = new XYZTriangle();
-	triangle2.attachShader(testShader);
+	triangle2.attachShader(basicShader);
 
 	let angle = 0;
 	let rps = 0.5
-	angle = performance.now() * 0.36 * rps;
-	triangle1.setPosition(1, 1, -1);
+	triangle1.setPosition({ x: 3, y: 0, z: -1 });
+	triangle2.setPosition({ x: 0, y: 2, z: 1 })
+	triangle1.setScale({ x: 3, y: 1, z: 1 })
 	let loop = () => {
+		angle = performance.now() * 0.36 * rps;
+		triangle1.setOrientation({ x: 0, y: 0, z: 1, angle: angle });
+		triangle2.setOrientation({ x: 1, y: 0, z: 0, angle: angle });
+		triangle1.setPosition({x: 3*Math.cos(angle * Math.PI / 60), y: 2*Math.sin(angle * Math.PI / 60), z: -3*Math.cos(angle * Math.PI / 360)});
 		XYZRenderer.gl.clear(XYZRenderer.gl.COLOR_BUFFER_BIT | XYZRenderer.gl.DEPTH_BUFFER_BIT);
 		XYZRenderer.drawAll()
 		requestAnimationFrame(loop);

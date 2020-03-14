@@ -1,6 +1,7 @@
 import { XYZMatrix } from './XYZMatrix.js'
 import { XYZVector } from './XYZVector.js'
 import { XYZQuaternion } from './XYZQuaternion.js'
+import { Vec3, RotationVec4 } from './../DataTypes/XYZVertex.js'
 
 export class XYZMatLab {
 	public static multiply = (a: XYZMatrix, b: XYZMatrix | XYZVector | number): XYZMatrix | XYZVector => {
@@ -39,6 +40,53 @@ export class XYZMatLab {
 			[2 * (i * k + j * r), 2 * (j * k - i * r), 1 - 2 * (i * i + j * j), 0],
 			[0, 0, 0, 1]
 		])
+	}
+
+	public static makeScaleMatrix = (scaleX: number, scaleY?: number, scaleZ?: number): XYZMatrix => {
+		let scaleMatrix = (new XYZMatrix(4,4)).identity();
+		scaleMatrix.setElement(0,0,scaleX);
+		if (scaleY == undefined || scaleZ == undefined) {
+			scaleMatrix.setElement(1,1,scaleX);
+			scaleMatrix.setElement(2,2,scaleX);
+		}
+		else {
+			scaleMatrix.setElement(1,1,scaleY);
+			scaleMatrix.setElement(2,2,scaleZ);
+		}
+		return scaleMatrix;
+	}
+
+	public static makeTranslateMatrix = (posX: number, posY: number, posZ: number): XYZMatrix => {
+		let scaleMatrix = (new XYZMatrix(4,4)).identity();
+		scaleMatrix.setElement(0,3,posX);
+		scaleMatrix.setElement(1,3,posY);
+		scaleMatrix.setElement(2,3,posZ);
+		return scaleMatrix;
+	}
+
+	public static makeModelMatrix = (
+		position: Vec3,
+		rotation: RotationVec4,
+		scale: Vec3
+	): XYZMatrix => {
+		// let matRotation = XYZMatLab.makeRotationMatrix(rotation.angle, rotation.x, rotation.y, rotation.z);
+		// let matTranslation = XYZMatLab.makeTranslateMatrix(position.x, position.y, position.z);
+		// let matScale = XYZMatLab.makeScaleMatrix(scale.x, scale.y, scale.z);
+		// let modelMatrix = <XYZMatrix>matTranslation.multiplyBy(<XYZMatrix>matRotation.multiplyBy(matScale))
+
+		let rotation_v = new XYZQuaternion(rotation.angle, rotation.x, rotation.y, rotation.z);
+		let i = rotation_v.i;
+		let j = rotation_v.j;
+		let k = rotation_v.k;
+		let r = rotation_v.r;
+
+		let modelMatrix = new XYZMatrix([
+			[scale.x * (1 - 2 * (j * j + k * k)), scale.x * (2 * (i * j + k * r)), scale.x * (2 * (i * k - j * r)), 0],
+			[scale.y * (2 * (i * j - k * r)), scale.y * (1 - 2 * (i * i + k * k)), scale.y * (2 * (j * k + i * r)), 0],
+			[scale.z * (2 * (i * k + j * r)), scale.z * (2 * (j * k - i * r)), scale.z * (1 - 2 * (i * i + j * j)), 0],
+			[position.x, position.y, position.z, 1]]);
+
+		return modelMatrix;
 	}
 
 	public static makePerspectiveMatrix(aspect: number, fov_deg: number, near: number, far: number) {
