@@ -1,10 +1,13 @@
 import { XYZMatrix } from "../../lib/Math/XYZMatrix.js";
+import { XYZShader } from "../base/XYZShader.js"
+import { XYZShaderReader } from "./XYZShaderReader";
 
 export class XYZRenderer {
 	private static _gl: WebGLRenderingContext;
 	public static _canvas: HTMLCanvasElement;
 	private static _mView: XYZMatrix = (new XYZMatrix(4,4)).identity();
 	private static _mProj: XYZMatrix = (new XYZMatrix(4,4)).identity();
+	private static _shaderList: Array<XYZShader> = [];
 	
 	public static init() {
 		this._canvas = <HTMLCanvasElement>document.getElementById("glCanvas");
@@ -20,9 +23,17 @@ export class XYZRenderer {
 	public static get aspectRatio() { return this._canvas.width/this._canvas.height; }
 
 	public static set viewMatrix(matrix: XYZMatrix)  { this._mView = matrix; }
-	public static set projMatrix(matrix: XYZMatrix)  { this._mProj = matrix; }
+	public static set projMatrix(matrix: XYZMatrix) { this._mProj = matrix; }
 
 	public static get worldMatrix(): XYZMatrix { return <XYZMatrix>this._mProj.multiplyBy(this._mView); }
+
+	public static addShader(shader: XYZShader) { this._shaderList.push(shader); }
+
+	public static drawAll() {
+		this._shaderList.forEach(
+			shader => { shader.drawAll(); }
+		)
+	}
 
 	public static get gl() { return this._gl; }
 }

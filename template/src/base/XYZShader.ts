@@ -1,11 +1,39 @@
 import { XYZShaderReader } from "./XYZShaderReader.js";
 import { XYZRenderer } from "./XYZRenderer.js";
 import { XYZMatrix } from "../../lib/Math/XYZMatrix.js";
+import { XYZMesh } from "../../lib/Objects/XYZMesh.js"
 
-class XYZShader {
-	protected _program: WebGLProgram = -1;
+interface ShaderFile {
+	vertexShaderFile: string,
+	fragmentShaderFile: string
+}
 
-	public static createShaderProgram = (vertexShaderText: string, fragmentShaderText: string): WebGLProgram => {
+export var ShaderTypes: {[id: string]: ShaderFile} = {
+	"basic": {
+		vertexShaderFile: "src/shaders/vertex-shader.glsl",
+		fragmentShaderFile: "src/shaders/fragment-shader.glsl"
+	},
+	"test": {
+		vertexShaderFile: "src/shaders/vertex-test-shader.glsl",
+		fragmentShaderFile: "src/shaders/fragment-test-shader.glsl"
+	}
+}
+
+export class XYZShader {
+	protected _positionAttributeLocation: number = -1;
+	protected _colorAttributeLocation: number = -1;
+	protected _mMVPUniformLocation: WebGLUniformLocation | null = null;
+	protected _shaderProgram: WebGLProgram | null = null;
+	private _meshList: Array<XYZMesh> = [];
+	private _shaderType: string = "";
+
+	constructor(shaderType: string) {
+		if (ShaderTypes[shaderType] != undefined) {
+			this._shaderType = shaderType;
+		}
+	}
+
+	public createShaderProgram = (vertexShaderText: string, fragmentShaderText: string) => {
 		let vertexShader = <WebGLShader>XYZRenderer.gl.createShader(XYZRenderer.gl.VERTEX_SHADER);
 		let fragmentShader = <WebGLShader>XYZRenderer.gl.createShader(XYZRenderer.gl.FRAGMENT_SHADER);
 
@@ -40,34 +68,44 @@ class XYZShader {
 			console.error('ERROR validating program!', XYZRenderer.gl.getProgramInfoLog(shaderProgram));
 			throw "error";
 		}
-		return shaderProgram;
+		this._shaderProgram = shaderProgram;
 	}
 
-}
+	public assignLocations = async () => {
+		this._shaderProgram = <WebGLProgram>this._shaderProgram;
+		XYZRenderer.gl.useProgram(this._shaderProgram); // Set program in use before getting locations
 
-export class XYZBasicShader extends XYZShader {
-	private _positionAttributeLocation: number = -1;
-	private _colorAttributeLocation: number = -1;
-	private _mMVP: WebGLUniformLocation | null = -1;
-	
-	public initialize = async () => {
-		const shaderText = await XYZShaderReader.load("src/shaders/vertex-shader.glsl", "src/shaders/fragment-shader.glsl");
-
-		let shaderProgram = XYZShader.createShaderProgram(shaderText.vertexShaderText, shaderText.fragmentShaderText);
-		XYZRenderer.gl.useProgram(shaderProgram); // Set program in use before getting locations
-
-		this._positionAttributeLocation = XYZRenderer.gl.getAttribLocation(shaderProgram, 'vertPosition'); // get position ID
-		this._colorAttributeLocation = XYZRenderer.gl.getAttribLocation(shaderProgram, 'vertColor'); // get position ID
-		this._mMVP = XYZRenderer.gl.getUniformLocation(shaderProgram, 'mMVP'); // get mWorld ID
+		this._positionAttributeLocation = XYZRenderer.gl.getAttribLocation(this._shaderProgram, 'vertPosition'); // get position ID
+		this._colorAttributeLocation = XYZRenderer.gl.getAttribLocation(this._shaderProgram, 'vertColor'); // get position ID
+		this._mMVPUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'mMVP'); // get mWorld ID
 	}
-	
+
+	public addMesh = (mesh: XYZMesh) => { this._meshList.push(mesh); }
+	public drawAll() {
+		XYZRenderer.gl.useProgram(this._shaderProgram); // Set program in use before getting locations
+		this._meshList.forEach( mesh => { mesh.draw() }); 
+	}
+
 	public get positionAttributeLocation() { return this._positionAttributeLocation; }
 	public get colorAttributeLocation() { return this._colorAttributeLocation; }
-	public set mMVP(matrix: XYZMatrix) { XYZRenderer.gl.uniformMatrix4fv(this._mMVP, /*transpose =*/ false, matrix.makeFloat32Array()); }
+	public get mMVPUniformLocation() { return this._mMVPUniformLocation; }
 	
-
 	public enableAttributes = () => {
-		XYZRenderer.gl.enableVertexAttribArray(this._positionAttributeLocation);
-		XYZRenderer.gl.enableVertexAttribArray(this._colorAttributeLocation);
+		if (this._positionAttributeLocation > -1) {
+			XYZRenderer.gl.enableVertexAttribArray(this._positionAttributeLocation);
+		}
+		if (this._colorAttributeLocation > -1) {
+			XYZRenderer.gl.enableVertexAttribArray(this._colorAttributeLocation);
+		}
+	}
+
+	public initialize = async () => {
+		const shaderText = await XYZShaderReader.load(
+			ShaderTypes[this._shaderType].vertexShaderFile,
+			ShaderTypes[this._shaderType].fragmentShaderFile);
+		this.createShaderProgram(shaderText.vertexShaderText, shaderText.fragmentShaderText);
+		this.assignLocations();
+
+		XYZRenderer.addShader(this);
 	}
 }
