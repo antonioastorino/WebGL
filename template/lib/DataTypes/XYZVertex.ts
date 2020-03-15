@@ -1,6 +1,9 @@
-export interface Vec3 {
+export interface Vec2 {
 	x: number,
-	y: number,
+	y: number
+}
+
+export interface Vec3 extends Vec2 {
 	z: number
 }
 
