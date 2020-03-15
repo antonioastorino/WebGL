@@ -1,8 +1,10 @@
 import { XYZMesh } from "./XYZMesh.js";
 
 export class XYZSprite extends XYZMesh {
-	constructor() {
+	constructor(texFileName: string) {
 		super();
+		this._texImg.src = './assets/' + texFileName;
+
 		this._dimensions = 2;
 		this._vertPosArray = [
 			-1, -1,
@@ -13,13 +15,13 @@ export class XYZSprite extends XYZMesh {
 			-1, 1,
 		];
 
-		this._vertColorArray = [
-			1.0, 1.0, 1.0,
-			1.0, 1.0, 1.0,
-			0.5, 0.5, 0.5,
-			1.0, 1.0, 1.0,
-			1.0, 1.0, 1.0,
-			0.5, 0.5, 0.5
+		this._texCoordArray = [
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 0,
+			1, 1,
+			0, 1
 		];
 	}
 }

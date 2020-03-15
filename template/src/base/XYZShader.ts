@@ -30,6 +30,7 @@ export var ShaderTypes: {[id: string]: ShaderFile} = {
 export class XYZShader {
 	protected _positionAttributeLocation: number = -1;
 	protected _colorAttributeLocation: number = -1;
+	protected _texCoordAttributeLocation: number = -1;
 	protected _mMVPUniformLocation: WebGLUniformLocation | null = null;
 	protected _shaderProgram: WebGLProgram | null = null;
 	private _meshList: Array<XYZMesh> = [];
@@ -97,6 +98,7 @@ export class XYZShader {
 
 		this._positionAttributeLocation = XYZRenderer.gl.getAttribLocation(this._shaderProgram, 'vertPosition'); // get position ID
 		this._colorAttributeLocation = XYZRenderer.gl.getAttribLocation(this._shaderProgram, 'vertColor'); // get position ID
+		this._texCoordAttributeLocation = XYZRenderer.gl.getAttribLocation(this._shaderProgram, 'vertTexCoord'); // get position ID
 		this._mMVPUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'mMVP'); // get mWorld ID
 	}
 
@@ -108,6 +110,7 @@ export class XYZShader {
 
 	public get positionAttributeLocation() { return this._positionAttributeLocation; }
 	public get colorAttributeLocation() { return this._colorAttributeLocation; }
+	public get texCoordAttributeLocation() { return this._texCoordAttributeLocation; }
 	public get mMVPUniformLocation() { return this._mMVPUniformLocation; }
 	public get dimensions() { return this._dimensions; }
 	
@@ -118,6 +121,10 @@ export class XYZShader {
 
 		if (this._colorAttributeLocation > -1) {
 			XYZRenderer.gl.enableVertexAttribArray(this._colorAttributeLocation);
+		}
+
+		if (this._texCoordAttributeLocation > -1) {
+			XYZRenderer.gl.enableVertexAttribArray(this._texCoordAttributeLocation);
 		}
 	}
 }

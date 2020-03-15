@@ -7,8 +7,11 @@ import { XYZMatrix } from "../Math/XYZMatrix.js";
 export class XYZMesh {
 	protected _vertPosArray: number[] = [];
 	protected _vertColorArray: number[] = [];
+	protected _texCoordArray: number[] = [];
+	protected _texImg: HTMLImageElement = new Image();
 	protected _posArrayBufferObject: WebGLBuffer | null = null;
 	protected _colArrayBufferObject: WebGLBuffer | null = null;
+	protected _texCoordArrayBufferObject: WebGLBuffer | null = null;
 	protected _shader: XYZShader | null = null;
 	protected _dimensions: number = 3;
 
@@ -73,13 +76,23 @@ export class XYZMesh {
 			0 // offset
 		);
 
-		// TODO: Fix stride based on vertex attribute
 		if (shader.colorAttributeLocation > -1) {
 			XYZRenderer.gl.bindBuffer(XYZRenderer.gl.ARRAY_BUFFER, this._colArrayBufferObject);
-			// stride += 3 * Float32Array.BYTES_PER_ELEMENT;
 			XYZRenderer.gl.vertexAttribPointer(
 				shader.colorAttributeLocation, // ID
 				3, // number of components per vertex attribute
+				XYZRenderer.gl.FLOAT, // type,
+				false, // normalized
+				0, // stride
+				0 // offset
+			);
+		}
+
+		if (shader.texCoordAttributeLocation > -1) {
+			XYZRenderer.gl.bindBuffer(XYZRenderer.gl.ARRAY_BUFFER, this._texCoordArrayBufferObject);
+			XYZRenderer.gl.vertexAttribPointer(
+				shader.texCoordAttributeLocation, // ID
+				2, // number of components per vertex attribute
 				XYZRenderer.gl.FLOAT, // type,
 				false, // normalized
 				0, // stride
@@ -107,19 +120,38 @@ export class XYZMesh {
 	}
 
 	public attachShader = (shader: XYZShader) => {
+		let gl = XYZRenderer.gl;
 		if (shader.dimensions != this._dimensions) throw "Shader incompatible with object"
 		this._shader = shader;
-		this._posArrayBufferObject = XYZRenderer.gl.createBuffer(); // get buffer ID
-		this._colArrayBufferObject = XYZRenderer.gl.createBuffer(); // get buffer ID
+		this._posArrayBufferObject = gl.createBuffer(); // get buffer ID
 		shader.enableAttributes()
+		if (this._vertColorArray.length > 0) {
+			this._colArrayBufferObject = gl.createBuffer(); // get buffer ID
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._colArrayBufferObject); // select buffer
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertColorArray), gl.STATIC_DRAW); // load data
+		}
+		if (this._texCoordArray.length > 0) {
+			this._texCoordArrayBufferObject = XYZRenderer.gl.createBuffer(); // get buffer ID
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordArrayBufferObject); // select buffer
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._texCoordArray), gl.STATIC_DRAW); // load data
+			
+			let texture = XYZRenderer.gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, texture);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			gl.texImage2D(
+				gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,
+				gl.UNSIGNED_BYTE,
+				this._texImg
+			)
+		}
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, this._posArrayBufferObject); // select buffer
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertPosArray), gl.STATIC_DRAW); // load data
 
-		XYZRenderer.gl.bindBuffer(XYZRenderer.gl.ARRAY_BUFFER, this._posArrayBufferObject); // select buffer
-		XYZRenderer.gl.bufferData(XYZRenderer.gl.ARRAY_BUFFER, new Float32Array(this._vertPosArray), XYZRenderer.gl.STATIC_DRAW); // load data
-
-		XYZRenderer.gl.bindBuffer(XYZRenderer.gl.ARRAY_BUFFER, this._colArrayBufferObject); // select buffer
-		XYZRenderer.gl.bufferData(XYZRenderer.gl.ARRAY_BUFFER, new Float32Array(this._vertColorArray), XYZRenderer.gl.STATIC_DRAW); // load data
-
-		XYZRenderer.gl.bindBuffer(XYZRenderer.gl.ARRAY_BUFFER, null)
+		gl.bindBuffer(gl.ARRAY_BUFFER, null)
 
 		shader.addMesh(this);
 	}
