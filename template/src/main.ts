@@ -13,7 +13,7 @@ export async function main() {
 	XYZRenderer.init();
 	
 	let basicShader = new XYZShader("basic"); await basicShader.initialize();
-	let testShader = new XYZShader("test"); await testShader.initialize();
+	let spriteShader = new XYZShader("2D"); await spriteShader.initialize();
 	
 	XYZRenderer.viewMatrix =  XYZMatLab.makeLookAtMatrix(new XYZQuaternion(0, 0, 1, 0), new XYZVector([0, 0, 5]));
 	function updateAspectRatio() {
@@ -29,7 +29,7 @@ export async function main() {
 	let triangle1 = new XYZTriangle();
 	triangle1.attachShader(basicShader);
 	let triangle2 = new XYZTriangle();
-	triangle2.attachShader(basicShader);
+	triangle2.attachShader(spriteShader);
 
 	let angle = 0;
 	let rps = 0.5

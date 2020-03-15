@@ -13,6 +13,10 @@ export var ShaderTypes: {[id: string]: ShaderFile} = {
 		vertexShaderFile: "src/shaders/vertex-shader.glsl",
 		fragmentShaderFile: "src/shaders/fragment-shader.glsl"
 	},
+	"2D": {
+		vertexShaderFile: "src/shaders/vs2D.glsl",
+		fragmentShaderFile: "src/shaders/fs2D.glsl"
+	},
 	"test": {
 		vertexShaderFile: "src/shaders/vertex-test-shader.glsl",
 		fragmentShaderFile: "src/shaders/fragment-test-shader.glsl"
@@ -91,9 +95,10 @@ export class XYZShader {
 	public get mMVPUniformLocation() { return this._mMVPUniformLocation; }
 	
 	public enableAttributes = () => {
-		if (this._positionAttributeLocation > -1) {
+		if (this._positionAttributeLocation != 0) {
 			XYZRenderer.gl.enableVertexAttribArray(this._positionAttributeLocation);
 		}
+
 		if (this._colorAttributeLocation > -1) {
 			XYZRenderer.gl.enableVertexAttribArray(this._colorAttributeLocation);
 		}

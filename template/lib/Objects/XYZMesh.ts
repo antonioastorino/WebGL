@@ -6,8 +6,10 @@ import { XYZMatrix } from "../Math/XYZMatrix.js";
 
 export class XYZMesh {
 	protected _numOfVertices: number = -1;
-	protected _vertices: number[] = [];
-	protected _vertexArrayBufferObject: WebGLBuffer | null = null;
+	protected _vertPosArray: number[] = [];
+	protected _vertColorArray: number[] = [];
+	protected _posArrayBufferObject: WebGLBuffer | null = null;
+	protected _colArrayBufferObject: WebGLBuffer | null = null;
 	protected _shader: XYZShader | null = null;
 
 	private _modelMatrix: XYZMatrix;
@@ -26,11 +28,8 @@ export class XYZMesh {
 		this._modelMatrix = (new XYZMatrix(4,4)).identity()
 	}
 
-	public makeFloat32Array = (): Float32Array => {
-		return new Float32Array(this._vertices);
-	}
-
-	public get vertices(): Array<number> { return this._vertices; }
+	public get vertexPositions(): Array<number> { return this._vertPosArray; }
+	public get vertexColors(): Array<number> { return this._vertColorArray; }
 
 	public get numOfVertices(): number {
 		if (this.numOfVertices > 0) {
@@ -59,30 +58,31 @@ export class XYZMesh {
 
 	public draw = () => {
 		this.update();
-		XYZRenderer.gl.bindBuffer(XYZRenderer.gl.ARRAY_BUFFER, this._vertexArrayBufferObject);
-		let stride = 6 * Float32Array.BYTES_PER_ELEMENT;
 		let shader = <XYZShader>this._shader;
-		// TODO: Fix stride based on vertex attribute
-		if (shader.colorAttributeLocation > -1) {
-			// stride += 3 * Float32Array.BYTES_PER_ELEMENT;
-			XYZRenderer.gl.vertexAttribPointer(
-				shader.colorAttributeLocation, // ID
-				this._numOfVertices, // size
-				XYZRenderer.gl.FLOAT, // type,
-				false, // normalized
-				stride, // stride
-				3 * Float32Array.BYTES_PER_ELEMENT // offset
-			);
-		}
+		XYZRenderer.gl.bindBuffer(XYZRenderer.gl.ARRAY_BUFFER, this._posArrayBufferObject);
 
 		XYZRenderer.gl.vertexAttribPointer(
 			shader.positionAttributeLocation, // ID
 			this._numOfVertices, // size
 			XYZRenderer.gl.FLOAT, // type,
 			false, // normalized
-			stride, // stride
+			3 * Float32Array.BYTES_PER_ELEMENT, // stride
 			0 // offset
 		);
+
+		// TODO: Fix stride based on vertex attribute
+		if (shader.colorAttributeLocation > -1) {
+			XYZRenderer.gl.bindBuffer(XYZRenderer.gl.ARRAY_BUFFER, this._colArrayBufferObject);
+			// stride += 3 * Float32Array.BYTES_PER_ELEMENT;
+			XYZRenderer.gl.vertexAttribPointer(
+				shader.colorAttributeLocation, // ID
+				this._numOfVertices, // size
+				XYZRenderer.gl.FLOAT, // type,
+				false, // normalized
+				3 * Float32Array.BYTES_PER_ELEMENT, // stride
+				0 // offset
+			);
+		}
 
 		if (shader.mMVPUniformLocation != null) {
 			let mMVP = <XYZMatrix>XYZRenderer.worldMatrix.multiplyBy(this._modelMatrix);
