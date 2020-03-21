@@ -8,6 +8,7 @@ import { XYZQuaternion } from "../lib/Math/XYZQuaternion.js";
 import { XYZTriangle } from "../lib/Objects/XYZTriangle.js";
 import { XYZSprite } from "../lib/Objects/XYZSprite.js";
 import { XYZShader } from "./base/XYZShader.js";
+import { XYZTime } from "./base/XYZTime.js";
 
 export async function main() {
 	console.log("Hello Main");
@@ -30,9 +31,9 @@ export async function main() {
 	sprite1.setPosition({ x: 0, y: 0, z: 0 })
 	triangle1.setScale({ x: 3, y: 1, z: 1 })
 	let loop = () => {
-		angle = performance.now() * 0.36 * rps;
+		angle += XYZTime.deltaTime * 0.36 * rps;
 		triangle1.setOrientation({ x: 0, y: 0, z: 1, angle: angle });
-		// sprite1.setOrientation(angle);
+		sprite1.setOrientation(angle);
 		triangle1.setPosition({ x: 2 * Math.cos(angle * Math.PI / 60), y: 2 * Math.sin(angle * Math.PI / 60), z: -2 });
 		XYZRenderer.gl.clear(XYZRenderer.gl.COLOR_BUFFER_BIT | XYZRenderer.gl.DEPTH_BUFFER_BIT);
 		XYZRenderer.drawAll()
