@@ -1,4 +1,5 @@
 import { XYZMatrix } from "../../lib/Math/XYZMatrix.js";
+import { XYZMatLab } from "../../lib/Math/XYZMatLab.js";
 import { XYZShader } from "../base/XYZShader.js"
 import { XYZShaderReader } from "./XYZShaderReader";
 
@@ -18,6 +19,15 @@ export class XYZRenderer {
 		// this._gl.enable(this._gl.CULL_FACE);
 		// this._gl.frontFace(this._gl.CCW);
 		// this._gl.cullFace(this._gl.BACK);
+
+		let updateAspectRatio = () => {
+			this._canvas.width = window.innerWidth;
+			this._canvas.height = window.innerHeight;
+			this.gl.viewport(0, 0, window.innerWidth, window.innerHeight);
+			this.projMatrix = XYZMatLab.makePerspectiveMatrix(XYZRenderer.aspectRatio, 55, 0.1, 1000);
+		}
+		updateAspectRatio()
+		window.addEventListener('resize', updateAspectRatio);
 	}
 
 	public static get aspectRatio() { return this._canvas.width/this._canvas.height; }
