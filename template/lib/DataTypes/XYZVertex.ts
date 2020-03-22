@@ -15,6 +15,10 @@ export interface RotationVec4 extends Vec3 {
 	angle: number
 }
 
+export interface AngularVelocityVec4 extends Vec3 {
+	speed: number
+}
+
 export interface RGB {
 	r: number,
 	g: number,

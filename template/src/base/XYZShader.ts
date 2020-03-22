@@ -9,7 +9,7 @@ interface ShaderFile {
 	dimensions: number
 }
 
-export var ShaderTypes: {[id: string]: ShaderFile} = {
+export var ShaderTypes: { [id: string]: ShaderFile } = {
 	"basic": {
 		vertexShaderFile: "src/shaders/vertex-shader.glsl",
 		fragmentShaderFile: "src/shaders/fragment-shader.glsl",
@@ -103,9 +103,14 @@ export class XYZShader {
 	}
 
 	public addMesh = (mesh: XYZMesh) => { this._meshList.push(mesh); }
-	public drawAll() {
+	
+	public drawAll(deltaTime: number) {
 		XYZRenderer.gl.useProgram(this._shaderProgram); // Set program in use before getting locations
-		this._meshList.forEach( mesh => { mesh.draw() }); 
+		this._meshList.forEach(mesh => {
+			mesh.update(deltaTime);
+			mesh.draw();
+			mesh.reset();
+		});
 	}
 
 	public get positionAttributeLocation() { return this._positionAttributeLocation; }
@@ -113,7 +118,7 @@ export class XYZShader {
 	public get texCoordAttributeLocation() { return this._texCoordAttributeLocation; }
 	public get mMVPUniformLocation() { return this._mMVPUniformLocation; }
 	public get dimensions() { return this._dimensions; }
-	
+
 	public enableAttributes = () => {
 		if (this._positionAttributeLocation != 0) {
 			XYZRenderer.gl.enableVertexAttribArray(this._positionAttributeLocation);

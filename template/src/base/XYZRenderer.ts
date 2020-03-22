@@ -1,6 +1,7 @@
 import { XYZMatrix } from "../../lib/Math/XYZMatrix.js";
 import { XYZMatLab } from "../../lib/Math/XYZMatLab.js";
 import { XYZShader } from "./XYZShader.js"
+import { XYZTime } from "./XYZTime.js";
 
 export class XYZRenderer {
 	private static _gl: WebGLRenderingContext;
@@ -39,8 +40,9 @@ export class XYZRenderer {
 	public static addShader(shader: XYZShader) { this._shaderList.push(shader); }
 
 	public static drawAll() {
+		let deltaTime = XYZTime.deltaTime;
 		this._shaderList.forEach(
-			shader => { shader.drawAll(); }
+			shader => { shader.drawAll(deltaTime); }
 		)
 	}
 

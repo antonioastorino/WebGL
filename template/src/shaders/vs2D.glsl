@@ -7,5 +7,7 @@ uniform mat4 mMVP;
 
 void main() {
 	fragTexCoord = vertTexCoord;
-	gl_Position = mMVP * vec4(vertPosition, -1.0, 1.0); // z = -1.0 means always in front of everything
+	vec4 rawPosition = mMVP * vec4(vertPosition, -1.0, 1.0);
+	rawPosition.z = -1.0;
+	gl_Position = rawPosition; // z = -1.0 means always in front of everything
 }

@@ -22,13 +22,15 @@ export class XYZMatLab {
 		return matTranslation;
 	}
 
+	// Returns a rotation matrix about a given vector. The vector doesn't need to be normalized
 	public static makeRotationMatrix = (angle_deg: number, x: XYZVector | number, y?: number, z?: number): XYZMatrix => {
 		let quat: XYZQuaternion;
 		if (y == undefined || z == undefined) {
-			quat = new XYZQuaternion(angle_deg, <XYZVector>x);
+			quat = new XYZQuaternion(angle_deg, (<XYZVector>x).getDirection());
 		}
 		else {
-			quat = new XYZQuaternion(angle_deg, <number>x, y, z);
+			let dir = (new XYZVector([<number>x, y, z])).getDirection();
+			quat = new XYZQuaternion(angle_deg, dir);
 		}
 		let i = quat.i;
 		let j = quat.j;
@@ -66,27 +68,14 @@ export class XYZMatLab {
 
 	public static makeModelMatrix = (
 		position: Vec3,
-		rotation: RotationVec4,
+		rotation: XYZMatrix,
 		scale: Vec3
 	): XYZMatrix => {
-		// let matRotation = XYZMatLab.makeRotationMatrix(rotation.angle, rotation.x, rotation.y, rotation.z);
-		// let matTranslation = XYZMatLab.makeTranslateMatrix(position.x, position.y, position.z);
-		// let matScale = XYZMatLab.makeScaleMatrix(scale.x, scale.y, scale.z);
-		// let modelMatrix = <XYZMatrix>matTranslation.multiplyBy(<XYZMatrix>matRotation.multiplyBy(matScale))
+		let matRotation = rotation;
+		let matTranslation = XYZMatLab.makeTranslateMatrix(position.x, position.y, position.z);
+		let matScale = XYZMatLab.makeScaleMatrix(scale.x, scale.y, scale.z);
 
-		let rotation_v = new XYZQuaternion(rotation.angle, rotation.x, rotation.y, rotation.z);
-		let i = rotation_v.i;
-		let j = rotation_v.j;
-		let k = rotation_v.k;
-		let r = rotation_v.r;
-
-		let modelMatrix = new XYZMatrix([
-			[scale.x * (1 - 2 * (j * j + k * k)), scale.x * (2 * (i * j + k * r)), scale.x * (2 * (i * k - j * r)), 0],
-			[scale.y * (2 * (i * j - k * r)), scale.y * (1 - 2 * (i * i + k * k)), scale.y * (2 * (j * k + i * r)), 0],
-			[scale.z * (2 * (i * k + j * r)), scale.z * (2 * (j * k - i * r)), scale.z * (1 - 2 * (i * i + j * j)), 0],
-			[position.x, position.y, position.z, 1]]);
-
-		return modelMatrix;
+		return <XYZMatrix>matTranslation.multiplyBy(<XYZMatrix>matRotation.multiplyBy(matScale));
 	}
 
 	public static makePerspectiveMatrix(aspect: number, fov_deg: number, near: number, far: number) {
