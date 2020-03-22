@@ -1,7 +1,6 @@
 import { XYZMatrix } from "../../lib/Math/XYZMatrix.js";
 import { XYZMatLab } from "../../lib/Math/XYZMatLab.js";
-import { XYZShader } from "../base/XYZShader.js"
-import { XYZShaderReader } from "./XYZShaderReader";
+import { XYZShader } from "./XYZShader.js"
 
 export class XYZRenderer {
 	private static _gl: WebGLRenderingContext;

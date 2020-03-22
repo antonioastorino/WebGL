@@ -15,6 +15,8 @@ export class XYZMesh {
 	protected _shader: XYZShader | null = null;
 	protected _dimensions: number = 3;
 
+	private _hasParent: boolean = false;
+	private _parent: XYZMesh | null = null;
 	private _modelMatrix: XYZMatrix;
 	protected _position: Vec3;
 	protected _rotation: RotationVec4;
@@ -34,6 +36,13 @@ export class XYZMesh {
 	public get vertexPositions(): Array<number> { return this._vertPosArray; }
 	public get vertexColors(): Array<number> { return this._vertColorArray; }
 	public get numOfVertices(): number { return this._vertPosArray.length / this._dimensions; }
+
+	public set parent(mesh: XYZMesh | null) {
+		mesh != null ? this._hasParent = true :	this._hasParent = false;
+		this._parent = mesh;
+	}
+
+	public get modelMatrix(): XYZMatrix { return this._modelMatrix; }
 
 	/* TODO: it should not be possible to access the position directly but
 		only through forces. Only the initial position should be accessible upon
@@ -60,6 +69,10 @@ export class XYZMesh {
 			this._rotation,
 			this._scale
 			);
+		if (this._hasParent) {
+			this._parent?.update()
+			this._modelMatrix = <XYZMatrix>this._modelMatrix.multiplyBy((<XYZMesh>this._parent).modelMatrix);
+		}
 	}
 
 	public draw = () => {
@@ -123,8 +136,12 @@ export class XYZMesh {
 		let gl = XYZRenderer.gl;
 		if (shader.dimensions != this._dimensions) throw "Shader incompatible with object"
 		this._shader = shader;
-		this._posArrayBufferObject = gl.createBuffer(); // get buffer ID
 		shader.enableAttributes()
+
+		this._posArrayBufferObject = gl.createBuffer(); // get buffer ID
+		gl.bindBuffer(gl.ARRAY_BUFFER, this._posArrayBufferObject); // select buffer
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertPosArray), gl.STATIC_DRAW); // load data
+
 		if (this._vertColorArray.length > 0) {
 			this._colArrayBufferObject = gl.createBuffer(); // get buffer ID
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._colArrayBufferObject); // select buffer
@@ -147,9 +164,6 @@ export class XYZMesh {
 				this._texImg
 			)
 		}
-		
-		gl.bindBuffer(gl.ARRAY_BUFFER, this._posArrayBufferObject); // select buffer
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertPosArray), gl.STATIC_DRAW); // load data
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, null)
 
