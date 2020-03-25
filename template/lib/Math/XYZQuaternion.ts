@@ -14,7 +14,7 @@ export class XYZQuaternion {
 			this._vec = <XYZVector>x;
 		}
 		else {
-			this._vec = (new XYZVector([<number>x, y, z])).normalize();	
+			this._vec = new XYZVector([<number>x, y, z]);	
 		}
 		this._angle_deg = angle_deg;
 		let s = Math.sin(this.getAngleRad()/2);

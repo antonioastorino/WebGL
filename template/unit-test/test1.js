@@ -94,16 +94,19 @@ QUnit.test('Translation', (assert) => {
 })
 
 QUnit.test('Rotation', (assert) => {
-	let vecX = new XYZVector([1, 0, 0, 1]);
-	let vecY = new XYZVector([0, 1, 0, 1]);
-	let vecZ = new XYZVector([0, 0, 1, 1]);
+	let vecX = new XYZVector([1, 0, 0]);
+	let vecY = new XYZVector([0, 1, 0]);
+	let vecZ = new XYZVector([0, 0, 1]);
+	let pointX = new XYZVector([1, 0, 0, 1]);
+	let pointY = new XYZVector([0, 1, 0, 1]);
+	let pointZ = new XYZVector([0, 0, 1, 1]);
 	let angle = 90;
 	let matX = XYZMatLab.makeRotationMatrix(angle, vecX);
 	let matY = XYZMatLab.makeRotationMatrix(angle, vecY);
 	let matZ = XYZMatLab.makeRotationMatrix(angle, vecZ);
-	assert.deepEqual(matZ.multiplyBy(vecX).y, 1, "rotation about z correct");
-	assert.deepEqual(matY.multiplyBy(vecZ).x, 1, "rotation about y correct");
-	assert.deepEqual(matX.multiplyBy(vecY).z, 1, "rotation about x correct");
+	assert.deepEqual(matZ.multiplyBy(pointX).y, 1, "rotation about z correct");
+	assert.deepEqual(matY.multiplyBy(pointZ).x, 1, "rotation about y correct");
+	assert.deepEqual(matX.multiplyBy(pointY).z, 1, "rotation about x correct");
 })
 
 QUnit.module("Quaternions");
@@ -113,6 +116,6 @@ QUnit.test('Creation', (assert) => {
 	let z = 2*Math.random() - 1;
 	let theta = 380*(Math.random() - 0.5);
 	let q1 = new XYZQuaternion(theta, x, y, z);
-	let vec1 = (new XYZVector([x, y, z])).normalize();
+	let vec1 = (new XYZVector([x, y, z]));
 	assert.deepEqual(vec1, q1.getVector(), "Vector part correctly normalized");	
 })
