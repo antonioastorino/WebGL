@@ -8,13 +8,16 @@ import { XYZMatLab } from "../lib/Math/XYZMatLab.js";
 import { XYZQuaternion } from "../lib/Math/XYZQuaternion.js";
 import { XYZTriangle } from "../lib/Objects/XYZTriangle.js";
 import { XYZSprite } from "../lib/Objects/XYZSprite.js";
-import { XYZShader } from "./base/XYZShader.js";
-import { XYZTime } from "./base/XYZTime.js";
+import { XYZObjFileReader } from "./base/XYZObjFileReader.js";
+import { XYZModel } from "../lib/Objects/XYZModel.js";
 
 export async function main() {
 	console.log("Hello Main");
 	XYZEngine.init();
 	XYZRenderer.viewMatrix = XYZMatLab.makeLookAtMatrix(new XYZQuaternion(0, 0, 1, 0), new XYZVector([0, 0, 5]));
+
+	let model1 = new XYZModel("./assets/pallet.obj");
+	await model1.init();
 
 	let basicShader = await XYZEngine.makeShader("basic");
 	let spriteShader = await XYZEngine.makeShader("2D");
@@ -23,6 +26,7 @@ export async function main() {
 	let triangle2 = new XYZTriangle();
 	// let sprite1 = new XYZSprite('wooden-wall.jpg');
 	
+	model1.attachShader(basicShader);
 	triangle1.attachShader(basicShader);
 	triangle2.attachShader(basicShader);
 	// sprite1.attachShader(spriteShader);
@@ -37,7 +41,7 @@ export async function main() {
 	triangle2.parent = triangle1;
 	
 	
-	triangle1.setAngularVel({x:1, y:1, z:1, speed: 0.05});
+	model1.setAngularVel({x:1, y:1, z:1, speed: 0.05});
 	// sprite1.setAngularVel(0.01);
 	let loop = () => {
 		// triangle1.setOrientation({ x: 0, y: 0, z: 1, angle: angle });

@@ -206,6 +206,7 @@ export class XYZMesh {
 		this._shader = shader;
 		shader.enableAttributes()
 
+		if (this._vertPosArray.length < 3) throw "Vertices not defined"
 		this._posArrayBufferObject = gl.createBuffer(); // get buffer ID
 		gl.bindBuffer(gl.ARRAY_BUFFER, this._posArrayBufferObject); // select buffer
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertPosArray), gl.STATIC_DRAW); // load data
