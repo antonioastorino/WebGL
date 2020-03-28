@@ -46,24 +46,30 @@ export class XYZObjFileReader {
 				let faceText = line.split(" ")
 				faceText.forEach((vertex: string) => {
 					let faceIndices = vertex.split("/");
-					if (faceIndices.length == 3) { // normals are there for sure
-						let vIndex = parseInt(faceIndices[0]) - 1;
-						let tIndex = parseInt(faceIndices[1]) - 1;
-						let nIndex = parseInt(faceIndices[2]) - 1;
-						vertexArrayBuffer = vertexArrayBuffer.concat([
-							vertexArray[vIndex].x,
-							vertexArray[vIndex].y,
-							vertexArray[vIndex].z,
-						])
-						normalArrayBuffer = normalArrayBuffer.concat([
-							normalArray[nIndex].x,
-							normalArray[nIndex].y,
-							normalArray[nIndex].z,
-						])
-						textureArrayBuffer = textureArrayBuffer.concat([
-							textureArray[tIndex].x,
-							textureArray[tIndex].y,
-						])
+					// Load vertex coordinate array
+					let vIndex = parseInt(faceIndices[0]) - 1;
+					vertexArrayBuffer = vertexArrayBuffer.concat([
+						vertexArray[vIndex].x,
+						vertexArray[vIndex].y,
+						vertexArray[vIndex].z,
+					])
+					// Check for texture and normals
+					if (faceIndices.length > 1) {
+						if (faceIndices[1] != "") { // there is texture
+							let tIndex = parseInt(faceIndices[1]) - 1;
+							textureArrayBuffer = textureArrayBuffer.concat([
+								textureArray[tIndex].x,
+								textureArray[tIndex].y
+							])
+						}
+						if (faceIndices.length == 3) { // there are normals
+							let nIndex = parseInt(faceIndices[2]) - 1;
+							normalArrayBuffer = normalArrayBuffer.concat([
+								normalArray[nIndex].x,
+								normalArray[nIndex].y,
+								normalArray[nIndex].z,
+							])
+						}
 					}
 				})
 			}

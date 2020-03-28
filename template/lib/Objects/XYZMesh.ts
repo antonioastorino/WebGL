@@ -9,6 +9,7 @@ export class XYZMesh {
 	protected _vertPosArray: number[] = [];
 	protected _vertColorArray: number[] = [];
 	protected _texCoordArray: number[] = [];
+	private _numOfVertices: number = 0;
 	protected _texImg: HTMLImageElement = new Image();
 	protected _posArrayBufferObject: WebGLBuffer | null = null;
 	protected _colArrayBufferObject: WebGLBuffer | null = null;
@@ -37,7 +38,7 @@ export class XYZMesh {
 
 	public get vertexPositions(): Array<number> { return this._vertPosArray; }
 	public get vertexColors(): Array<number> { return this._vertColorArray; }
-	public get numOfVertices(): number { return this._vertPosArray.length / this._dimensions; }
+	public get numOfVertices(): number { return this._numOfVertices; }
 	public get position(): Vec3 { return this._position; }
 	public get scale(): Vec3 { return this._scale; }
 
@@ -207,6 +208,7 @@ export class XYZMesh {
 		shader.enableAttributes()
 
 		if (this._vertPosArray.length < 3) throw "Vertices not defined"
+		this._numOfVertices = this._vertPosArray.length / this._dimensions
 		this._posArrayBufferObject = gl.createBuffer(); // get buffer ID
 		gl.bindBuffer(gl.ARRAY_BUFFER, this._posArrayBufferObject); // select buffer
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertPosArray), gl.STATIC_DRAW); // load data
@@ -235,7 +237,11 @@ export class XYZMesh {
 		}
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, null)
-
 		shader.addMesh(this);
+
+		// Release memory (the GPU is now storing the arrays)
+		this._vertPosArray = [];
+		this._vertColorArray = [];
+		this._texCoordArray = [];
 	}
 }
