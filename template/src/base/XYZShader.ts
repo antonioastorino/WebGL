@@ -134,7 +134,7 @@ export class XYZShader {
 	public get dimensions() { return this._dimensions; }
 
 	public enableAttributes = () => {
-		if (this._positionAttributeLocation != 0) {
+		if (this._positionAttributeLocation > -1) {
 			XYZRenderer.gl.enableVertexAttribArray(this._positionAttributeLocation);
 		}
 
