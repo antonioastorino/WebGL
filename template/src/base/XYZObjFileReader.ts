@@ -76,7 +76,7 @@ export class XYZObjFileReader {
 		});
 		return {
 			vertexArrayBuffer: vertexArrayBuffer,
-			textureArrayBuffer: vertexArrayBuffer,
+			textureArrayBuffer: textureArrayBuffer,
 			normalArrayBuffer: normalArrayBuffer
 		};
 	}
