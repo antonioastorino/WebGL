@@ -12,12 +12,10 @@ export class XYZObjFileReader {
 		let vertexArray: Vec3[] = [];
 		let textureArray: Vec2[] = [];
 		let normalArray: Vec3[] = [];
-		let faceArray: { v: number, vt: number, vn: number }[] = [];
 
 		let vertexArrayBuffer: number[] = [];
 		let textureArrayBuffer: number[] = [];
 		let normalArrayBuffer: number[] = [];
-
 
 		lines.forEach((line: string) => {
 			if (line.startsWith("v ")) {
@@ -48,32 +46,26 @@ export class XYZObjFileReader {
 				let faceText = line.split(" ")
 				faceText.forEach((vertex: string) => {
 					let faceIndices = vertex.split("/");
-					if (faceIndices.length == 3) {
-						let vIndex = parseInt(faceIndices[0]);
-						let tIndex = parseInt(faceIndices[0]);
-						let nIndex = parseInt(faceIndices[0]);
+					if (faceIndices.length == 3) { // normals are there for sure
+						let vIndex = parseInt(faceIndices[0]) - 1;
+						let tIndex = parseInt(faceIndices[1]) - 1;
+						let nIndex = parseInt(faceIndices[2]) - 1;
 						vertexArrayBuffer = vertexArrayBuffer.concat([
-							vertexArray[vIndex - 1].x,
-							vertexArray[vIndex - 1].y,
-							vertexArray[vIndex - 1].z,
+							vertexArray[vIndex].x,
+							vertexArray[vIndex].y,
+							vertexArray[vIndex].z,
 						])
 						normalArrayBuffer = normalArrayBuffer.concat([
-							vertexArray[nIndex - 1].x,
-							vertexArray[nIndex - 1].y,
-							vertexArray[nIndex - 1].z,
+							normalArray[nIndex].x,
+							normalArray[nIndex].y,
+							normalArray[nIndex].z,
 						])
 						textureArrayBuffer = textureArrayBuffer.concat([
-							vertexArray[tIndex - 1].x,
-							vertexArray[tIndex - 1].y,
-							vertexArray[tIndex - 1].z,
+							textureArray[tIndex].x,
+							textureArray[tIndex].y,
 						])
 					}
 				})
-				// faceArray.push({
-				// 	x: parseFloat(normalText[1]),
-				// 	y: parseFloat(normalText[2]),
-				// 	z: parseFloat(normalText[3])
-				// });
 			}
 		});
 		return {
