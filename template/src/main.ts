@@ -16,11 +16,11 @@ export async function main() {
 	XYZEngine.init();
 	XYZRenderer.viewMatrix = XYZMatLab.makeLookAtMatrix(new XYZQuaternion(0, 0, 1, 0), new XYZVector([0, 0, 5]));
 
-	let model1 = new XYZModel("./assets/pallet.obj");
+	let model1 = new XYZModel("./assets/meshes/pallet.obj");
 	await model1.init();
 
 	let basicShader = await XYZEngine.makeShader("basic");
-	let spriteShader = await XYZEngine.makeShader("2D");
+	// let spriteShader = await XYZEngine.makeShader("2D");
 	
 	let triangle1 = new XYZTriangle();
 	let triangle2 = new XYZTriangle();

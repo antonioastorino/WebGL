@@ -3,7 +3,7 @@ import { XYZMesh } from "./XYZMesh.js";
 export class XYZSprite extends XYZMesh {
 	constructor(texFileName: string) {
 		super();
-		this._texImg.src = './assets/' + texFileName;
+		this._texImg.src = './assets/textures/' + texFileName;
 
 		this._dimensions = 2;
 		this._vertPosArray = [

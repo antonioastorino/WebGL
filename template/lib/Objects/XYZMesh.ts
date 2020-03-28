@@ -218,7 +218,7 @@ export class XYZMesh {
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._colArrayBufferObject); // select buffer
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertColorArray), gl.STATIC_DRAW); // load data
 		}
-		if (this._texCoordArray.length > 0) {
+		if (this._texCoordArray.length > 0 && shader.hasTexture) {
 			this._texCoordArrayBufferObject = XYZRenderer.gl.createBuffer(); // get buffer ID
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordArrayBufferObject); // select buffer
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._texCoordArray), gl.STATIC_DRAW); // load data

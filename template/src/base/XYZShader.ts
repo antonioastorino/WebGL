@@ -6,24 +6,29 @@ import { XYZMesh } from "../../lib/Objects/XYZMesh.js"
 interface ShaderFile {
 	vertexShaderFile: string,
 	fragmentShaderFile: string,
-	dimensions: number
+	dimensions: number,
+	texture: boolean
 }
 
 export var ShaderTypes: { [id: string]: ShaderFile } = {
 	"basic": {
-		vertexShaderFile: "src/shaders/vertex-shader.glsl",
-		fragmentShaderFile: "src/shaders/fragment-shader.glsl",
-		dimensions: 3
+		vertexShaderFile: "src/shaders/basic-vs.glsl",
+		fragmentShaderFile: "src/shaders/basic-fs.glsl",
+		dimensions: 3,
+		texture: false
+
 	},
 	"2D": {
-		vertexShaderFile: "src/shaders/vs2D.glsl",
-		fragmentShaderFile: "src/shaders/fs2D.glsl",
-		dimensions: 2
+		vertexShaderFile: "src/shaders/2D-vs.glsl",
+		fragmentShaderFile: "src/shaders/2D-fs.glsl",
+		dimensions: 2,
+		texture: true
 	},
 	"test": {
-		vertexShaderFile: "src/shaders/vertex-test-shader.glsl",
-		fragmentShaderFile: "src/shaders/fragment-test-shader.glsl",
-		dimensions: 3
+		vertexShaderFile: "src/shaders/test-vs.glsl",
+		fragmentShaderFile: "src/shaders/test-fs.glsl",
+		dimensions: 3,
+		texture: false
 	}
 }
 
@@ -53,6 +58,8 @@ export class XYZShader {
 
 		XYZRenderer.addShader(this);
 	}
+
+	public get hasTexture() { return ShaderTypes[this._shaderType].texture; }
 
 	public createShaderProgram = (vertexShaderText: string, fragmentShaderText: string) => {
 		let vertexShader = <WebGLShader>XYZRenderer.gl.createShader(XYZRenderer.gl.VERTEX_SHADER);
