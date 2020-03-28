@@ -3,9 +3,10 @@ import { XYZObjFileReader } from '../../src/base/XYZObjFileReader.js';
 
 export class XYZModel extends XYZMesh {
 	private _sourcePath: string;
-	constructor(sourcePath: string) {
+	constructor(sourcePath: string, texFileName: string) {
 		super();
-		this._sourcePath = sourcePath;		
+		this._sourcePath = sourcePath;
+		this._texImg.src = './assets/textures/' + texFileName;		
 	}
 
 	public async init() {

@@ -16,17 +16,19 @@ export async function main() {
 	XYZEngine.init();
 	XYZRenderer.viewMatrix = XYZMatLab.makeLookAtMatrix(new XYZQuaternion(0, 0, 1, 0), new XYZVector([0, 0, 5]));
 
-	let model1 = new XYZModel("./assets/meshes/pallet.obj");
+	let model1 = new XYZModel("./assets/meshes/pallet.obj", "wood_old.jpg");
+	// let model1 = new XYZModel("./assets/meshes/texturedCube.obj", "wood_old.jpg");
 	await model1.init();
 
 	let basicShader = await XYZEngine.makeShader("basic");
+	let texturedShader = await XYZEngine.makeShader("texture");
 	// let spriteShader = await XYZEngine.makeShader("2D");
 	
 	let triangle1 = new XYZTriangle();
 	let triangle2 = new XYZTriangle();
 	// let sprite1 = new XYZSprite('wooden-wall.jpg');
 	
-	model1.attachShader(basicShader);
+	model1.attachShader(texturedShader);
 	triangle1.attachShader(basicShader);
 	triangle2.attachShader(basicShader);
 	// sprite1.attachShader(spriteShader);
