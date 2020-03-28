@@ -6,7 +6,7 @@ export class XYZModel extends XYZMesh {
 	constructor(sourcePath: string, texFileName: string) {
 		super();
 		this._sourcePath = sourcePath;
-		this._texImg.src = './assets/textures/' + texFileName;		
+		this._texFileName = texFileName;
 	}
 
 	public async init() {
@@ -14,5 +14,6 @@ export class XYZModel extends XYZMesh {
 		this._vertPosArray = arrayBuffers.vertexArrayBuffer;
 		this._vertColorArray = arrayBuffers.normalArrayBuffer;
 		this._texCoordArray = arrayBuffers.textureArrayBuffer;
+		await this.loadTexture();
 	}
 }

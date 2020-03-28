@@ -15,6 +15,7 @@ export class XYZMesh {
 	protected _colArrayBufferObject: WebGLBuffer | null = null;
 	protected _texCoordArrayBufferObject: WebGLBuffer | null = null;
 	private _textureObject: WebGLTexture | null = null;
+	protected _texFileName: string = "";
 	protected _shader: XYZShader | null = null;
 	protected _dimensions: number = 3;
 
@@ -29,12 +30,12 @@ export class XYZMesh {
 	private _rotationAngle: number = 0;
 
 	constructor() {
-		this._position = {x: 0, y: 0, z:0};
+		this._position = { x: 0, y: 0, z: 0 };
 		this._rotation = (new XYZMatrix(4, 4)).identity();
-		this._scale = {x: 1, y: 1, z:1 };
-		this._linearVel = {x: 0, y: 0, z:0};
-		this._angularVel = {x: 0, y: 0, z:1, speed: 0};
-		this._modelMatrix = (new XYZMatrix(4,4)).identity()
+		this._scale = { x: 1, y: 1, z: 1 };
+		this._linearVel = { x: 0, y: 0, z: 0 };
+		this._angularVel = { x: 0, y: 0, z: 1, speed: 0 };
+		this._modelMatrix = (new XYZMatrix(4, 4)).identity()
 	}
 
 	public get vertexPositions(): Array<number> { return this._vertPosArray; }
@@ -78,11 +79,11 @@ export class XYZMesh {
 	}
 
 	public setAngularVel = (angularVelocity: AngularVelocityVec4 | number) => {
-		if (this._dimensions == 2 && typeof(angularVelocity) == 'number' ) {
+		if (this._dimensions == 2 && typeof (angularVelocity) == 'number') {
 			// only rotations about the z-axis are allowed
-			this._angularVel = {x: 0, y: 0, z: 1, speed:<number>angularVelocity };
+			this._angularVel = { x: 0, y: 0, z: 1, speed: <number>angularVelocity };
 		}
-		else if (this._dimensions == 3 && typeof(angularVelocity) == 'object' ) {
+		else if (this._dimensions == 3 && typeof (angularVelocity) == 'object') {
 			angularVelocity = <AngularVelocityVec4>angularVelocity;
 			let direction = (new XYZVector([angularVelocity.x, angularVelocity.y, angularVelocity.z])).getDirection();
 			let speed = angularVelocity.speed;
@@ -99,6 +100,15 @@ export class XYZMesh {
 	}
 
 	public setScale = (scale: Vec3) => { this._scale = scale; }
+
+	public loadTexture = (): Promise<HTMLImageElement> => {
+		return new Promise(resolve => {
+			this._texImg.addEventListener('load', () => {
+				resolve(this._texImg);
+			});
+			this._texImg.src = './assets/textures/' + this._texFileName;
+		});
+	}
 
 	public update = (deltaTime: number) => {
 		if (this._isUpdated) return;
@@ -148,6 +158,7 @@ export class XYZMesh {
 
 	public draw = () => {
 		let shader = <XYZShader>this._shader;
+		shader.enableAttributes();
 		let gl = XYZRenderer.gl;
 		gl.bindBuffer(gl.ARRAY_BUFFER, this._posArrayBufferObject);
 
@@ -191,7 +202,7 @@ export class XYZMesh {
 				mMVP = <XYZMatrix>XYZRenderer.worldMatrix.multiplyBy(this._modelMatrix);
 			}
 			else {
-				let mScale = XYZMatLab.makeScaleMatrix(1/XYZRenderer.aspectRatio, 1, 1);
+				let mScale = XYZMatLab.makeScaleMatrix(1 / XYZRenderer.aspectRatio, 1, 1);
 				mMVP = <XYZMatrix>mScale.multiplyBy(this._modelMatrix);
 			}
 			gl.uniformMatrix4fv(
@@ -200,9 +211,15 @@ export class XYZMesh {
 				mMVP.makeFloat32Array());
 		}
 
+		/* TODO:
+		- in a for loop, for each submesh
+		- 1. set material uniforms
+		- 2. draw vertices belonging to a given submesh
+		*/
 		gl.drawArrays(gl.TRIANGLES, 0, this.numOfVertices);
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 		gl.bindTexture(gl.TEXTURE_2D, null);
+		shader.disableAttributes();
 	}
 
 	public attachShader = (shader: XYZShader) => {
@@ -216,17 +233,20 @@ export class XYZMesh {
 		this._posArrayBufferObject = gl.createBuffer(); // get buffer ID
 		gl.bindBuffer(gl.ARRAY_BUFFER, this._posArrayBufferObject); // select buffer
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertPosArray), gl.STATIC_DRAW); // load data
+		this._vertPosArray = []; // release as not needed anymore
 
 		if (this._vertColorArray.length > 0) {
 			this._colArrayBufferObject = gl.createBuffer(); // get buffer ID
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._colArrayBufferObject); // select buffer
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertColorArray), gl.STATIC_DRAW); // load data
+			this._vertColorArray = []; // release as not needed anymore
 		}
+
 		if (this._texCoordArray.length > 0 && shader.hasTexture) {
 			this._texCoordArrayBufferObject = XYZRenderer.gl.createBuffer(); // get buffer ID
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordArrayBufferObject); // select buffer
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._texCoordArray), gl.STATIC_DRAW); // load data
-			
+
 			this._textureObject = XYZRenderer.gl.createTexture();
 			gl.bindTexture(gl.TEXTURE_2D, this._textureObject);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -238,15 +258,12 @@ export class XYZMesh {
 				gl.UNSIGNED_BYTE,
 				this._texImg
 			)
+			this._texCoordArray = []; // release as not needed anymore
 		}
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, null)
 		gl.bindTexture(gl.TEXTURE_2D, null);
 		shader.addMesh(this);
 
-		// Release memory (the GPU is now storing the arrays)
-		this._vertPosArray = [];
-		this._vertColorArray = [];
-		this._texCoordArray = [];
 	}
 }

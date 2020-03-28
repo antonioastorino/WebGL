@@ -146,4 +146,18 @@ export class XYZShader {
 			XYZRenderer.gl.enableVertexAttribArray(this._texCoordAttributeLocation);
 		}
 	}
+
+	public disableAttributes = () => {
+		if (this._positionAttributeLocation > -1) {
+			XYZRenderer.gl.disableVertexAttribArray(this._positionAttributeLocation);
+		}
+
+		if (this._colorAttributeLocation > -1) {
+			XYZRenderer.gl.disableVertexAttribArray(this._colorAttributeLocation);
+		}
+
+		if (this._texCoordAttributeLocation > -1) {
+			XYZRenderer.gl.disableVertexAttribArray(this._texCoordAttributeLocation);
+		}
+	}
 }
