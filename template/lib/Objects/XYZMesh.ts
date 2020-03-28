@@ -14,6 +14,7 @@ export class XYZMesh {
 	protected _posArrayBufferObject: WebGLBuffer | null = null;
 	protected _colArrayBufferObject: WebGLBuffer | null = null;
 	protected _texCoordArrayBufferObject: WebGLBuffer | null = null;
+	private _textureObject: WebGLTexture | null = null;
 	protected _shader: XYZShader | null = null;
 	protected _dimensions: number = 3;
 
@@ -147,23 +148,24 @@ export class XYZMesh {
 
 	public draw = () => {
 		let shader = <XYZShader>this._shader;
-		XYZRenderer.gl.bindBuffer(XYZRenderer.gl.ARRAY_BUFFER, this._posArrayBufferObject);
+		let gl = XYZRenderer.gl;
+		gl.bindBuffer(gl.ARRAY_BUFFER, this._posArrayBufferObject);
 
-		XYZRenderer.gl.vertexAttribPointer(
+		gl.vertexAttribPointer(
 			shader.positionAttributeLocation, // ID
 			this._dimensions, // number of components per vertex attribute
-			XYZRenderer.gl.FLOAT, // type,
+			gl.FLOAT, // type,
 			false, // normalized
 			0, // stride
 			0 // offset
 		);
 
 		if (shader.colorAttributeLocation > -1) {
-			XYZRenderer.gl.bindBuffer(XYZRenderer.gl.ARRAY_BUFFER, this._colArrayBufferObject);
-			XYZRenderer.gl.vertexAttribPointer(
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._colArrayBufferObject);
+			gl.vertexAttribPointer(
 				shader.colorAttributeLocation, // ID
 				3, // number of components per vertex attribute
-				XYZRenderer.gl.FLOAT, // type,
+				gl.FLOAT, // type,
 				false, // normalized
 				0, // stride
 				0 // offset
@@ -171,11 +173,12 @@ export class XYZMesh {
 		}
 
 		if (shader.texCoordAttributeLocation > -1) {
-			XYZRenderer.gl.bindBuffer(XYZRenderer.gl.ARRAY_BUFFER, this._texCoordArrayBufferObject);
-			XYZRenderer.gl.vertexAttribPointer(
+			gl.bindTexture(gl.TEXTURE_2D, this._textureObject);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordArrayBufferObject);
+			gl.vertexAttribPointer(
 				shader.texCoordAttributeLocation, // ID
 				2, // number of components per vertex attribute
-				XYZRenderer.gl.FLOAT, // type,
+				gl.FLOAT, // type,
 				false, // normalized
 				0, // stride
 				0 // offset
@@ -191,14 +194,15 @@ export class XYZMesh {
 				let mScale = XYZMatLab.makeScaleMatrix(1/XYZRenderer.aspectRatio, 1, 1);
 				mMVP = <XYZMatrix>mScale.multiplyBy(this._modelMatrix);
 			}
-			XYZRenderer.gl.uniformMatrix4fv(
+			gl.uniformMatrix4fv(
 				shader.mMVPUniformLocation,
 				false, // transpose 
 				mMVP.makeFloat32Array());
 		}
 
-		XYZRenderer.gl.drawArrays(XYZRenderer.gl.TRIANGLES, 0, this.numOfVertices);
-		XYZRenderer.gl.bindBuffer(XYZRenderer.gl.ARRAY_BUFFER, null);
+		gl.drawArrays(gl.TRIANGLES, 0, this.numOfVertices);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		gl.bindTexture(gl.TEXTURE_2D, null);
 	}
 
 	public attachShader = (shader: XYZShader) => {
@@ -223,8 +227,8 @@ export class XYZMesh {
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordArrayBufferObject); // select buffer
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._texCoordArray), gl.STATIC_DRAW); // load data
 			
-			let texture = XYZRenderer.gl.createTexture();
-			gl.bindTexture(gl.TEXTURE_2D, texture);
+			this._textureObject = XYZRenderer.gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, this._textureObject);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -237,6 +241,7 @@ export class XYZMesh {
 		}
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, null)
+		gl.bindTexture(gl.TEXTURE_2D, null);
 		shader.addMesh(this);
 
 		// Release memory (the GPU is now storing the arrays)
