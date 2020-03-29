@@ -124,7 +124,7 @@ QUnit.test('Creation', (assert) => {
 QUnit.module("Obj files");
 QUnit.test('Load', (assert) => {
 	assert.expect(6);
-	var obj = XYZObjFileReader.load("sample.obj").then(result => {
+	var obj = XYZObjFileReader.load("./", "sample.obj").then(result => {
 		console.log(result)
 		assert.deepEqual((result.vertexArrayBuffer).length, 9, "Correct position buffer length");
 		assert.deepEqual((result.vertexArrayBuffer)[1], -1, "Correct vertex position coordinate");

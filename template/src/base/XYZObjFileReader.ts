@@ -1,23 +1,75 @@
 import { Vec3, Vec2 } from "../DataTypes/XYZVertex.js";
+import { XYZMaterial } from "../../lib/Objects/XYZMaterial.js"
 
 export class XYZObjFileReader {
-	public static load = async (filePath: string): Promise<{
+	// read .mtl files and creates a list of materials used by the specified object
+	private static readMtlLib = async (filePath: string): Promise<XYZMaterial[]> => {
+		let fileText = await $.get(filePath);
+		let materials: XYZMaterial[] = [];
+		let materialText = fileText.split("newmtl ");
+		let makeVec3FromString = (str:string): Vec3 => {
+			let valuesText = str.split(" ");
+			return {
+				x: parseFloat(valuesText[1]),
+				y: parseFloat(valuesText[2]),
+				z: parseFloat(valuesText[3]),
+			}
+		}
+		for (let i = 1; i < materialText.length; i++) {
+			let lines = materialText[i].split("\n");
+			let newMaterial = new XYZMaterial(lines[0]);
+			lines.forEach((line: string) => {
+				switch (line.split(" ")[0]) {
+					case "Ns":
+						newMaterial.Ns = parseFloat(line.split(" ")[1])
+						break;
+					case "Ka":
+						newMaterial.Ka = makeVec3FromString(line);
+						break;
+					case "Kd":
+						newMaterial.Kd = makeVec3FromString(line);
+						break;
+					case "Ks":
+						newMaterial.Ks = makeVec3FromString(line);
+						break;
+					case "Ke":
+						newMaterial.Ke = makeVec3FromString(line);
+						break;
+				}
+			});
+			materials.push(newMaterial);
+		}
+		return materials;
+	}
+
+	public static load = async (fileDir: string, fileName: string): Promise<{
+		materials: XYZMaterial[],
 		vertexArrayBuffer: number[],
 		textureArrayBuffer: number[],
 		normalArrayBuffer: number[]
 	}> => {
-		const objFileText = await $.get(filePath);
+		const objFileText = await $.get(fileDir + fileName);
 		var lines = objFileText.split('\n');
 
 		let vertexArray: Vec3[] = [];
 		let textureArray: Vec2[] = [];
 		let normalArray: Vec3[] = [];
+		let materials: XYZMaterial[] = [];
+		let matStartIndex = 0;
+		let matVertexCount = 0;
+		let matCount = -1;
 
 		let vertexArrayBuffer: number[] = [];
 		let textureArrayBuffer: number[] = [];
 		let normalArrayBuffer: number[] = [];
 
-		lines.forEach((line: string) => {
+		for (let i = 0; !lines[i].startsWith("v "); i++) {
+			if (lines[i].startsWith("mtllib ")) {
+				materials = await XYZObjFileReader.readMtlLib(fileDir + "../materials/" + lines[i].split(" ")[1]);
+			}
+		}
+
+		lines.forEach(async (line: string) => {
 			if (line.startsWith("v ")) {
 				let vertexText = line.split(" ")
 				vertexArray.push({
@@ -41,10 +93,23 @@ export class XYZObjFileReader {
 					z: parseFloat(normalText[3])
 				});
 			}
+			else if (line.startsWith("usemtl ")) {
+				if (matCount > -1) {
+					materials[matCount].vertexCount = matVertexCount;
+				}
+				matCount ++;
+				if (materials[matCount].name != line.split(" ")[1]) {
+					throw "Material not matching object descriptor"
+				}
+				materials[matCount].startIndex = matStartIndex;
+				matVertexCount = 0;
+			}
 			else if (line.startsWith("f ")) {
 				line = line.replace("f ", "");
 				let faceText = line.split(" ")
 				faceText.forEach((vertex: string) => {
+					matVertexCount += 1;
+					matStartIndex += 1;
 					let faceIndices = vertex.split("/");
 					// Load vertex coordinate array
 					let vIndex = parseInt(faceIndices[0]) - 1;
@@ -74,7 +139,15 @@ export class XYZObjFileReader {
 				})
 			}
 		});
+		if (materials.length > 0) {
+			materials[matCount].vertexCount = matVertexCount;
+		}
+		else {
+			// do something in case no material name is specified
+			materials.push(new XYZMaterial("default"))
+		}
 		return {
+			materials: materials,
 			vertexArrayBuffer: vertexArrayBuffer,
 			textureArrayBuffer: textureArrayBuffer,
 			normalArrayBuffer: normalArrayBuffer

@@ -4,27 +4,33 @@ import { XYZShader } from "../base/XYZShader.js";
 import { XYZMatLab } from "../Math/XYZMatLab.js";
 import { XYZMatrix } from "../Math/XYZMatrix.js";
 import { XYZVector } from "../Math/XYZVector.js";
+import { XYZMaterial } from "./XYZMaterial.js";
 
 export class XYZMesh {
+	// Geometry
+	private _numOfVertices: number = 0;
 	protected _vertPosArray: number[] = [];
 	protected _vertColorArray: number[] = [];
 	protected _texCoordArray: number[] = [];
-	private _numOfVertices: number = 0;
-	protected _texImg: HTMLImageElement = new Image();
 	protected _posArrayBufferObject: WebGLBuffer | null = null;
-	protected _colArrayBufferObject: WebGLBuffer | null = null;
-	protected _texCoordArrayBufferObject: WebGLBuffer | null = null;
-	private _textureObject: WebGLTexture | null = null;
-	protected _texFileName: string = "";
-	protected _shader: XYZShader | null = null;
 	protected _dimensions: number = 3;
-
-	private _isUpdated: boolean = false;
-	private _parent: XYZMesh | null = null;
 	private _modelMatrix: XYZMatrix;
 	protected _position: Vec3;
 	protected _rotation: XYZMatrix;
 	protected _scale: Vec3;
+
+	// Appearance
+	protected _texImg: HTMLImageElement = new Image();
+	protected _colArrayBufferObject: WebGLBuffer | null = null;
+	protected _texCoordArrayBufferObject: WebGLBuffer | null = null;
+	private _textureObject: WebGLTexture | null = null;
+	protected _texFileName: string = "";
+	protected _materials: XYZMaterial[] = [];
+	protected _shader: XYZShader | null = null;
+
+	// Physics
+	private _isUpdated: boolean = false;
+	private _parent: XYZMesh | null = null;
 	protected _linearVel: Vec3;
 	private _angularVel: AngularVelocityVec4;
 	private _rotationAngle: number = 0;
@@ -216,7 +222,13 @@ export class XYZMesh {
 		- 1. set material uniforms
 		- 2. draw vertices belonging to a given submesh
 		*/
-		gl.drawArrays(gl.TRIANGLES, 0, this.numOfVertices);
+		if (this._materials.length > 0)
+			this._materials.forEach((material: XYZMaterial) => {
+				gl.drawArrays(gl.TRIANGLES, material.startIndex, material.vertexCount);
+			})
+		else {
+			gl.drawArrays(gl.TRIANGLES, 0, this._numOfVertices);
+		}
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 		gl.bindTexture(gl.TEXTURE_2D, null);
 		shader.disableAttributes();
