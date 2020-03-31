@@ -10,7 +10,7 @@ export class XYZMesh {
 	// Geometry
 	private _numOfVertices: number = 0;
 	protected _vertPosArray: number[] = [];
-	protected _vertColorArray: number[] = [];
+	protected _vertNormalArray: number[] = [];
 	protected _texCoordArray: number[] = [];
 	protected _posArrayBufferObject: WebGLBuffer | null = null;
 	protected _dimensions: number = 3;
@@ -21,7 +21,7 @@ export class XYZMesh {
 
 	// Appearance
 	protected _texImg: HTMLImageElement = new Image();
-	protected _colArrayBufferObject: WebGLBuffer | null = null;
+	protected _normArrayBufferObject: WebGLBuffer | null = null;
 	protected _texCoordArrayBufferObject: WebGLBuffer | null = null;
 	private _textureObject: WebGLTexture | null = null;
 	protected _texFileName: string = "";
@@ -45,7 +45,7 @@ export class XYZMesh {
 	}
 
 	public get vertexPositions(): Array<number> { return this._vertPosArray; }
-	public get vertexColors(): Array<number> { return this._vertColorArray; }
+	public get vertexColors(): Array<number> { return this._vertNormalArray; }
 	public get numOfVertices(): number { return this._numOfVertices; }
 	public get position(): Vec3 { return this._position; }
 	public get scale(): Vec3 { return this._scale; }
@@ -178,7 +178,7 @@ export class XYZMesh {
 		);
 
 		if (shader.colorAttributeLocation > -1) {
-			gl.bindBuffer(gl.ARRAY_BUFFER, this._colArrayBufferObject);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._normArrayBufferObject);
 			gl.vertexAttribPointer(
 				shader.colorAttributeLocation, // ID
 				3, // number of components per vertex attribute
@@ -217,13 +217,42 @@ export class XYZMesh {
 				mMVP.makeFloat32Array());
 		}
 
-		/* TODO:
-		- in a for loop, for each submesh
-		- 1. set material uniforms
-		- 2. draw vertices belonging to a given submesh
-		*/
+		if (shader.mViewUniformLocation != null) {
+			gl.uniformMatrix4fv(
+				shader.mViewUniformLocation,
+				false, // transpose 
+				XYZRenderer.mView.makeFloat32Array());
+		}
+
+		if (shader.mModelUniformLocation != null) {
+			gl.uniformMatrix4fv(
+				shader.mModelUniformLocation,
+				false, // transpose 
+				XYZMatLab.makeModelMatrix(
+					this._position,
+					this._rotation,
+					this._scale
+				).makeFloat32Array());
+		}
+
 		if (this._materials.length > 0)
 			this._materials.forEach((material: XYZMaterial) => {
+				if (shader.vKaUniformLocation != null) {
+					gl.uniform3f(
+						shader.vKaUniformLocation,
+						material.Ka.x,
+						material.Ka.y,
+						material.Ka.z
+					)
+				}
+				if (shader.vKdUniformLocation != null) {
+					gl.uniform3f(
+						shader.vKdUniformLocation,
+						material.Kd.x,
+						material.Kd.y,
+						material.Kd.z
+					)
+				}
 				gl.drawArrays(gl.TRIANGLES, material.startIndex, material.vertexCount);
 			})
 		else {
@@ -231,7 +260,6 @@ export class XYZMesh {
 		}
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 		gl.bindTexture(gl.TEXTURE_2D, null);
-		shader.disableAttributes();
 	}
 
 	public attachShader = (shader: XYZShader) => {
@@ -247,11 +275,11 @@ export class XYZMesh {
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertPosArray), gl.STATIC_DRAW); // load data
 		this._vertPosArray = []; // release as not needed anymore
 
-		if (this._vertColorArray.length > 0) {
-			this._colArrayBufferObject = gl.createBuffer(); // get buffer ID
-			gl.bindBuffer(gl.ARRAY_BUFFER, this._colArrayBufferObject); // select buffer
-			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertColorArray), gl.STATIC_DRAW); // load data
-			this._vertColorArray = []; // release as not needed anymore
+		if (this._vertNormalArray.length > 0) {
+			this._normArrayBufferObject = gl.createBuffer(); // get buffer ID
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._normArrayBufferObject); // select buffer
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertNormalArray), gl.STATIC_DRAW); // load data
+			this._vertNormalArray = []; // release as not needed anymore
 		}
 
 		if (this._texCoordArray.length > 0 && shader.hasTexture) {

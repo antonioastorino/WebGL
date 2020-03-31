@@ -17,6 +17,8 @@ export class XYZMaterial {
 	public set Kd(value: Vec3) { this._Kd = value; }
 	public set Ks(value: Vec3) { this._Ks = value; }
 	public set Ke(value: Vec3) { this._Ke = value; }
+	public get Ka() { return this._Ka; }
+	public get Kd() { return this._Kd; }
 	public get vertexCount(): number { return this._vertexCount; }
 	public get startIndex(): number { return this._startIndex; }
 	public set vertexCount(value: number) { this._vertexCount = value; }

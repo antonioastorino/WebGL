@@ -15,7 +15,7 @@ export class XYZModel extends XYZMesh {
 		let arrayBuffers = await XYZObjFileReader.load(this._fileDir, this._fileName);
 		this._materials = arrayBuffers.materials;
 		this._vertPosArray = arrayBuffers.vertexArrayBuffer;
-		this._vertColorArray = arrayBuffers.normalArrayBuffer;
+		this._vertNormalArray = arrayBuffers.normalArrayBuffer;
 		this._texCoordArray = arrayBuffers.textureArrayBuffer;
 		await this.loadTexture();
 	}

@@ -12,7 +12,7 @@ export class XYZTriangle extends XYZMesh {
 			V2.x, V2.y, V2.z,
 			V3.x, V3.y, V3.z
 		]
-		this._vertColorArray = [
+		this._vertNormalArray = [
 			1.0, 1.0, 1.0,
 			1.0, 1.0, 1.0,
 			0.5, 0.5, 0.5

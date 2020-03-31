@@ -13,9 +13,9 @@ import { XYZModel } from "../lib/Objects/XYZModel.js";
 export async function main() {
 	console.log("Hello Main");
 	XYZEngine.init();
-	XYZRenderer.viewMatrix = XYZMatLab.makeLookAtMatrix(new XYZQuaternion(0, 0, 1, 0), new XYZVector([0, 0, 5]));
+	XYZRenderer.mView = XYZMatLab.makeLookAtMatrix(new XYZQuaternion(0, 0, 1, 0), new XYZVector([0, 0, 3]));
 
-	let texturedShader = await XYZEngine.makeShader("texture");
+	let texturedShader = await XYZEngine.makeShader("test");
 	let spriteShader = await XYZEngine.makeShader("2D");
 	let basicShader = await XYZEngine.makeShader("basic");
 
@@ -31,27 +31,23 @@ export async function main() {
 	// Triangle 2
 	let triangle2 = new XYZTriangle();
 	triangle2.attachShader(basicShader);
-	triangle2.setPosition({ x: 1, y: 2, z: 0 });
+	triangle2.setPosition({ x: 0, y: 2, z: 0 });
 	triangle2.setScale({ x: 0.5, y: 0.3, z: 1 })
 
 	let sprite1 = new XYZSprite('wooden-wall.jpg');
 	await sprite1.init();
 	sprite1.attachShader(spriteShader);
-	sprite1.setPosition({ x: 0.4, y: 0.4, z: 0 })
+	sprite1.setPosition({ x: 0.6, y: 0.6, z: 0 })
 	sprite1.setScale({ x: 0.3, y: 0.3, z: 1 })
 	
-	let model1 = new XYZModel("./assets/meshes/", "model1.obj", "wood_old.jpg");
+	let model1 = new XYZModel("./assets/meshes/", "sphere-smooth.obj", "wood_old.jpg");
 	await model1.init();
 	model1.attachShader(texturedShader);
 	model1.setAngularVel({ x: 1, y: 1, z: 1, speed: 0.05 });
 	triangle2.parent = model1;
 
-
-
 	// sprite1.setAngularVel(0.01);
 	let loop = () => {
-		// triangle1.setOrientation({ x: 0, y: 0, z: 1, angle: angle });
-		// triangle1.setPosition({ x: 2 * Math.cos(angle * Math.PI / 60), y: 2 * Math.sin(angle * Math.PI / 60), z: -2 });
 		XYZRenderer.gl.clear(XYZRenderer.gl.COLOR_BUFFER_BIT | XYZRenderer.gl.DEPTH_BUFFER_BIT);
 		XYZRenderer.drawAll()
 		requestAnimationFrame(loop);

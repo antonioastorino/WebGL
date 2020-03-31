@@ -1,13 +1,13 @@
 import { XYZShaderReader } from "./XYZShaderReader.js";
 import { XYZRenderer } from "./XYZRenderer.js";
-import { XYZMatrix } from "../../lib/Math/XYZMatrix.js";
 import { XYZMesh } from "../../lib/Objects/XYZMesh.js"
 
 interface ShaderFile {
 	vertexShaderFile: string,
 	fragmentShaderFile: string,
 	dimensions: number,
-	texture: boolean
+	texture: boolean,
+	lighting: string
 }
 
 export var ShaderTypes: { [id: string]: ShaderFile } = {
@@ -15,36 +15,43 @@ export var ShaderTypes: { [id: string]: ShaderFile } = {
 		vertexShaderFile: "src/shaders/basic-vs.glsl",
 		fragmentShaderFile: "src/shaders/basic-fs.glsl",
 		dimensions: 3,
-		texture: false
-
+		texture: false,
+		lighting: ""
 	},
 	"texture": {
 		vertexShaderFile: "src/shaders/texture-vs.glsl",
 		fragmentShaderFile: "src/shaders/texture-fs.glsl",
 		dimensions: 3,
-		texture: true
+		texture: true,
+		lighting: ""
 
 	},
 	"2D": {
 		vertexShaderFile: "src/shaders/2D-vs.glsl",
 		fragmentShaderFile: "src/shaders/2D-fs.glsl",
 		dimensions: 2,
-		texture: true
+		texture: true,
+		lighting: ""
 	},
 	"test": {
 		vertexShaderFile: "src/shaders/test-vs.glsl",
 		fragmentShaderFile: "src/shaders/test-fs.glsl",
 		dimensions: 3,
-		texture: true
+		texture: false,
+		lighting: "phong"
 	}
 }
 
 export class XYZShader {
-	protected _positionAttributeLocation: number = -1;
-	protected _colorAttributeLocation: number = -1;
-	protected _texCoordAttributeLocation: number = -1;
-	protected _mMVPUniformLocation: WebGLUniformLocation | null = null;
-	protected _shaderProgram: WebGLProgram | null = null;
+	private _positionAttributeLocation: number = -1;
+	private _normalAttributeLocation: number = -1;
+	private _texCoordAttributeLocation: number = -1;
+	private _mMVPUniformLocation: WebGLUniformLocation | null = null;
+	private _mViewUniformLocation: WebGLUniformLocation | null = null;
+	private _mModelUniformLocation: WebGLUniformLocation | null = null;
+	private _vKaUniformLocation: WebGLUniformLocation | null = null;
+	private _vKdUniformLocation: WebGLUniformLocation | null = null;
+	private _shaderProgram: WebGLProgram | null = null;
 	private _meshList: Array<XYZMesh> = [];
 	private _shaderType: string = "";
 	private _dimensions: number = 3;
@@ -62,7 +69,7 @@ export class XYZShader {
 			ShaderTypes[this._shaderType].fragmentShaderFile);
 		this.createShaderProgram(shaderText.vertexShaderText, shaderText.fragmentShaderText);
 		this.assignLocations();
-
+		
 		XYZRenderer.addShader(this);
 	}
 
@@ -111,9 +118,14 @@ export class XYZShader {
 		XYZRenderer.gl.useProgram(this._shaderProgram); // Set program in use before getting locations
 
 		this._positionAttributeLocation = XYZRenderer.gl.getAttribLocation(this._shaderProgram, 'vertPosition'); // get position ID
-		this._colorAttributeLocation = XYZRenderer.gl.getAttribLocation(this._shaderProgram, 'vertColor'); // get position ID
+		this._normalAttributeLocation = XYZRenderer.gl.getAttribLocation(this._shaderProgram, 'vertNormal'); // get position ID
 		this._texCoordAttributeLocation = XYZRenderer.gl.getAttribLocation(this._shaderProgram, 'vertTexCoord'); // get position ID
-		this._mMVPUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'mMVP'); // get mWorld ID
+		this._normalAttributeLocation = XYZRenderer.gl.getAttribLocation(this._shaderProgram, 'vertNormal'); // get position ID
+		this._mMVPUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'mMVP'); // get mMVP ID
+		this._mViewUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'mView'); // get mMVP ID
+		this._mModelUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'mModel'); // get mMVP ID
+		this._vKaUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'vKa'); // get vKa ID
+		this._vKdUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'vKd'); // get vKa ID
 	}
 
 	public addMesh = (mesh: XYZMesh) => { this._meshList.push(mesh); }
@@ -128,36 +140,37 @@ export class XYZShader {
 	}
 
 	public get positionAttributeLocation() { return this._positionAttributeLocation; }
-	public get colorAttributeLocation() { return this._colorAttributeLocation; }
+	public get colorAttributeLocation() { return this._normalAttributeLocation; }
 	public get texCoordAttributeLocation() { return this._texCoordAttributeLocation; }
+	public get normalAttributeLocation() { return this._normalAttributeLocation; }
 	public get mMVPUniformLocation() { return this._mMVPUniformLocation; }
+	public get mViewUniformLocation() { return this._mViewUniformLocation; }
+	public get mModelUniformLocation() { return this._mModelUniformLocation; }
+	public get vKaUniformLocation() { return this._vKaUniformLocation; }
+	public get vKdUniformLocation() { return this._vKdUniformLocation; }
 	public get dimensions() { return this._dimensions; }
 
 	public enableAttributes = () => {
+		let attributeCounter = 0; // counts how many attributes are enabled
 		if (this._positionAttributeLocation > -1) {
+			attributeCounter++;
 			XYZRenderer.gl.enableVertexAttribArray(this._positionAttributeLocation);
 		}
 
-		if (this._colorAttributeLocation > -1) {
-			XYZRenderer.gl.enableVertexAttribArray(this._colorAttributeLocation);
+		if (this._normalAttributeLocation > -1) {
+			attributeCounter++;
+			XYZRenderer.gl.enableVertexAttribArray(this._normalAttributeLocation);
 		}
 
 		if (this._texCoordAttributeLocation > -1) {
+			attributeCounter++;
 			XYZRenderer.gl.enableVertexAttribArray(this._texCoordAttributeLocation);
 		}
-	}
-
-	public disableAttributes = () => {
-		if (this._positionAttributeLocation > -1) {
-			XYZRenderer.gl.disableVertexAttribArray(this._positionAttributeLocation);
+		if (this._normalAttributeLocation > -1) {
+			attributeCounter++;
+			XYZRenderer.gl.enableVertexAttribArray(this._normalAttributeLocation);
 		}
-
-		if (this._colorAttributeLocation > -1) {
-			XYZRenderer.gl.disableVertexAttribArray(this._colorAttributeLocation);
-		}
-
-		if (this._texCoordAttributeLocation > -1) {
-			XYZRenderer.gl.disableVertexAttribArray(this._texCoordAttributeLocation);
-		}
+		// disable unused attributes
+		for ( ; attributeCounter < 8; attributeCounter++ ) XYZRenderer.gl.disableVertexAttribArray(attributeCounter);
 	}
 }
