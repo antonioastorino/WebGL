@@ -1,4 +1,4 @@
-import { Vec3, Vec2 } from "../DataTypes/XYZVertex.js";
+import { Vec3, Vec2, RGB } from "../DataTypes/XYZVertex.js";
 import { XYZMaterial } from "../../lib/Objects/XYZMaterial.js"
 
 export class XYZObjFileReader {
@@ -7,12 +7,12 @@ export class XYZObjFileReader {
 		let fileText = await $.get(filePath);
 		let materials: XYZMaterial[] = [];
 		let materialText = fileText.split("newmtl ");
-		let makeVec3FromString = (str:string): Vec3 => {
+		let makeVec3FromString = (str:string): RGB => {
 			let valuesText = str.split(" ");
 			return {
-				x: parseFloat(valuesText[1]),
-				y: parseFloat(valuesText[2]),
-				z: parseFloat(valuesText[3]),
+				r: parseFloat(valuesText[1]),
+				g: parseFloat(valuesText[2]),
+				b: parseFloat(valuesText[3]),
 			}
 		}
 		for (let i = 1; i < materialText.length; i++) {

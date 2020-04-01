@@ -237,20 +237,35 @@ export class XYZMesh {
 
 		if (this._materials.length > 0)
 			this._materials.forEach((material: XYZMaterial) => {
+				if (shader.sNsUniformLocation != null) {
+					gl.uniform1f(
+						shader.sNsUniformLocation,
+						material.Ns
+					)
+				}
 				if (shader.vKaUniformLocation != null) {
 					gl.uniform3f(
 						shader.vKaUniformLocation,
-						material.Ka.x,
-						material.Ka.y,
-						material.Ka.z
+						material.Ka.r,
+						material.Ka.g,
+						material.Ka.b
 					)
 				}
 				if (shader.vKdUniformLocation != null) {
 					gl.uniform3f(
 						shader.vKdUniformLocation,
-						material.Kd.x,
-						material.Kd.y,
-						material.Kd.z
+						material.Kd.r,
+						material.Kd.g,
+						material.Kd.b
+					)
+				}
+
+				if (shader.vKsUniformLocation != null) {
+					gl.uniform3f(
+						shader.vKsUniformLocation,
+						material.Ks.r,
+						material.Ks.g,
+						material.Ks.b
 					)
 				}
 				gl.drawArrays(gl.TRIANGLES, material.startIndex, material.vertexCount);

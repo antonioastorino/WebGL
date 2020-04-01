@@ -49,8 +49,10 @@ export class XYZShader {
 	private _mMVPUniformLocation: WebGLUniformLocation | null = null;
 	private _mViewUniformLocation: WebGLUniformLocation | null = null;
 	private _mModelUniformLocation: WebGLUniformLocation | null = null;
+	private _sNsUniformLocation: WebGLUniformLocation | null = null;
 	private _vKaUniformLocation: WebGLUniformLocation | null = null;
 	private _vKdUniformLocation: WebGLUniformLocation | null = null;
+	private _vKsUniformLocation: WebGLUniformLocation | null = null;
 	private _shaderProgram: WebGLProgram | null = null;
 	private _meshList: Array<XYZMesh> = [];
 	private _shaderType: string = "";
@@ -124,8 +126,10 @@ export class XYZShader {
 		this._mMVPUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'mMVP'); // get mMVP ID
 		this._mViewUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'mView'); // get mMVP ID
 		this._mModelUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'mModel'); // get mMVP ID
+		this._sNsUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'sNs'); // get sNs ID
 		this._vKaUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'vKa'); // get vKa ID
-		this._vKdUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'vKd'); // get vKa ID
+		this._vKdUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'vKd'); // get vKd ID
+		this._vKsUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'vKs'); // get vKs ID
 	}
 
 	public addMesh = (mesh: XYZMesh) => { this._meshList.push(mesh); }
@@ -146,8 +150,10 @@ export class XYZShader {
 	public get mMVPUniformLocation() { return this._mMVPUniformLocation; }
 	public get mViewUniformLocation() { return this._mViewUniformLocation; }
 	public get mModelUniformLocation() { return this._mModelUniformLocation; }
+	public get sNsUniformLocation() { return this._sNsUniformLocation; }
 	public get vKaUniformLocation() { return this._vKaUniformLocation; }
 	public get vKdUniformLocation() { return this._vKdUniformLocation; }
+	public get vKsUniformLocation() { return this._vKsUniformLocation; }
 	public get dimensions() { return this._dimensions; }
 
 	public enableAttributes = () => {
