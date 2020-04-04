@@ -9,13 +9,24 @@ import { XYZQuaternion } from "../lib/Math/XYZQuaternion.js";
 import { XYZTriangle } from "../lib/Objects/XYZTriangle.js";
 import { XYZSprite } from "../lib/Objects/XYZSprite.js";
 import { XYZModel } from "../lib/Objects/XYZModel.js";
+import { XYZSun } from "../lib/Objects/XYZLightSource.js";
 
 export async function main() {
 	console.log("Hello Main");
 	XYZEngine.init();
 	XYZRenderer.mView = XYZMatLab.makeLookAtMatrix(new XYZQuaternion(0, 0, 1, 0), new XYZVector([0, 0, 3]));
 
-	let texturedShader = await XYZEngine.makeShader("test");
+	let omniDirLight1 = new XYZSun();
+	omniDirLight1.position.x = 2;
+	omniDirLight1.position.y = 30;
+	omniDirLight1.position.z = 2;
+	let omniDirLight2 = new XYZSun();
+	omniDirLight2.position.x = -6;
+	omniDirLight2.position.y = 10;
+	omniDirLight2.position.z = 3;
+
+
+	let lightShader = await XYZEngine.makeShader("test", [omniDirLight1, omniDirLight2]);
 	let spriteShader = await XYZEngine.makeShader("2D");
 	let basicShader = await XYZEngine.makeShader("basic");
 
@@ -42,7 +53,7 @@ export async function main() {
 	
 	let model1 = new XYZModel("./assets/meshes/", "sphere-smooth.obj", "wood_old.jpg");
 	await model1.init();
-	model1.attachShader(texturedShader);
+	model1.attachShader(lightShader);
 	model1.setAngularVel({ x: 1, y: 1, z: 1, speed: 0.05 });
 	triangle2.parent = model1;
 

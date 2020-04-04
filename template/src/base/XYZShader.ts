@@ -1,6 +1,8 @@
 import { XYZShaderReader } from "./XYZShaderReader.js";
 import { XYZRenderer } from "./XYZRenderer.js";
 import { XYZMesh } from "../../lib/Objects/XYZMesh.js"
+import { XYZLightSource, XYZSun } from "../../lib/Objects/XYZLightSource.js"
+import { XYZMatrix } from "../../lib/Math/XYZMatrix.js";
 
 interface ShaderFile {
 	vertexShaderFile: string,
@@ -43,24 +45,44 @@ export var ShaderTypes: { [id: string]: ShaderFile } = {
 }
 
 export class XYZShader {
+	private _initialized = false;
 	private _positionAttributeLocation: number = -1;
 	private _normalAttributeLocation: number = -1;
 	private _texCoordAttributeLocation: number = -1;
 	private _mMVPUniformLocation: WebGLUniformLocation | null = null;
 	private _mViewUniformLocation: WebGLUniformLocation | null = null;
 	private _mModelUniformLocation: WebGLUniformLocation | null = null;
+	private _vOmniDirLightPosUL: WebGLUniformLocation | null = null;
+
 	private _sNsUniformLocation: WebGLUniformLocation | null = null;
 	private _vKaUniformLocation: WebGLUniformLocation | null = null;
 	private _vKdUniformLocation: WebGLUniformLocation | null = null;
 	private _vKsUniformLocation: WebGLUniformLocation | null = null;
 	private _shaderProgram: WebGLProgram | null = null;
 	private _meshList: Array<XYZMesh> = [];
+	private _omniDirLights: Array<XYZLightSource> = [];
 	private _shaderType: string = "";
 	private _dimensions: number = 3;
 
 	constructor(shaderType: string) {
 		if (ShaderTypes[shaderType] != undefined) {
 			this._shaderType = shaderType;
+		}
+	}
+
+	public addLightSource = (source: XYZLightSource) => {
+		if (this._initialized) {
+			throw "No light sources can be added after initialization";
+		}
+		if (ShaderTypes[this._shaderType].lighting == "") {
+			throw "This shader does not support lighting";
+		}
+		switch (source.type) {
+			case "omnidirectional light":
+				this._omniDirLights.push(source);
+				break;
+			default:
+				throw "Light source type not found"
 		}
 	}
 
@@ -71,13 +93,22 @@ export class XYZShader {
 			ShaderTypes[this._shaderType].fragmentShaderFile);
 		this.createShaderProgram(shaderText.vertexShaderText, shaderText.fragmentShaderText);
 		this.assignLocations();
-		
+
 		XYZRenderer.addShader(this);
+
 	}
 
 	public get hasTexture() { return ShaderTypes[this._shaderType].texture; }
 
 	public createShaderProgram = (vertexShaderText: string, fragmentShaderText: string) => {
+		if (this._omniDirLights.length > 0) {
+			vertexShaderText = vertexShaderText.replace("$numOfOmniDirLights$", this._omniDirLights.length.toString());
+			vertexShaderText = vertexShaderText.split("/*omniDirLight").join("");
+			vertexShaderText = vertexShaderText.split("omniDirLight*/").join("");
+			fragmentShaderText = fragmentShaderText.replace("$numOfOmniDirLights$", this._omniDirLights.length.toString());
+			fragmentShaderText = fragmentShaderText.split("/*omniDirLight").join("");
+			fragmentShaderText = fragmentShaderText.split("omniDirLight*/").join("");
+		}
 		let vertexShader = <WebGLShader>XYZRenderer.gl.createShader(XYZRenderer.gl.VERTEX_SHADER);
 		let fragmentShader = <WebGLShader>XYZRenderer.gl.createShader(XYZRenderer.gl.FRAGMENT_SHADER);
 
@@ -126,6 +157,9 @@ export class XYZShader {
 		this._mMVPUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'mMVP'); // get mMVP ID
 		this._mViewUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'mView'); // get mMVP ID
 		this._mModelUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'mModel'); // get mMVP ID
+
+		// lighting parameters
+		this._vOmniDirLightPosUL = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'omniDirLightPosition'); // get mMVP ID
 		this._sNsUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'sNs'); // get sNs ID
 		this._vKaUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'vKa'); // get vKa ID
 		this._vKdUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'vKd'); // get vKd ID
@@ -133,9 +167,22 @@ export class XYZShader {
 	}
 
 	public addMesh = (mesh: XYZMesh) => { this._meshList.push(mesh); }
-	
+
 	public drawAll(deltaTime: number) {
+		this.enableAttributes()
 		XYZRenderer.gl.useProgram(this._shaderProgram); // Set program in use before getting locations
+		if (this._vOmniDirLightPosUL != null) {
+			let omniDirLightArray: number[] = [];
+			this._omniDirLights.forEach((light: XYZLightSource) => {
+				let dirLight = <XYZSun>light;
+				omniDirLightArray.push(dirLight.position.x);
+				omniDirLightArray.push(dirLight.position.y);
+				omniDirLightArray.push(dirLight.position.z);
+			})
+			XYZRenderer.gl.uniform3fv(
+				this._vOmniDirLightPosUL,
+				new Float32Array(omniDirLightArray));
+		}
 		this._meshList.forEach(mesh => {
 			mesh.update(deltaTime);
 			mesh.draw();
@@ -150,6 +197,7 @@ export class XYZShader {
 	public get mMVPUniformLocation() { return this._mMVPUniformLocation; }
 	public get mViewUniformLocation() { return this._mViewUniformLocation; }
 	public get mModelUniformLocation() { return this._mModelUniformLocation; }
+	public get mOminDirLightPosUL() { return this._vOmniDirLightPosUL; }
 	public get sNsUniformLocation() { return this._sNsUniformLocation; }
 	public get vKaUniformLocation() { return this._vKaUniformLocation; }
 	public get vKdUniformLocation() { return this._vKdUniformLocation; }
@@ -177,6 +225,6 @@ export class XYZShader {
 			XYZRenderer.gl.enableVertexAttribArray(this._normalAttributeLocation);
 		}
 		// disable unused attributes
-		for ( ; attributeCounter < 8; attributeCounter++ ) XYZRenderer.gl.disableVertexAttribArray(attributeCounter);
+		for (; attributeCounter < 8; attributeCounter++) XYZRenderer.gl.disableVertexAttribArray(attributeCounter);
 	}
 }

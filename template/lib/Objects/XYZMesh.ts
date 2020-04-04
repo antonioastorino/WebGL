@@ -164,7 +164,6 @@ export class XYZMesh {
 
 	public draw = () => {
 		let shader = <XYZShader>this._shader;
-		shader.enableAttributes();
 		let gl = XYZRenderer.gl;
 		gl.bindBuffer(gl.ARRAY_BUFFER, this._posArrayBufferObject);
 
