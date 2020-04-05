@@ -39,7 +39,7 @@ pointLight*/
 
 /*dirLight
 	for (int i = 0; i < numOfDirLights; i++){
-		directional += dot(normalize(-dirLightWorldDirection[i]), N) * dirLightIntensity[i];
+		directional += max(dot(normalize(-dirLightWorldDirection[i]), N), 0.0) * dirLightIntensity[i];
 	}
 dirLight*/
 
