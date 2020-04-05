@@ -16,20 +16,20 @@ export async function main() {
 	XYZEngine.init();
 	XYZRenderer.mView = XYZMatLab.makeLookAtMatrix(new XYZQuaternion(0, 0, 1, 0), new XYZVector([0, 0, 10]));
 
-	let omniDirLight1 = new XYZSun();
-	omniDirLight1.position.x = 2;
-	omniDirLight1.position.y = 5;
-	omniDirLight1.position.z = 2;
-	omniDirLight1.rgbIntensity.r = 3;
+	let pointLight1 = new XYZSun();
+	pointLight1.position.x = 2;
+	pointLight1.position.y = 5;
+	pointLight1.position.z = 2;
+	pointLight1.rgbIntensity.r = 3;
 
-	let omniDirLight2 = new XYZSun();
-	omniDirLight2.position.x = -6;
-	omniDirLight2.position.y = 10;
-	omniDirLight2.position.z = 3;
-	omniDirLight2.rgbIntensity.g = 4;
+	let pointLight2 = new XYZSun();
+	pointLight2.position.x = -6;
+	pointLight2.position.y = 10;
+	pointLight2.position.z = 3;
+	pointLight2.rgbIntensity.g = 4;
 
 
-	let lightShader = await XYZEngine.makeShader("test", [omniDirLight1, omniDirLight2]);
+	let lightShader = await XYZEngine.makeShader("test", [pointLight1, pointLight2]);
 	let spriteShader = await XYZEngine.makeShader("2D");
 	let basicShader = await XYZEngine.makeShader("basic");
 

@@ -1,10 +1,10 @@
 precision mediump float;
 
-/*omniDirLight
-const int numOfOmniDirLights = $numOfOmniDirLights$;
-uniform vec3 omniDirLightPosition[numOfOmniDirLights];
-varying vec3 omniDirLightWorldPosition[numOfOmniDirLights];
-omniDirLight*/
+/*pointLight
+const int numOfPointLights = $numOfPointLights$;
+uniform vec3 pointLightPosition[numOfPointLights];
+varying vec3 pointLightWorldPosition[numOfPointLights];
+pointLight*/
 
 attribute vec3 vertPosition;
 attribute vec3 vertNormal;
@@ -20,11 +20,11 @@ void main() {
 	fragPosition = vec4( mMV * vec4(vertPosition, 1)).xyz;
 	fragNormal = vec4( mMV * vec4(vertNormal, 0)).xyz;;
 
-/*omniDirLight
-	for (int i = 0; i < numOfOmniDirLights; i++) {
-		omniDirLightWorldPosition[i] = vec4(mView * vec4(omniDirLightPosition[i], 1)).xyz;; // omniDirLight location in world coordinates
+/*pointLight
+	for (int i = 0; i < numOfPointLights; i++) {
+		pointLightWorldPosition[i] = vec4(mView * vec4(pointLightPosition[i], 1)).xyz;; // pointLight location in world coordinates
 	}
-omniDirLight*/
+pointLight*/
 
 	gl_Position = mMVP * vec4(vertPosition, 1.0);
 }
