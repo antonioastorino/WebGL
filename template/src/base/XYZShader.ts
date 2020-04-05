@@ -214,7 +214,6 @@ export class XYZShader {
 	public get mMVPUniformLocation() { return this._mMVPUniformLocation; }
 	public get mViewUniformLocation() { return this._mViewUniformLocation; }
 	public get mModelUniformLocation() { return this._mModelUniformLocation; }
-	public get mOminDirLightPosUL() { return this._vPointLightPosUL; }
 	public get sNsUniformLocation() { return this._sNsUniformLocation; }
 	public get vKaUniformLocation() { return this._vKaUniformLocation; }
 	public get vKdUniformLocation() { return this._vKdUniformLocation; }
