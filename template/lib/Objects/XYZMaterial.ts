@@ -5,6 +5,7 @@ export class XYZMaterial {
 	private _Kd: RGB = {r: 1, g: 1, b: 1};
 	private _Ks: RGB = {r: 1, g: 1, b: 1};
 	private _Ke: RGB = {r: 1, g: 1, b: 1};
+	private _texObject: WebGLTexture | null = null;
 	private _vertexCount: number = 0;
 	private _startIndex: number = 0;
 	private _name: string;
@@ -17,11 +18,13 @@ export class XYZMaterial {
 	public set Kd(value: RGB) { this._Kd = value; }
 	public set Ks(value: RGB) { this._Ks = value; }
 	public set Ke(value: RGB) { this._Ke = value; }
+	public set texObject(value: WebGLTexture | null) { this._texObject = value; }
 	public get Ns() { return this._Ns; }
 	public get Ka() { return this._Ka; }
 	public get Kd() { return this._Kd; }
 	public get Ks() { return this._Ks; }
 	public get Ke() { return this._Ke; }
+	public get texObject() { return this._texObject; }
 	public get vertexCount(): number { return this._vertexCount; }
 	public get startIndex(): number { return this._startIndex; }
 	public set vertexCount(value: number) { this._vertexCount = value; }

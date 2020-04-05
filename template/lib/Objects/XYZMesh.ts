@@ -20,11 +20,8 @@ export class XYZMesh {
 	protected _scale: Vec3;
 
 	// Appearance
-	protected _texImg: HTMLImageElement = new Image();
 	protected _normArrayBufferObject: WebGLBuffer | null = null;
 	protected _texCoordArrayBufferObject: WebGLBuffer | null = null;
-	private _textureObject: WebGLTexture | null = null;
-	protected _texFileName: string = "";
 	protected _materials: XYZMaterial[] = [];
 	protected _shader: XYZShader | null = null;
 
@@ -62,7 +59,8 @@ export class XYZMesh {
 		only through forces. Only the initial position should be accessible upon
 		initialization. Same goes for the orientation
 	*/
-	public setPosition = (position: Vec3) => { this._position = position; }
+	public setPosition = (value: Vec3) => { this._position = value; }
+	public setLinearVel = (value: Vec3) => { this._linearVel = value; }
 	public setOrientation = (orientation: RotationVec4 | number) => {
 		if (this._dimensions == 2 && typeof (orientation) == 'number') {
 			// only rotations about the z-axis are allowed
@@ -106,24 +104,19 @@ export class XYZMesh {
 	}
 
 	public setScale = (scale: Vec3) => { this._scale = scale; }
-
-	public loadTexture = (): Promise<HTMLImageElement> => {
-		return new Promise(resolve => {
-			this._texImg.addEventListener('load', () => {
-				resolve(this._texImg);
-			});
-			this._texImg.src = './assets/textures/' + this._texFileName;
-		});
-	}
-
+	
 	public update = (deltaTime: number) => {
 		if (this._isUpdated) return;
 		this._isUpdated = true;
-
+		let addedPosition: Vec3 = {
+			x: this._linearVel.x * deltaTime,
+			y: this._linearVel.y * deltaTime,
+			z: this._linearVel.z * deltaTime
+		}
 		let finalPosition: Vec3 = {
-			x: this._position.x,
-			y: this._position.y,
-			z: this._position.z
+			x: this._position.x += addedPosition.x,
+			y: this._position.y += addedPosition.y,
+			z: this._position.z += addedPosition.z
 		}
 		let finalScale: Vec3 = {
 			x: this._scale.x,
@@ -176,10 +169,10 @@ export class XYZMesh {
 			0 // offset
 		);
 
-		if (shader.colorAttributeLocation > -1) {
+		if (shader.normAttributeLocation > -1) {
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._normArrayBufferObject);
 			gl.vertexAttribPointer(
-				shader.colorAttributeLocation, // ID
+				shader.normAttributeLocation, // ID
 				3, // number of components per vertex attribute
 				gl.FLOAT, // type,
 				false, // normalized
@@ -189,7 +182,6 @@ export class XYZMesh {
 		}
 
 		if (shader.texCoordAttributeLocation > -1) {
-			gl.bindTexture(gl.TEXTURE_2D, this._textureObject);
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordArrayBufferObject);
 			gl.vertexAttribPointer(
 				shader.texCoordAttributeLocation, // ID
@@ -267,6 +259,7 @@ export class XYZMesh {
 						material.Ks.b
 					)
 				}
+				gl.bindTexture(gl.TEXTURE_2D, material.texObject);
 				gl.drawArrays(gl.TRIANGLES, material.startIndex, material.vertexCount);
 			})
 		else {
@@ -296,22 +289,10 @@ export class XYZMesh {
 			this._vertNormalArray = []; // release as not needed anymore
 		}
 
-		if (this._texCoordArray.length > 0 && shader.hasTexture) {
+		if (this._texCoordArray.length > 0 && shader.enableTexture) {
 			this._texCoordArrayBufferObject = XYZRenderer.gl.createBuffer(); // get buffer ID
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordArrayBufferObject); // select buffer
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._texCoordArray), gl.STATIC_DRAW); // load data
-
-			this._textureObject = XYZRenderer.gl.createTexture();
-			gl.bindTexture(gl.TEXTURE_2D, this._textureObject);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			gl.texImage2D(
-				gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,
-				gl.UNSIGNED_BYTE,
-				this._texImg
-			)
 			this._texCoordArray = []; // release as not needed anymore
 		}
 

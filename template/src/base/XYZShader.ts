@@ -7,8 +7,7 @@ import { XYZMatrix } from "../../lib/Math/XYZMatrix.js";
 interface ShaderFile {
 	vertexShaderFile: string,
 	fragmentShaderFile: string,
-	dimensions: number,
-	texture: boolean,
+	dimensions: number
 	lighting: string
 }
 
@@ -17,14 +16,12 @@ export var ShaderTypes: { [id: string]: ShaderFile } = {
 		vertexShaderFile: "src/shaders/basic-vs.glsl",
 		fragmentShaderFile: "src/shaders/basic-fs.glsl",
 		dimensions: 3,
-		texture: false,
 		lighting: ""
 	},
 	"texture": {
 		vertexShaderFile: "src/shaders/texture-vs.glsl",
 		fragmentShaderFile: "src/shaders/texture-fs.glsl",
 		dimensions: 3,
-		texture: true,
 		lighting: ""
 
 	},
@@ -32,20 +29,18 @@ export var ShaderTypes: { [id: string]: ShaderFile } = {
 		vertexShaderFile: "src/shaders/2D-vs.glsl",
 		fragmentShaderFile: "src/shaders/2D-fs.glsl",
 		dimensions: 2,
-		texture: true,
 		lighting: ""
 	},
-	"test": {
-		vertexShaderFile: "src/shaders/test-vs.glsl",
-		fragmentShaderFile: "src/shaders/test-fs.glsl",
+	"3D": {
+		vertexShaderFile: "src/shaders/3D-vs.glsl",
+		fragmentShaderFile: "src/shaders/3D-fs.glsl",
 		dimensions: 3,
-		texture: false,
 		lighting: "phong"
 	}
 }
 
 export class XYZShader {
-	private _initialized = false;
+	private _isInitialized = false;
 	// Geometry
 	private _positionAttributeLocation: number = -1;
 	private _normalAttributeLocation: number = -1;
@@ -58,6 +53,7 @@ export class XYZShader {
 	private _vKaUniformLocation: WebGLUniformLocation | null = null;
 	private _vKdUniformLocation: WebGLUniformLocation | null = null;
 	private _vKsUniformLocation: WebGLUniformLocation | null = null;
+	private _textureEnabled: boolean = false;
 
 	// Light sources
 	private _vPointLightPosUL: WebGLUniformLocation | null = null; // Position in world coordinates
@@ -80,7 +76,7 @@ export class XYZShader {
 	}
 
 	public addLightSource = (source: XYZLightSource) => {
-		if (this._initialized) {
+		if (this._isInitialized) {
 			throw "No light sources can be added after initialization";
 		}
 		if (ShaderTypes[this._shaderType].lighting == "") {
@@ -105,12 +101,12 @@ export class XYZShader {
 			ShaderTypes[this._shaderType].fragmentShaderFile);
 		this.createShaderProgram(shaderText.vertexShaderText, shaderText.fragmentShaderText);
 		this.assignLocations();
-
+		this._isInitialized = true;
 		XYZRenderer.addShader(this);
 
 	}
 
-	public get hasTexture() { return ShaderTypes[this._shaderType].texture; }
+	public enableTexture = () => { this._textureEnabled = true; }
 
 	public createShaderProgram = (vertexShaderText: string, fragmentShaderText: string) => {
 		if (this._pointLights.length > 0) {
@@ -131,6 +127,13 @@ export class XYZShader {
 			fragmentShaderText = fragmentShaderText.split("dirLight*/").join("");
 		}
 
+		if (this._textureEnabled) {
+			vertexShaderText = vertexShaderText.split("/*texture").join("");
+			vertexShaderText = vertexShaderText.split("texture*/").join("");
+			fragmentShaderText = fragmentShaderText.split("/*texture").join("");
+			fragmentShaderText = fragmentShaderText.split("texture*/").join("");
+		}
+
 		let vertexShader = <WebGLShader>XYZRenderer.gl.createShader(XYZRenderer.gl.VERTEX_SHADER);
 		let fragmentShader = <WebGLShader>XYZRenderer.gl.createShader(XYZRenderer.gl.FRAGMENT_SHADER);
 
@@ -138,32 +141,29 @@ export class XYZShader {
 		XYZRenderer.gl.shaderSource(fragmentShader, fragmentShaderText);
 		XYZRenderer.gl.compileShader(vertexShader)
 		if (!XYZRenderer.gl.getShaderParameter(vertexShader, XYZRenderer.gl.COMPILE_STATUS)) {
-			console.error('ERROR compiling vertex shader', XYZRenderer.gl.getShaderInfoLog(vertexShader));
-			throw "error";
+			throw 'ERROR compiling vertex shader\n' + XYZRenderer.gl.getShaderInfoLog(vertexShader);
 		}
 		XYZRenderer.gl.compileShader(fragmentShader)
 		if (!XYZRenderer.gl.getShaderParameter(fragmentShader, XYZRenderer.gl.COMPILE_STATUS)) {
-			console.error('ERROR compiling fragment shader', XYZRenderer.gl.getShaderInfoLog(fragmentShader));
-			throw "error";
+			throw 'ERROR compiling fragment shader\n' + XYZRenderer.gl.getShaderInfoLog(fragmentShader);
 		}
 
 		let shaderProgram = XYZRenderer.gl.createProgram();
 		if (!shaderProgram) {
-			throw "error";
+			throw "Shader program not created";
 		}
+
 		XYZRenderer.gl.attachShader(shaderProgram, vertexShader);
 		XYZRenderer.gl.attachShader(shaderProgram, fragmentShader);
-		XYZRenderer.gl.linkProgram(shaderProgram);
 
+		XYZRenderer.gl.linkProgram(shaderProgram);
 		if (!XYZRenderer.gl.getProgramParameter(shaderProgram, XYZRenderer.gl.LINK_STATUS)) {
-			console.error('ERROR linking program!', XYZRenderer.gl.getProgramInfoLog(shaderProgram));
-			throw "error";
+			throw 'ERROR linking program!' + XYZRenderer.gl.getProgramInfoLog(shaderProgram)
 		}
 
 		XYZRenderer.gl.validateProgram(shaderProgram);
 		if (!XYZRenderer.gl.getProgramParameter(shaderProgram, XYZRenderer.gl.VALIDATE_STATUS)) {
-			console.error('ERROR validating program!', XYZRenderer.gl.getProgramInfoLog(shaderProgram));
-			throw "error";
+			throw 'ERROR validating program!' + XYZRenderer.gl.getProgramInfoLog(shaderProgram)
 		}
 		this._shaderProgram = shaderProgram;
 	}
@@ -252,7 +252,7 @@ export class XYZShader {
 	}
 
 	public get positionAttributeLocation() { return this._positionAttributeLocation; }
-	public get colorAttributeLocation() { return this._normalAttributeLocation; }
+	public get normAttributeLocation() { return this._normalAttributeLocation; }
 	public get texCoordAttributeLocation() { return this._texCoordAttributeLocation; }
 	public get normalAttributeLocation() { return this._normalAttributeLocation; }
 	public get mMVPUniformLocation() { return this._mMVPUniformLocation; }

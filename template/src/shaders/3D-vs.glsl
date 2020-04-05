@@ -22,6 +22,10 @@ varying vec3 fragPosition;
 
 mat4 mMV = mView * mModel;
 
+/*texture
+attribute vec2 vertTexCoord;
+varying vec2 fragTexCoord; // output to fragment shader
+texture*/
 
 
 void main() {
@@ -39,6 +43,10 @@ pointLight*/
 		dirLightWorldDirection[i] = mat3(mView) * dirLightDirection[i]; // dirLight location in world coordinates
 	}
 dirLight*/
+
+/*texture
+	fragTexCoord = vertTexCoord;
+texture*/
 
 	gl_Position = mMVP * vec4(vertPosition, 1.0);
 }

@@ -18,7 +18,10 @@ uniform vec3 dirLightIntensity[numOfDirLights];
 varying vec3 dirLightWorldDirection[numOfDirLights];
 dirLight*/
 
-
+/*texture
+varying vec2 fragTexCoord; // input from vertex shader
+uniform sampler2D texSampler;
+texture*/
 
 const float Ia = 0.2;
 const float Id = 0.5;
@@ -28,6 +31,7 @@ void main() {
 	vec3 V = - normalize(fragPosition); // eye normalized location
 	vec3 specular = vec3(0.0, 0.0, 0.0);
 	vec3 directional = vec3(0.0, 0.0, 0.0);
+	vec3 color = vec3(1.0 ,1.0 ,1.0);
 /*pointLight
 for (int i = 0; i < numOfPointLights; i++){
 	float decay = min(1.0, 1.0/distance(pointLightWorldPosition[i], fragPosition));
@@ -43,8 +47,13 @@ pointLight*/
 	}
 dirLight*/
 
+/*texture
+	color = texture2D(texSampler, fragTexCoord).xyz;
+texture*/
+
 	vec3 ambient = vKa * Ia;
+
 	vec3 diffuse = Id * max(dot(N, V), 0.0) * vKd;
-	vec3 fragColor = ambient + diffuse + specular + directional;
+	vec3 fragColor = (ambient + diffuse + specular + directional) * color;
 	gl_FragColor = vec4(fragColor, 1);
 }

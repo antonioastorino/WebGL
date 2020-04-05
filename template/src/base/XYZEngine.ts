@@ -4,7 +4,7 @@ import { XYZLightSource } from "../Objects/XYZLightSource";
 
 export class XYZEngine {
 	private static _initialized = false;
-	
+
 	public static init = () => {
 		XYZEngine._initialized = true;
 		XYZRenderer.init();
@@ -12,11 +12,14 @@ export class XYZEngine {
 
 	static makeShader = async (
 		shaderType: string,
-		lightSources?: XYZLightSource[]):Promise<XYZShader> => {
+		lightSources: XYZLightSource[],
+		enableTexture: boolean
+	): Promise<XYZShader> => {
 		if (XYZEngine._initialized) {
 			let shader = new XYZShader(shaderType);
+			if (enableTexture) shader.enableTexture();
 			// attach light sources to shader
-			if (lightSources != undefined) {
+			if (lightSources.length > 0) {
 				lightSources.forEach((lightSource: XYZLightSource) => {
 					shader.addLightSource(lightSource);
 				})
@@ -27,5 +30,5 @@ export class XYZEngine {
 		throw "Engine not initialized"
 	}
 
-	
+
 }

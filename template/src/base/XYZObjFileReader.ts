@@ -1,5 +1,7 @@
 import { Vec3, Vec2, RGB } from "../DataTypes/XYZVertex.js";
 import { XYZMaterial } from "../../lib/Objects/XYZMaterial.js"
+import { XYZRenderer } from "./XYZRenderer.js";
+import { XYZTextureLoader } from "./XYZTextureLoader.js";
 
 export class XYZObjFileReader {
 	// read .mtl files and creates a list of materials used by the specified object
@@ -18,7 +20,7 @@ export class XYZObjFileReader {
 		for (let i = 1; i < materialText.length; i++) {
 			let lines = materialText[i].split("\n");
 			let newMaterial = new XYZMaterial(lines[0]);
-			lines.forEach((line: string) => {
+			lines.forEach(async (line: string) => {
 				switch (line.split(" ")[0]) {
 					case "Ns":
 						newMaterial.Ns = parseFloat(line.split(" ")[1])
@@ -34,6 +36,17 @@ export class XYZObjFileReader {
 						break;
 					case "Ke":
 						newMaterial.Ke = makeVec3FromString(line);
+						break;
+					case "map_Kd":
+						let texFileName = line.split("map_Kd ")[1];
+						let texture: HTMLImageElement;
+						try {
+							texture = await XYZTextureLoader.loadTexture(texFileName);
+						}
+						catch {
+							throw "File not found";
+						}
+						newMaterial.texObject = XYZRenderer.createTextureObject(texture);
 						break;
 				}
 			});
@@ -144,7 +157,7 @@ export class XYZObjFileReader {
 		}
 		else {
 			// do something in case no material name is specified
-			materials.push(new XYZMaterial("default"))
+			throw "Material name not found or object material missing"
 		}
 		return {
 			materials: materials,

@@ -39,6 +39,21 @@ export class XYZRenderer {
 	public static get mView(): XYZMatrix { return <XYZMatrix>this._mView; }
 	public static addShader(shader: XYZShader) { this._shaderList.push(shader); }
 
+	public static createTextureObject(texture:HTMLImageElement) {
+		let gl = XYZRenderer.gl;
+		let texObject = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_2D, texObject);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texImage2D(
+			gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,
+			gl.UNSIGNED_BYTE,
+			texture
+		);
+		return texObject;
+	}
 	public static drawAll() {
 		let deltaTime = XYZTime.deltaTime;
 		this._shaderList.forEach(

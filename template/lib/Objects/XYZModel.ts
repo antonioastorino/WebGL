@@ -4,23 +4,17 @@ import { XYZObjFileReader } from '../../src/base/XYZObjFileReader.js';
 export class XYZModel extends XYZMesh {
 	private _fileDir: string;
 	private _fileName: string;
-	constructor(fileDir: string, fileName: string, texFileName?: string) {
+	constructor(fileDir: string, fileName: string) {
 		super();
 		this._fileDir = fileDir;
 		this._fileName = fileName;
-		if (texFileName != undefined) {
-			this._texFileName = texFileName;
-		}
 	}
 
 	public async init() {
-		let arrayBuffers = await XYZObjFileReader.load(this._fileDir, this._fileName);
-		this._materials = arrayBuffers.materials;
-		this._vertPosArray = arrayBuffers.vertexArrayBuffer;
-		this._vertNormalArray = arrayBuffers.normalArrayBuffer;
-		this._texCoordArray = arrayBuffers.textureArrayBuffer;
-		if (this._texFileName != "") {
-			await this.loadTexture();
-		}
+		let properties = await XYZObjFileReader.load(this._fileDir, this._fileName);
+		this._materials = properties.materials;
+		this._vertPosArray = properties.vertexArrayBuffer;
+		this._vertNormalArray = properties.normalArrayBuffer;
+		this._texCoordArray = properties.textureArrayBuffer;
 	}
 }
