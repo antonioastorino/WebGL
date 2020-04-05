@@ -1,7 +1,7 @@
 import { XYZShaderReader } from "./XYZShaderReader.js";
 import { XYZRenderer } from "./XYZRenderer.js";
 import { XYZMesh } from "../../lib/Objects/XYZMesh.js"
-import { XYZLightSource, XYZSun } from "../../lib/Objects/XYZLightSource.js"
+import { XYZLightSource, XYZPoint, XYZSun } from "../../lib/Objects/XYZLightSource.js"
 import { XYZMatrix } from "../../lib/Math/XYZMatrix.js";
 
 interface ShaderFile {
@@ -63,9 +63,13 @@ export class XYZShader {
 	private _vPointLightPosUL: WebGLUniformLocation | null = null; // Position in world coordinates
 	private _vPointLightIntUL: WebGLUniformLocation | null = null; // RGB intensity
 
+	private _vDirLightDirUL: WebGLUniformLocation | null = null; // Position in world coordinates
+	private _vDirLightIntUL: WebGLUniformLocation | null = null; // RGB intensity
+
 	private _shaderProgram: WebGLProgram | null = null;
 	private _meshList: Array<XYZMesh> = [];
 	private _pointLights: Array<XYZLightSource> = [];
+	private _dirLights: Array<XYZLightSource> = [];
 	private _shaderType: string = "";
 	private _dimensions: number = 3;
 
@@ -85,6 +89,9 @@ export class XYZShader {
 		switch (source.type) {
 			case "point light":
 				this._pointLights.push(source);
+				break;
+			case "directional light":
+				this._dirLights.push(source);
 				break;
 			default:
 				throw "Light source type not found"
@@ -114,6 +121,16 @@ export class XYZShader {
 			fragmentShaderText = fragmentShaderText.split("/*pointLight").join("");
 			fragmentShaderText = fragmentShaderText.split("pointLight*/").join("");
 		}
+
+		if (this._dirLights.length > 0) {
+			vertexShaderText = vertexShaderText.replace("$numOfDirLights$", this._pointLights.length.toString());
+			vertexShaderText = vertexShaderText.split("/*dirLight").join("");
+			vertexShaderText = vertexShaderText.split("dirLight*/").join("");
+			fragmentShaderText = fragmentShaderText.replace("$numOfDirLights$", this._pointLights.length.toString());
+			fragmentShaderText = fragmentShaderText.split("/*dirLight").join("");
+			fragmentShaderText = fragmentShaderText.split("dirLight*/").join("");
+		}
+
 		let vertexShader = <WebGLShader>XYZRenderer.gl.createShader(XYZRenderer.gl.VERTEX_SHADER);
 		let fragmentShader = <WebGLShader>XYZRenderer.gl.createShader(XYZRenderer.gl.FRAGMENT_SHADER);
 
@@ -166,6 +183,8 @@ export class XYZShader {
 		// lighting parameters
 		this._vPointLightPosUL = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'pointLightPosition'); // get pointLightPosition ID
 		this._vPointLightIntUL = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'pointLightIntensity'); // get pointLightIntensity ID
+		this._vDirLightDirUL = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'dirLightDirection'); // get pointLightPosition ID
+		this._vDirLightIntUL = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'dirLightIntensity'); // get pointLightIntensity ID
 		this._sNsUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'sNs'); // get sNs ID
 		this._vKaUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'vKa'); // get vKa ID
 		this._vKdUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'vKd'); // get vKd ID
@@ -181,7 +200,7 @@ export class XYZShader {
 			let pointLightPosArray: number[] = [];
 			let pointLightIntArray: number[] = [];
 			this._pointLights.forEach((light: XYZLightSource) => {
-				let dirLight = <XYZSun>light;
+				let dirLight = <XYZPoint>light;
 
 				pointLightPosArray.push(dirLight.position.x);
 				pointLightPosArray.push(dirLight.position.y);
@@ -200,6 +219,31 @@ export class XYZShader {
 				this._vPointLightIntUL,
 				new Float32Array(pointLightIntArray));
 		}
+
+		if (this._vDirLightDirUL != null && this._vDirLightIntUL != null) {
+			let dirLightDirArray: number[] = [];
+			let dirLightIntArray: number[] = [];
+			this._dirLights.forEach((light: XYZLightSource) => {
+				let dirLight = <XYZSun>light;
+
+				dirLightDirArray.push(dirLight.direction.x);
+				dirLightDirArray.push(dirLight.direction.y);
+				dirLightDirArray.push(dirLight.direction.z);
+
+				dirLightIntArray.push(dirLight.rgbIntensity.r);
+				dirLightIntArray.push(dirLight.rgbIntensity.g);
+				dirLightIntArray.push(dirLight.rgbIntensity.b);
+			})
+
+			XYZRenderer.gl.uniform3fv(
+				this._vDirLightDirUL,
+				new Float32Array(dirLightDirArray));
+
+			XYZRenderer.gl.uniform3fv(
+				this._vDirLightIntUL,
+				new Float32Array(dirLightIntArray));
+		}
+
 		this._meshList.forEach(mesh => {
 			mesh.update(deltaTime);
 			mesh.draw();

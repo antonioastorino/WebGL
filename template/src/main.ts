@@ -9,27 +9,33 @@ import { XYZQuaternion } from "../lib/Math/XYZQuaternion.js";
 import { XYZTriangle } from "../lib/Objects/XYZTriangle.js";
 import { XYZSprite } from "../lib/Objects/XYZSprite.js";
 import { XYZModel } from "../lib/Objects/XYZModel.js";
-import { XYZSun } from "../lib/Objects/XYZLightSource.js";
+import { XYZPoint, XYZSun } from "../lib/Objects/XYZLightSource.js";
 
 export async function main() {
 	console.log("Hello Main");
 	XYZEngine.init();
-	XYZRenderer.mView = XYZMatLab.makeLookAtMatrix(new XYZQuaternion(0, 0, 1, 0), new XYZVector([0, 0, 10]));
+	XYZRenderer.mView = XYZMatLab.makeLookAtMatrix(new XYZQuaternion(0, 0, 0, 1), new XYZVector([0, 0, 10]));
 
-	let pointLight1 = new XYZSun();
+	let pointLight1 = new XYZPoint();
 	pointLight1.position.x = 2;
 	pointLight1.position.y = 5;
 	pointLight1.position.z = 2;
 	pointLight1.rgbIntensity.r = 3;
 
-	let pointLight2 = new XYZSun();
+	let pointLight2 = new XYZPoint();
 	pointLight2.position.x = -6;
 	pointLight2.position.y = 10;
 	pointLight2.position.z = 3;
 	pointLight2.rgbIntensity.g = 4;
 
+	let sun1 = new XYZSun();
+	sun1.direction.x = -1;
+	sun1.direction.y = -1;
+	sun1.direction.z = 0;
+	sun1.rgbIntensity.r = 1;
 
-	let lightShader = await XYZEngine.makeShader("test", [pointLight1, pointLight2]);
+
+	let lightShader = await XYZEngine.makeShader("test", [sun1, pointLight2]);
 	let spriteShader = await XYZEngine.makeShader("2D");
 	let basicShader = await XYZEngine.makeShader("basic");
 
