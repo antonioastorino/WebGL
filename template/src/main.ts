@@ -14,16 +14,19 @@ import { XYZSun } from "../lib/Objects/XYZLightSource.js";
 export async function main() {
 	console.log("Hello Main");
 	XYZEngine.init();
-	XYZRenderer.mView = XYZMatLab.makeLookAtMatrix(new XYZQuaternion(0, 0, 1, 0), new XYZVector([0, 0, 3]));
+	XYZRenderer.mView = XYZMatLab.makeLookAtMatrix(new XYZQuaternion(0, 0, 1, 0), new XYZVector([0, 0, 10]));
 
 	let omniDirLight1 = new XYZSun();
 	omniDirLight1.position.x = 2;
-	omniDirLight1.position.y = 30;
+	omniDirLight1.position.y = 5;
 	omniDirLight1.position.z = 2;
+	omniDirLight1.rgbIntensity.r = 3;
+
 	let omniDirLight2 = new XYZSun();
 	omniDirLight2.position.x = -6;
 	omniDirLight2.position.y = 10;
 	omniDirLight2.position.z = 3;
+	omniDirLight2.rgbIntensity.g = 4;
 
 
 	let lightShader = await XYZEngine.makeShader("test", [omniDirLight1, omniDirLight2]);
@@ -51,11 +54,19 @@ export async function main() {
 	sprite1.setPosition({ x: 0.6, y: 0.6, z: 0 })
 	sprite1.setScale({ x: 0.3, y: 0.3, z: 1 })
 	
-	let model1 = new XYZModel("./assets/meshes/", "sphere-smooth.obj", "wood_old.jpg");
+	let model1 = new XYZModel("./assets/meshes/", "sphere-smooth.obj");
 	await model1.init();
 	model1.attachShader(lightShader);
 	model1.setAngularVel({ x: 1, y: 1, z: 1, speed: 0.05 });
 	triangle2.parent = model1;
+
+	let plane1 = new XYZModel("./assets/meshes/", "xz-plane.obj", "wood_old.jpg");
+	await plane1.init();
+	plane1.scale.x = 5;
+	plane1.scale.z = 5;
+	plane1.position.y = -2;
+	plane1.setAngularVel({x: 1, y: 0.1, z: 0, speed: 0.04});
+	plane1.attachShader(lightShader);
 
 	// sprite1.setAngularVel(0.01);
 	let loop = () => {

@@ -4,11 +4,13 @@ import { XYZObjFileReader } from '../../src/base/XYZObjFileReader.js';
 export class XYZModel extends XYZMesh {
 	private _fileDir: string;
 	private _fileName: string;
-	constructor(fileDir: string, fileName: string, texFileName: string) {
+	constructor(fileDir: string, fileName: string, texFileName?: string) {
 		super();
 		this._fileDir = fileDir;
 		this._fileName = fileName;
-		this._texFileName = texFileName;
+		if (texFileName != undefined) {
+			this._texFileName = texFileName;
+		}
 	}
 
 	public async init() {
@@ -17,6 +19,8 @@ export class XYZModel extends XYZMesh {
 		this._vertPosArray = arrayBuffers.vertexArrayBuffer;
 		this._vertNormalArray = arrayBuffers.normalArrayBuffer;
 		this._texCoordArray = arrayBuffers.textureArrayBuffer;
-		await this.loadTexture();
+		if (this._texFileName != "") {
+			await this.loadTexture();
+		}
 	}
 }
