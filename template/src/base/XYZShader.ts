@@ -18,9 +18,9 @@ export var ShaderTypes: { [id: string]: ShaderFile } = {
 		dimensions: 3,
 		lighting: ""
 	},
-	"texture": {
-		vertexShaderFile: "src/shaders/texture-vs.glsl",
-		fragmentShaderFile: "src/shaders/texture-fs.glsl",
+	"test": {
+		vertexShaderFile: "src/shaders/test-vs.glsl",
+		fragmentShaderFile: "src/shaders/test-fs.glsl",
 		dimensions: 3,
 		lighting: ""
 

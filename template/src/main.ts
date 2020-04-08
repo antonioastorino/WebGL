@@ -36,22 +36,22 @@ export async function main() {
 
 	let lightShader = await XYZEngine.makeShader("3D", [sun1, pointLight2], true);
 	let spriteShader = await XYZEngine.makeShader("2D", [], true);
-	// let basicShader = await XYZEngine.makeShader("basic", [], false);
+	let basicShader = await XYZEngine.makeShader("basic", [], false);
 
 	//
 	// TODO: init() missing to triangle
 	// Need to check for initialization
 	// Triangle 1
-	// let triangle1 = new XYZTriangle();
-	// triangle1.attachShader(basicShader);
-	// triangle1.setPosition({ x: 2, y: 0, z: 0 });
-	// // triangle1.setScale({ x: 0.3, y: 0.3, z: 1 })
+	let triangle1 = new XYZTriangle();
+	triangle1.attachShader(basicShader);
+	triangle1.setPosition({ x: 2, y: 0, z: 0 });
+	// triangle1.setScale({ x: 0.3, y: 0.3, z: 1 })
 
-	// // Triangle 2
-	// let triangle2 = new XYZTriangle();
-	// triangle2.attachShader(basicShader);
-	// triangle2.setPosition({ x: 0, y: 2, z: 0 });
-	// triangle2.setScale({ x: 0.5, y: 0.3, z: 1 })
+	// Triangle 2
+	let triangle2 = new XYZTriangle();
+	triangle2.attachShader(basicShader);
+	triangle2.setPosition({ x: 0, y: 2, z: 0 });
+	triangle2.setScale({ x: 0.5, y: 0.3, z: 1 })
 
 	let sprite1 = new XYZSprite('wooden-wall.jpg');
 	await sprite1.init();
