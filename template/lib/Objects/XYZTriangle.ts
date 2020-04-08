@@ -17,5 +17,6 @@ export class XYZTriangle extends XYZMesh {
 			1.0, 1.0, 1.0,
 			0.5, 0.5, 0.5
 		]
+	this._dimensions = 3;
 	}
 }

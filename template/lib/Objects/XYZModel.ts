@@ -8,6 +8,7 @@ export class XYZModel extends XYZMesh {
 		super();
 		this._fileDir = fileDir;
 		this._fileName = fileName;
+		this._dimensions = 3;
 	}
 
 	public async init() {
