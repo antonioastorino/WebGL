@@ -39,14 +39,13 @@ export class XYZObjFileReader {
 						break;
 					case "map_Kd":
 						let texFileName = line.split("map_Kd ")[1];
-						let texture: HTMLImageElement;
 						try {
-							texture = await XYZTextureLoader.loadTexture(texFileName);
+							let texture = await XYZTextureLoader.loadTexture(texFileName);
+							newMaterial.texObject = XYZRenderer.createTextureObject(texture);
 						}
 						catch {
 							throw "File not found";
 						}
-						newMaterial.texObject = XYZRenderer.createTextureObject(texture);
 						break;
 				}
 			});
@@ -76,9 +75,10 @@ export class XYZObjFileReader {
 		let textureArrayBuffer: number[] = [];
 		let normalArrayBuffer: number[] = [];
 
-		for (let i = 0; !lines[i].startsWith("v "); i++) {
+		for (let i = 0; !lines[i].startsWith("v "); i++) { // scan file until find first vertex
 			if (lines[i].startsWith("mtllib ")) {
 				materials = await XYZObjFileReader.readMtlLib(fileDir + "../materials/" + lines[i].split(" ")[1]);
+				break;
 			}
 		}
 

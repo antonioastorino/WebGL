@@ -67,7 +67,7 @@ export class XYZShader {
 	private _pointLights: Array<XYZLightSource> = [];
 	private _dirLights: Array<XYZLightSource> = [];
 	private _shaderType: string = "";
-	private _dimensions: number = 3;
+	private _dimensions: number = 0;
 
 	constructor(shaderType: string) {
 		if (ShaderTypes[shaderType] != undefined) {
@@ -107,6 +107,7 @@ export class XYZShader {
 	}
 
 	public enableTexture = () => { this._textureEnabled = true; }
+	public isTextureEnabled = (): boolean => { return this._textureEnabled; }
 
 	public createShaderProgram = (vertexShaderText: string, fragmentShaderText: string) => {
 		if (this._pointLights.length > 0) {
@@ -132,6 +133,19 @@ export class XYZShader {
 			vertexShaderText = vertexShaderText.split("texture*/").join("");
 			fragmentShaderText = fragmentShaderText.split("/*texture").join("");
 			fragmentShaderText = fragmentShaderText.split("texture*/").join("");
+		}
+
+		// remove remaining comments
+		let newSplit = vertexShaderText.split("/*");
+		vertexShaderText = newSplit[0];
+		for (let i = 1; i < newSplit.length; i++) {
+			vertexShaderText = vertexShaderText + newSplit[i].split("*/")[1];
+		}
+
+		newSplit = fragmentShaderText.split("/*");
+		fragmentShaderText = newSplit[0];
+		for (let i = 1; i < newSplit.length; i++) {
+			fragmentShaderText = fragmentShaderText + newSplit[i].split("*/")[1];
 		}
 
 		let vertexShader = <WebGLShader>XYZRenderer.gl.createShader(XYZRenderer.gl.VERTEX_SHADER);
@@ -165,6 +179,9 @@ export class XYZShader {
 		if (!XYZRenderer.gl.getProgramParameter(shaderProgram, XYZRenderer.gl.VALIDATE_STATUS)) {
 			throw 'ERROR validating program!' + XYZRenderer.gl.getProgramInfoLog(shaderProgram)
 		}
+
+		console.log(vertexShaderText);
+		console.log(fragmentShaderText);
 		this._shaderProgram = shaderProgram;
 	}
 
@@ -175,7 +192,6 @@ export class XYZShader {
 		this._positionAttributeLocation = XYZRenderer.gl.getAttribLocation(this._shaderProgram, 'vertPosition'); // get position ID
 		this._normalAttributeLocation = XYZRenderer.gl.getAttribLocation(this._shaderProgram, 'vertNormal'); // get position ID
 		this._texCoordAttributeLocation = XYZRenderer.gl.getAttribLocation(this._shaderProgram, 'vertTexCoord'); // get position ID
-		this._normalAttributeLocation = XYZRenderer.gl.getAttribLocation(this._shaderProgram, 'vertNormal'); // get position ID
 		this._mMVPUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'mMVP'); // get mMVP ID
 		this._mViewUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'mView'); // get mView ID
 		this._mModelUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'mModel'); // get mModel ID
@@ -189,13 +205,14 @@ export class XYZShader {
 		this._vKaUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'vKa'); // get vKa ID
 		this._vKdUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'vKd'); // get vKd ID
 		this._vKsUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'vKs'); // get vKs ID
+		XYZRenderer.gl.useProgram(null);
 	}
 
 	public addMesh = (mesh: XYZMesh) => { this._meshList.push(mesh); }
 
 	public drawAll(deltaTime: number) {
-		this.enableAttributes()
 		XYZRenderer.gl.useProgram(this._shaderProgram); // Set program in use before getting locations
+		this.enableAttributes()
 		if (this._vPointLightPosUL != null && this._vPointLightIntUL != null) {
 			let pointLightPosArray: number[] = [];
 			let pointLightIntArray: number[] = [];
@@ -252,9 +269,8 @@ export class XYZShader {
 	}
 
 	public get positionAttributeLocation() { return this._positionAttributeLocation; }
-	public get normAttributeLocation() { return this._normalAttributeLocation; }
-	public get texCoordAttributeLocation() { return this._texCoordAttributeLocation; }
 	public get normalAttributeLocation() { return this._normalAttributeLocation; }
+	public get texCoordAttributeLocation() { return this._texCoordAttributeLocation; }
 	public get mMVPUniformLocation() { return this._mMVPUniformLocation; }
 	public get mViewUniformLocation() { return this._mViewUniformLocation; }
 	public get mModelUniformLocation() { return this._mModelUniformLocation; }
@@ -280,10 +296,7 @@ export class XYZShader {
 			attributeCounter++;
 			XYZRenderer.gl.enableVertexAttribArray(this._texCoordAttributeLocation);
 		}
-		if (this._normalAttributeLocation > -1) {
-			attributeCounter++;
-			XYZRenderer.gl.enableVertexAttribArray(this._normalAttributeLocation);
-		}
+
 		// disable unused attributes
 		for (; attributeCounter < 8; attributeCounter++) XYZRenderer.gl.disableVertexAttribArray(attributeCounter);
 	}

@@ -33,10 +33,10 @@ export class XYZMesh extends XYZNode {
 			0 // offset
 		);
 
-		if (shader.normAttributeLocation > -1) {
+		if (shader.normalAttributeLocation > -1) {
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._normArrayBufferObject);
 			gl.vertexAttribPointer(
-				shader.normAttributeLocation, // ID
+				shader.normalAttributeLocation, // ID
 				3, // number of components per vertex attribute
 				gl.FLOAT, // type,
 				false, // normalized
@@ -123,7 +123,7 @@ export class XYZMesh extends XYZNode {
 						material.Ks.b
 					)
 				}
-				gl.bindTexture(gl.TEXTURE_2D, material.texObject);
+				if (shader.isTextureEnabled()) { gl.bindTexture(gl.TEXTURE_2D, material.texObject); }
 				gl.drawArrays(gl.TRIANGLES, material.startIndex, material.vertexCount);
 			})
 		else {
@@ -144,21 +144,22 @@ export class XYZMesh extends XYZNode {
 		this._posArrayBufferObject = gl.createBuffer(); // get buffer ID
 		gl.bindBuffer(gl.ARRAY_BUFFER, this._posArrayBufferObject); // select buffer
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertPosArray), gl.STATIC_DRAW); // load data
-		this._vertPosArray = []; // release as not needed anymore
 
 		if (this._vertNormalArray.length > 0) {
 			this._normArrayBufferObject = gl.createBuffer(); // get buffer ID
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._normArrayBufferObject); // select buffer
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertNormalArray), gl.STATIC_DRAW); // load data
-			this._vertNormalArray = []; // release as not needed anymore
 		}
 
-		if (this._texCoordArray.length > 0 && shader.enableTexture) {
+		if (this._texCoordArray.length > 0 && shader.isTextureEnabled()) {
 			this._texCoordArrayBufferObject = XYZRenderer.gl.createBuffer(); // get buffer ID
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordArrayBufferObject); // select buffer
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._texCoordArray), gl.STATIC_DRAW); // load data
-			this._texCoordArray = []; // release as not needed anymore
 		}
+
+		this._vertPosArray = []; // release as not needed anymore
+		this._vertNormalArray = []; // release as not needed anymore
+		this._texCoordArray = []; // release as not needed anymore
 
 		gl.bindBuffer(gl.ARRAY_BUFFER, null)
 		gl.bindTexture(gl.TEXTURE_2D, null);

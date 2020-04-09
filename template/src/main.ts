@@ -2,7 +2,6 @@
 
 import { XYZRenderer } from "./base/XYZRenderer.js"
 import { XYZEngine } from "./base/XYZEngine.js"
-import { XYZMatrix } from "../lib/Math/XYZMatrix.js";
 import { XYZVector } from "../lib/Math/XYZVector.js";
 import { XYZMatLab } from "../lib/Math/XYZMatLab.js";
 import { XYZQuaternion } from "../lib/Math/XYZQuaternion.js";
@@ -10,11 +9,15 @@ import { XYZTriangle } from "../lib/Objects/XYZTriangle.js";
 import { XYZSprite } from "../lib/Objects/XYZSprite.js";
 import { XYZModel } from "../lib/Objects/XYZModel.js";
 import { XYZPoint, XYZSun } from "../lib/Objects/XYZLightSource.js";
+import { XYZCamera } from "../lib/Objects/XYZCamera.js";
 
 export async function main() {
 	console.log("Hello Main");
 	XYZEngine.init();
-	XYZRenderer.mView = XYZMatLab.makeLookAtMatrix(new XYZQuaternion(0, 0, 0, 1), new XYZVector([0, 0, 10]));
+
+	let camera1 = new XYZCamera();
+	camera1.position.z = 4;
+	camera1.setLinearVel({x:0, y:0, z:10});
 
 	let pointLight1 = new XYZPoint();
 	pointLight1.position.x = 2;
@@ -35,6 +38,7 @@ export async function main() {
 	sun1.rgbIntensity.r = 1;
 
 	let lightShader = await XYZEngine.makeShader("3D", [sun1, pointLight2], true);
+	let lightShader2 = await XYZEngine.makeShader("3D", [sun1, pointLight2], false);
 	let spriteShader = await XYZEngine.makeShader("2D", [], true);
 	let basicShader = await XYZEngine.makeShader("basic", [], false);
 
@@ -59,11 +63,11 @@ export async function main() {
 	sprite1.setPosition({ x: 0.6, y: 0.6, z: 0 })
 	sprite1.setScale({ x: 0.3, y: 0.3, z: 1 })
 	
-	// let sphere1 = new XYZModel("./assets/meshes/", "sphere-smooth.obj");
-	// await sphere1.init();
-	// sphere1.attachShader(lightShader);
-	// sphere1.setAngularVel({ x: 1, y: 1, z: 1, speed: 0.05 });
-	// sphere1.setLinearVel({ x: 0.1, y: 0, z: 0})
+	let sphere1 = new XYZModel("./assets/meshes/", "sphere-smooth.obj");
+	await sphere1.init();
+	sphere1.attachShader(lightShader2);
+	sphere1.setAngularVel({ x: 1, y: 1, z: 1, speed: 0.05 });
+	sphere1.setLinearVel({ x: 0.1, y: 0, z: 0})
 	// triangle2.parent = sphere1;
 	// triangle1.parent = triangle2;
 
@@ -76,10 +80,5 @@ export async function main() {
 	block1.attachShader(lightShader);
 
 	// sprite1.setAngularVel(0.01);
-	let loop = () => {
-		XYZRenderer.gl.clear(XYZRenderer.gl.COLOR_BUFFER_BIT | XYZRenderer.gl.DEPTH_BUFFER_BIT);
-		XYZRenderer.drawAll()
-		requestAnimationFrame(loop);
-	}
-	requestAnimationFrame(loop);
+	XYZEngine.run();
 }

@@ -30,5 +30,17 @@ export class XYZEngine {
 		throw "Engine not initialized"
 	}
 
+	public static run () {
+		if (XYZRenderer.activeCameraNumber < 0) {
+			throw "No camera defined";
+		}
+		let loop = () => {
+			XYZRenderer.gl.clear(XYZRenderer.gl.COLOR_BUFFER_BIT | XYZRenderer.gl.DEPTH_BUFFER_BIT);
+			XYZRenderer.drawAll()
+			requestAnimationFrame(loop);
+		}
+		requestAnimationFrame(loop);
+	}
+
 
 }
