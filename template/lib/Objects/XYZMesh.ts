@@ -144,19 +144,19 @@ export class XYZMesh extends XYZNode {
 		this._posArrayBufferObject = gl.createBuffer(); // get buffer ID
 		gl.bindBuffer(gl.ARRAY_BUFFER, this._posArrayBufferObject); // select buffer
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertPosArray), gl.STATIC_DRAW); // load data
-		
+
 		if (this._vertNormalArray.length > 0) {
 			this._normArrayBufferObject = gl.createBuffer(); // get buffer ID
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._normArrayBufferObject); // select buffer
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertNormalArray), gl.STATIC_DRAW); // load data
 		}
-		
+
 		if (this._texCoordArray.length > 0 && shader.isTextureEnabled()) {
 			this._texCoordArrayBufferObject = XYZRenderer.gl.createBuffer(); // get buffer ID
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordArrayBufferObject); // select buffer
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._texCoordArray), gl.STATIC_DRAW); // load data
 		}
-		
+
 		this._vertPosArray = []; // release as not needed anymore
 		this._vertNormalArray = []; // release as not needed anymore
 		this._texCoordArray = []; // release as not needed anymore
