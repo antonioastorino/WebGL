@@ -123,7 +123,7 @@ export class XYZMesh extends XYZNode {
 						material.Ks.b
 					)
 				}
-				if (this._shader?.isTextureEnabled()) { gl.bindTexture(gl.TEXTURE_2D, material.texObject); }
+				if (shader.isTextureEnabled()) { gl.bindTexture(gl.TEXTURE_2D, material.texObject); }
 				gl.drawArrays(gl.TRIANGLES, material.startIndex, material.vertexCount);
 			})
 		else {
