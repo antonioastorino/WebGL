@@ -1,14 +1,24 @@
 import { XYZMatrix } from "../../lib/Math/XYZMatrix.js";
 import { XYZMatLab } from "../../lib/Math/XYZMatLab.js";
+import { XYZQuaternion } from "../../lib/Math/XYZQuaternion.js";
 import { XYZShader } from "./XYZShader.js"
 import { XYZTime } from "./XYZTime.js";
+import { XYZCamera } from "../../lib/Objects/XYZCamera.js";
 
 export class XYZRenderer {
 	private static _gl: WebGLRenderingContext;
 	public static _canvas: HTMLCanvasElement;
 	private static _mView: XYZMatrix = (new XYZMatrix(4, 4)).identity();
 	private static _mProj: XYZMatrix = (new XYZMatrix(4, 4)).identity();
-	private static _shaderList: Array<XYZShader> = [];
+	private static _shaderList: XYZShader[] = [];
+	private static _cameraList: XYZCamera[] = [];
+	private static _activeCameraNumber: number = -1;
+
+	public static get activeCameraNumber(): number { return this._activeCameraNumber; }
+	public static addCamera(camera: XYZCamera) { 
+		this._cameraList.push(camera);
+		this._activeCameraNumber = this._cameraList.length - 1;
+	}
 
 	public static init() {
 		this._canvas = <HTMLCanvasElement>document.getElementById("glCanvas");
@@ -54,10 +64,16 @@ export class XYZRenderer {
 		);
 		return texObject;
 	}
+
 	public static drawAll() {
 		let deltaTime = XYZTime.deltaTime;
+		this._cameraList[this.activeCameraNumber].update(deltaTime);
+		this._cameraList[this.activeCameraNumber].reset();
+		this._mView = XYZMatLab.makeLookAtMatrix(new XYZQuaternion(0, 0, 0, 1), this._cameraList[this.activeCameraNumber].position);
 		this._shaderList.forEach(
-			shader => { shader.drawAll(deltaTime); }
+			shader => { 
+				shader.drawAll(deltaTime); 
+			}
 		)
 	}
 

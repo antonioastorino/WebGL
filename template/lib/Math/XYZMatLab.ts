@@ -95,9 +95,10 @@ export class XYZMatLab {
 		return outMatrix;
 	}
 
-	public static makeLookAtMatrix = (quat: XYZQuaternion, pos: XYZVector): XYZMatrix => {
+	public static makeLookAtMatrix = (quat: XYZQuaternion, pos: Vec3): XYZMatrix => {
+		let vecPosition = new XYZVector([pos.x, pos.y, pos.z]);
 		let rotationMatrix = XYZMatLab.makeRotationMatrix(-quat.getAngleDeg(), quat.getVector());
-		let translationMatrix = XYZMatLab.makeTranslationMatrix(pos.multiplyBy(-1));
+		let translationMatrix = XYZMatLab.makeTranslationMatrix(vecPosition.multiplyBy(-1));
 
 		return <XYZMatrix>rotationMatrix.multiplyBy(translationMatrix);
 	}
