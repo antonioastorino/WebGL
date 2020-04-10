@@ -1,7 +1,7 @@
-import { Vec3, RotationVec4, AngularVelocityVec4 } from "../DataTypes/XYZVertex.js";
-import { XYZMatLab } from "../Math/XYZMatLab.js";
-import { XYZMatrix } from "../Math/XYZMatrix.js";
-import { XYZVector } from "../Math/XYZVector.js";
+import { Vec3, RotationVec4, AngularVelocityVec4 } from "../lib/data-types/XYZVertex.js";
+import { XYZMatLab } from "../lib/math/XYZMatLab.js";
+import { XYZMatrix } from "../lib/math/XYZMatrix.js";
+import { XYZVector } from "../lib/math/XYZVector.js";
 
 export class XYZNode {
 	protected constructor() { }

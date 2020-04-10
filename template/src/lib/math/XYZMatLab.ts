@@ -1,7 +1,7 @@
 import { XYZMatrix } from './XYZMatrix.js'
 import { XYZVector } from './XYZVector.js'
 import { XYZQuaternion } from './XYZQuaternion.js'
-import { Vec3, RotationVec4 } from './../DataTypes/XYZVertex.js'
+import { Vec3 } from '../data-types/XYZVertex.js'
 
 export class XYZMatLab {
 	public static multiply = (a: XYZMatrix, b: XYZMatrix | XYZVector | number): XYZMatrix | XYZVector => {

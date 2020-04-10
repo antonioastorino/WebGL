@@ -1,7 +1,7 @@
-import { XYZRenderer } from "../../src/base/XYZRenderer.js";
+import { XYZRenderer } from "../base/XYZRenderer.js";
 import { XYZShader } from "../base/XYZShader.js";
-import { XYZMatLab } from "../Math/XYZMatLab.js";
-import { XYZMatrix } from "../Math/XYZMatrix.js";
+import { XYZMatLab } from "../lib/math/XYZMatLab.js";
+import { XYZMatrix } from "../lib/math/XYZMatrix.js";
 import { XYZMaterial } from "./XYZMaterial.js";
 import { XYZNode } from "./XYZNode.js"
 

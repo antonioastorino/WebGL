@@ -1,9 +1,9 @@
-import { XYZMatrix } from "../../lib/Math/XYZMatrix.js";
-import { XYZMatLab } from "../../lib/Math/XYZMatLab.js";
-import { XYZQuaternion } from "../../lib/Math/XYZQuaternion.js";
+import { XYZMatrix } from "../lib/math/XYZMatrix.js";
+import { XYZMatLab } from "../lib/math/XYZMatLab.js";
+import { XYZQuaternion } from "../lib/math/XYZQuaternion.js";
 import { XYZShader } from "./XYZShader.js"
 import { XYZTime } from "./XYZTime.js";
-import { XYZCamera } from "../../lib/Objects/XYZCamera.js";
+import { XYZCamera } from "../objects/XYZCamera.js";
 
 export class XYZRenderer {
 	private static _gl: WebGLRenderingContext;

@@ -1,4 +1,4 @@
-import { Vec3 } from "../DataTypes/XYZVertex.js";
+import { Vec3 } from "../lib/data-types/XYZVertex.js";
 import { XYZMesh } from './XYZMesh.js'
 
 export class XYZTriangle extends XYZMesh {

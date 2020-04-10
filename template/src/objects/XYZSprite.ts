@@ -1,5 +1,5 @@
-import { XYZTextureLoader } from "../../src/base/XYZTextureLoader.js";
-import { XYZRenderer } from "../../src/base/XYZRenderer.js";
+import { XYZTextureLoader } from "../base/XYZTextureLoader.js";
+import { XYZRenderer } from "../base/XYZRenderer.js";
 import { XYZMesh } from "./XYZMesh.js";
 import { XYZMaterial } from "./XYZMaterial.js";
 

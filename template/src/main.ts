@@ -1,15 +1,9 @@
-
-
-import { XYZRenderer } from "./base/XYZRenderer.js"
 import { XYZEngine } from "./base/XYZEngine.js"
-import { XYZVector } from "../lib/Math/XYZVector.js";
-import { XYZMatLab } from "../lib/Math/XYZMatLab.js";
-import { XYZQuaternion } from "../lib/Math/XYZQuaternion.js";
-import { XYZTriangle } from "../lib/Objects/XYZTriangle.js";
-import { XYZSprite } from "../lib/Objects/XYZSprite.js";
-import { XYZModel } from "../lib/Objects/XYZModel.js";
-import { XYZPoint, XYZSun } from "../lib/Objects/XYZLightSource.js";
-import { XYZCamera } from "../lib/Objects/XYZCamera.js";
+import { XYZTriangle } from "./objects/XYZTriangle.js";
+import { XYZSprite } from "./objects/XYZSprite.js";
+import { XYZModel } from "./objects/XYZModel.js";
+import { XYZPoint, XYZSun } from "./objects/XYZLightSource.js";
+import { XYZCamera } from "./objects/XYZCamera.js";
 
 export async function main() {
 	console.log("Hello Main");

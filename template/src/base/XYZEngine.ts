@@ -1,6 +1,6 @@
 import { XYZRenderer } from "./XYZRenderer.js"
 import { XYZShader } from "./XYZShader.js"
-import { XYZLightSource } from "../Objects/XYZLightSource";
+import { XYZLightSource } from "../objects/XYZLightSource";
 
 export class XYZEngine {
 	private static _initialized = false;

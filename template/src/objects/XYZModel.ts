@@ -1,5 +1,5 @@
 import { XYZMesh } from './XYZMesh.js'
-import { XYZObjFileReader } from '../../src/base/XYZObjFileReader.js';
+import { XYZObjFileReader } from '../base/XYZObjFileReader.js';
 
 export class XYZModel extends XYZMesh {
 	private _fileDir: string;

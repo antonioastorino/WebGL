@@ -10,7 +10,7 @@ cat <<EOF > uninstall-mac
 ps aux | grep "php -S 127.0.0.1:8080" | grep -v "grep" | awk '{print \$2}' | xargs kill
 ps aux | grep "tsc" | grep -v "grep" | awk '{print \$2}' | xargs kill
 cd \$(dirname \$0)/..
-rm -rf dist node_modules bin *.json
+rm -rf dist node_modules bin etc *.json
 EOF
 chmod +x uninstall-mac
 
@@ -50,12 +50,12 @@ popd
 mkdir -p etc
 cat <<EOF > etc/tsconfig.json
 {
-  "include": ["../"],
+  "include": ["../src"],
   "compilerOptions": {
     "target": "es6",
-	"outDir": "../dist",
-    "rootDirs": ["../src", "../lib"],
-	"strict": true
+	  "outDir": "../dist",
+    "rootDirs": ["../src/"],
+	  "strict": true
   }
 }
 EOF

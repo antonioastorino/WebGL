@@ -1,8 +1,8 @@
-import { XYZMatrix } from '../dist/lib/Math/XYZMatrix.js';
-import { XYZVector } from '../dist/lib/Math/XYZVector.js';
-import { XYZMatLab } from '../dist/lib/Math/XYZMatLab.js';
-import { XYZQuaternion } from '../dist/lib/Math/XYZQuaternion.js'
-import { XYZObjFileReader } from '../dist/src/base/XYZObjFileReader.js'
+import { XYZMatrix } from '../dist/lib/math/XYZMatrix.js';
+import { XYZVector } from '../dist/lib/math/XYZVector.js';
+import { XYZMatLab } from '../dist/lib/math/XYZMatLab.js';
+import { XYZQuaternion } from '../dist/lib/math/XYZQuaternion.js'
+import { XYZObjFileReader } from '../dist/base/XYZObjFileReader.js'
 
 console.log("Hello Unit test!");
 

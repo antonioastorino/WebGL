@@ -1,5 +1,5 @@
-import { Vec3, Vec2, RGB } from "../DataTypes/XYZVertex.js";
-import { XYZMaterial } from "../../lib/Objects/XYZMaterial.js"
+import { Vec3, Vec2, RGB } from "../lib/data-types/XYZVertex.js";
+import { XYZMaterial } from "../objects/XYZMaterial.js"
 import { XYZRenderer } from "./XYZRenderer.js";
 import { XYZTextureLoader } from "./XYZTextureLoader.js";
 import { XYZTextFileReader } from "./XYZTextFileReader.js";

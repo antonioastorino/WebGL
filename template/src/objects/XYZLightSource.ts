@@ -1,4 +1,4 @@
-import { Vec3, RGB } from "../DataTypes/XYZVertex.js";
+import { Vec3, RGB } from "../lib/data-types/XYZVertex.js";
 
 export class XYZLightSource {
 	private _type: string;

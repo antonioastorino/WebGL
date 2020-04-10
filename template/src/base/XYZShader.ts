@@ -1,8 +1,7 @@
 import { XYZShaderReader } from "./XYZShaderReader.js";
 import { XYZRenderer } from "./XYZRenderer.js";
-import { XYZMesh } from "../../lib/Objects/XYZMesh.js"
-import { XYZLightSource, XYZPoint, XYZSun } from "../../lib/Objects/XYZLightSource.js"
-import { XYZMatrix } from "../../lib/Math/XYZMatrix.js";
+import { XYZMesh } from "../objects/XYZMesh.js"
+import { XYZLightSource, XYZPoint, XYZSun } from "../objects/XYZLightSource.js"
 
 interface ShaderFile {
 	vertexShaderFile: string,
@@ -13,27 +12,27 @@ interface ShaderFile {
 
 export var ShaderTypes: { [id: string]: ShaderFile } = {
 	"basic": {
-		vertexShaderFile: "src/shaders/basic-vs.glsl",
-		fragmentShaderFile: "src/shaders/basic-fs.glsl",
+		vertexShaderFile: "../../shaders/basic-vs.glsl",
+		fragmentShaderFile: "../../shaders/basic-fs.glsl",
 		dimensions: 3,
 		lighting: ""
 	},
 	"test": {
-		vertexShaderFile: "src/shaders/test-vs.glsl",
-		fragmentShaderFile: "src/shaders/test-fs.glsl",
+		vertexShaderFile: "../../shaders/test-vs.glsl",
+		fragmentShaderFile: "../../shaders/test-fs.glsl",
 		dimensions: 3,
 		lighting: ""
 
 	},
 	"2D": {
-		vertexShaderFile: "src/shaders/2D-vs.glsl",
-		fragmentShaderFile: "src/shaders/2D-fs.glsl",
+		vertexShaderFile: "../../shaders/2D-vs.glsl",
+		fragmentShaderFile: "../../shaders/2D-fs.glsl",
 		dimensions: 2,
 		lighting: ""
 	},
 	"3D": {
-		vertexShaderFile: "src/shaders/3D-vs.glsl",
-		fragmentShaderFile: "src/shaders/3D-fs.glsl",
+		vertexShaderFile: "../../shaders/3D-vs.glsl",
+		fragmentShaderFile: "../../shaders/3D-fs.glsl",
 		dimensions: 3,
 		lighting: "phong"
 	}

@@ -1,4 +1,4 @@
-import { RGB } from "../DataTypes/XYZVertex.js"
+import { RGB } from "../lib/data-types/XYZVertex.js"
 export class XYZMaterial {
 	private _Ns: number = 255.0;
 	private _Ka: RGB = {r: 1, g: 1, b: 1};
