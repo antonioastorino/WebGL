@@ -1,12 +1,14 @@
 import { XYZRenderer } from "./XYZRenderer.js"
 import { XYZShader } from "./XYZShader.js"
 import { XYZLightSource } from "../objects/XYZLightSource";
+import { XYZKeyboard } from "../inputs/XYZKeyboard.js";
 
 export class XYZEngine {
 	private static _initialized = false;
 
-	public static init = () => {
+	public static init = async () => {
 		XYZEngine._initialized = true;
+		await XYZKeyboard.init();
 		XYZRenderer.init();
 	}
 

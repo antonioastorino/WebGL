@@ -1,4 +1,4 @@
-import { XYZTextureLoader } from "../base/XYZTextureLoader.js";
+import { XYZFileLoader } from "../base/XYZFileLoader.js";
 import { XYZRenderer } from "../base/XYZRenderer.js";
 import { XYZMesh } from "./XYZMesh.js";
 import { XYZMaterial } from "./XYZMaterial.js";
@@ -30,7 +30,7 @@ export class XYZSprite extends XYZMesh {
 	}
 	
 	public init = async () => {
-		let texture = await XYZTextureLoader.loadTexture(this._texFileName);
+		let texture = await XYZFileLoader.loadImage(this._texFileName);
 		let material = new XYZMaterial("");
 		material.texObject = XYZRenderer.createTextureObject(texture);
 		material.vertexCount = 6;

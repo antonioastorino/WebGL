@@ -7,11 +7,12 @@ import { XYZCamera } from "./objects/XYZCamera.js";
 
 export async function main() {
 	console.log("Hello Main");
-	XYZEngine.init();
+	await XYZEngine.init();
 
 	let camera1 = new XYZCamera();
 	camera1.position.z = 4;
-	camera1.setLinearVel({x:0, y:0, z:10});
+	// camera1.setLinearVel({x:0, y:0, z:10});
+	camera1.makePlayer();
 
 	let pointLight1 = new XYZPoint();
 	pointLight1.position.x = 2;

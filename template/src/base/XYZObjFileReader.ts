@@ -1,13 +1,12 @@
 import { Vec3, Vec2, RGB } from "../lib/data-types/XYZVertex.js";
 import { XYZMaterial } from "../objects/XYZMaterial.js"
 import { XYZRenderer } from "./XYZRenderer.js";
-import { XYZTextureLoader } from "./XYZTextureLoader.js";
-import { XYZTextFileReader } from "./XYZTextFileReader.js";
+import { XYZFileLoader } from "./XYZFileLoader.js";
 
 export class XYZObjFileReader {
 	// read .mtl files and creates a list of materials used by the specified object
 	private static readMtlLib = async (filePath: string): Promise<XYZMaterial[]> => {
-		let fileText = await XYZTextFileReader.load(filePath);
+		let fileText = await XYZFileLoader.loadText(filePath);
 
 		let materials: XYZMaterial[] = [];
 		let materialText = fileText.split("newmtl ");
@@ -42,7 +41,7 @@ export class XYZObjFileReader {
 					case "map_Kd":
 						let texFileName = line.split("map_Kd ")[1];
 						try {
-							let texture = await XYZTextureLoader.loadTexture(texFileName);
+							let texture = await XYZFileLoader.loadImage(texFileName);
 							newMaterial.texObject = XYZRenderer.createTextureObject(texture);
 						}
 						catch {
@@ -62,7 +61,7 @@ export class XYZObjFileReader {
 		textureArrayBuffer: number[],
 		normalArrayBuffer: number[]
 	}> => {
-		const objFileText = await XYZTextFileReader.load(fileDir + fileName);
+		const objFileText = await XYZFileLoader.loadText(fileDir + fileName);
 		var lines = objFileText.split('\n');
 
 		let vertexArray: Vec3[] = [];

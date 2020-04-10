@@ -2,6 +2,7 @@ import { Vec3, RotationVec4, AngularVelocityVec4 } from "../lib/data-types/XYZVe
 import { XYZMatLab } from "../lib/math/XYZMatLab.js";
 import { XYZMatrix } from "../lib/math/XYZMatrix.js";
 import { XYZVector } from "../lib/math/XYZVector.js";
+import { XYZKeyboard } from "../inputs/XYZKeyboard.js";
 
 export class XYZNode {
 	protected constructor() { }
@@ -10,6 +11,7 @@ export class XYZNode {
 	protected _rotation: XYZMatrix = (new XYZMatrix(4, 4)).identity();
 	protected _scale: Vec3 = { x: 1, y: 1, z: 1 };
 	protected _dimensions: number = 0;
+	private _isPlayer: boolean = false;
 
 	// Physics
 	private _isUpdated: boolean = false;
@@ -25,10 +27,10 @@ export class XYZNode {
 	public reset() { this._isUpdated = false; }
 	public get modelMatrix(): XYZMatrix { return this._modelMatrix; }
 
-		/* TODO: it should not be possible to access the position directly but
-		only through forces. Only the initial position should be accessible upon
-		initialization. Same goes for the orientation
-	*/
+	/* TODO: it should not be possible to access the position directly but
+	only through forces. Only the initial position should be accessible upon
+	initialization. Same goes for the orientation
+*/
 	public setPosition = (value: Vec3) => { this._position = value; }
 	public setLinearVel = (value: Vec3) => { this._linearVel = value; }
 	public setOrientation = (orientation: RotationVec4 | number) => {
@@ -74,10 +76,13 @@ export class XYZNode {
 	}
 
 	public setScale = (scale: Vec3) => { this._scale = scale; }
-	
+
 	public update = (deltaTime: number) => {
 		if (this._isUpdated) return;
 		this._isUpdated = true;
+
+		this.updatePlayer()
+
 		let addedPosition: Vec3 = {
 			x: this._linearVel.x * deltaTime,
 			y: this._linearVel.y * deltaTime,
@@ -122,6 +127,29 @@ export class XYZNode {
 		if (this._parent != null) {
 			this._parent.update(deltaTime);
 			this._modelMatrix = <XYZMatrix>(<XYZNode>this._parent).modelMatrix.multiplyBy(this._modelMatrix);
+		}
+	}
+
+	public makePlayer = () => { this._isPlayer = true; }
+	// public isPlayer = (): boolean => { return this._isPlayer; }
+	private updatePlayer = () => {
+		if (this._isPlayer) {
+			let vx = 0;
+			let vz = 0;
+			if (XYZKeyboard.getKeyState("Left")) {
+				vx -= 1;
+			}
+			if (XYZKeyboard.getKeyState("Right")) {
+				vx += 1;
+			}
+			if (XYZKeyboard.getKeyState("Forward")) {
+				vz -= 1
+			}
+			if (XYZKeyboard.getKeyState("Backward")) {
+				vz += 1;
+			}
+			this._linearVel.x = vx;
+			this._linearVel.z = vz;
 		}
 	}
 }

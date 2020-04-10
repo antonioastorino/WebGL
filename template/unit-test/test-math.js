@@ -2,9 +2,8 @@ import { XYZMatrix } from '../dist/lib/math/XYZMatrix.js';
 import { XYZVector } from '../dist/lib/math/XYZVector.js';
 import { XYZMatLab } from '../dist/lib/math/XYZMatLab.js';
 import { XYZQuaternion } from '../dist/lib/math/XYZQuaternion.js'
-import { XYZObjFileReader } from '../dist/base/XYZObjFileReader.js'
 
-console.log("Hello Unit test!");
+console.log("Hello math!");
 
 QUnit.module("Object creation");
 QUnit.test("Create vector from array", (assert) => {
@@ -119,19 +118,4 @@ QUnit.test('Creation', (assert) => {
 	let q1 = new XYZQuaternion(theta, x, y, z);
 	let vec1 = (new XYZVector([x, y, z]));
 	assert.deepEqual(vec1, q1.getVector(), "Vector part correctly normalized");
-})
-
-QUnit.module("Obj files");
-QUnit.test('Load', (assert) => {
-	assert.expect(6);
-	var obj = XYZObjFileReader.load("./models/", "sample.obj").then(result => {
-		console.log(result)
-		assert.deepEqual((result.vertexArrayBuffer).length, 9, "Correct position buffer length");
-		assert.deepEqual((result.vertexArrayBuffer)[1], -1, "Correct vertex position coordinate");
-		assert.deepEqual((result.textureArrayBuffer).length, 6, "Correct texture buffer length");
-		assert.deepEqual((result.textureArrayBuffer)[5], 1, "Correct texture coordinate");
-		assert.deepEqual((result.normalArrayBuffer).length, 9, "Correct normal buffer length");
-		assert.deepEqual((result.normalArrayBuffer)[3], 0, "Correct vertex normal coordinate");
-	});
-	return obj
 })

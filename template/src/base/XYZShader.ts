@@ -179,8 +179,8 @@ export class XYZShader {
 			throw 'ERROR validating program!' + XYZRenderer.gl.getProgramInfoLog(shaderProgram)
 		}
 
-		console.log(vertexShaderText);
-		console.log(fragmentShaderText);
+		// console.log(vertexShaderText);
+		// console.log(fragmentShaderText);
 		this._shaderProgram = shaderProgram;
 	}
 
