@@ -2,14 +2,16 @@ import { Vec3, Vec2, RGB } from "../DataTypes/XYZVertex.js";
 import { XYZMaterial } from "../../lib/Objects/XYZMaterial.js"
 import { XYZRenderer } from "./XYZRenderer.js";
 import { XYZTextureLoader } from "./XYZTextureLoader.js";
+import { XYZTextFileReader } from "./XYZTextFileReader.js";
 
 export class XYZObjFileReader {
 	// read .mtl files and creates a list of materials used by the specified object
 	private static readMtlLib = async (filePath: string): Promise<XYZMaterial[]> => {
-		let fileText = await $.get(filePath);
+		let fileText = await XYZTextFileReader.load(filePath);
+
 		let materials: XYZMaterial[] = [];
 		let materialText = fileText.split("newmtl ");
-		let makeVec3FromString = (str:string): RGB => {
+		let makeVec3FromString = (str: string): RGB => {
 			let valuesText = str.split(" ");
 			return {
 				r: parseFloat(valuesText[1]),
@@ -60,7 +62,7 @@ export class XYZObjFileReader {
 		textureArrayBuffer: number[],
 		normalArrayBuffer: number[]
 	}> => {
-		const objFileText = await $.get(fileDir + fileName);
+		const objFileText = await XYZTextFileReader.load(fileDir + fileName);
 		var lines = objFileText.split('\n');
 
 		let vertexArray: Vec3[] = [];
@@ -110,7 +112,7 @@ export class XYZObjFileReader {
 				if (matCount > -1) {
 					materials[matCount].vertexCount = matVertexCount;
 				}
-				matCount ++;
+				matCount++;
 				if (materials[matCount].name != line.split(" ")[1]) {
 					throw "Material not matching object descriptor"
 				}

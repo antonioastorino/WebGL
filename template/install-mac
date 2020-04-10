@@ -2,14 +2,15 @@
 
 cd $(dirname $0)
 
-mkdir -p scripts; pushd scripts
+mkdir -p bin; pushd bin
 
 cat <<EOF > uninstall-mac
 #!/bin/bash
 
 ps aux | grep "php -S 127.0.0.1:8080" | grep -v "grep" | awk '{print \$2}' | xargs kill
+ps aux | grep "tsc" | grep -v "grep" | awk '{print \$2}' | xargs kill
 cd \$(dirname \$0)/..
-rm -rf dist node_modules scripts *.json
+rm -rf dist node_modules bin *.json
 EOF
 chmod +x uninstall-mac
 
@@ -23,9 +24,7 @@ chmod +x localServer8080
 
 cat <<EOF > tsc-restart
 #!/bin/bash
-
-cd \$(dirname \$0)/..
-tsc -w
+tsc -w -p \$(dirname \$0)/../etc
 EOF
 chmod +x tsc-restart
 
@@ -48,18 +47,15 @@ chmod +x run-unit-test
 popd
 
 # Create typescript configuration file
-cat <<EOF > tsconfig.json
+mkdir -p etc
+cat <<EOF > etc/tsconfig.json
 {
   "include": ["../"],
   "compilerOptions": {
     "target": "es6",
-	"outDir": "./dist",
-    "rootDirs": ["./src", "./lib"],
-	"strict": true,
-	"typeRoots": [ "/usr/local/lib/node_modules/types" ],
-    "types": [ "jquery" ],
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
+	"outDir": "../dist",
+    "rootDirs": ["../src", "../lib"],
+	"strict": true
   }
 }
 EOF
@@ -73,13 +69,9 @@ cat <<EOF > package.json
   "directories": {
     "lib": ""
   },
-  "scripts": {
-    "test": "jasmine"
-  },
   "keywords": [],
   "author": "Antonio Astorino",
-  "license": "ISC"
+  "license": "ISC",
+  "repository": "https://github.com/antonioastorino/WebGL.git"
 }
 EOF
-
-npm install --save @types/jquery
