@@ -10,7 +10,7 @@ cat <<EOF > uninstall-mac
 ps aux | grep "php -S 127.0.0.1:8080" | grep -v "grep" | awk '{print \$2}' | xargs kill
 ps aux | grep "tsc" | grep -v "grep" | awk '{print \$2}' | xargs kill
 cd \$(dirname \$0)/..
-rm -rf dist node_modules bin etc *.json
+rm -rf dist bin *.json
 EOF
 chmod +x uninstall-mac
 
@@ -45,20 +45,6 @@ EOF
 chmod +x run-unit-test
 
 popd
-
-# Create typescript configuration file
-mkdir -p etc
-cat <<EOF > etc/tsconfig.json
-{
-  "include": ["../src"],
-  "compilerOptions": {
-    "target": "es6",
-	  "outDir": "../dist",
-    "rootDirs": ["../src/"],
-	  "strict": true
-  }
-}
-EOF
 
 cat <<EOF > package.json
 {
