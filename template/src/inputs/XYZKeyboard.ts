@@ -1,8 +1,8 @@
 import { XYZFileLoader } from "../base/XYZFileLoader.js";
 
 export class XYZKeyboard {
-	private static _keyStates = {};
-	private static _keyDictionary = {}; 
+	private static _keyStates: any = {};
+	private static _keyDictionary: any = {}; 
 
 	public static init = async () => {
 		let keyDict = await XYZFileLoader.loadJson("../../etc/keyboard.json")
@@ -30,7 +30,7 @@ export class XYZKeyboard {
 	/** Set the key status to released (0) when released.
 	 * Ignore keys not int keyboard.json
 	 */
-	private static release(e) {
+	private static release(e: KeyboardEvent) {
 		if (XYZKeyboard._keyStates[e.code] == 1) {
 			XYZKeyboard._keyStates[e.code] = 0;
 			console.log(e.code + " Released")
