@@ -51,7 +51,8 @@ export async function main() {
 	let triangle2 = new XYZTriangle();
 	triangle2.attachShader(basicShader);
 	triangle2.setPosition({ x: 0, y: 2, z: 0 });
-	triangle2.setScale({ x: 0.5, y: 0.3, z: 1 })
+	triangle2.setScale({ x: 0.5, y: 0.3, z: 1 });
+	// triangle2.makePlayer();
 
 	let sprite1 = new XYZSprite('wooden-wall.jpg');
 	await sprite1.init();
@@ -73,6 +74,7 @@ export async function main() {
 	block1.position.y = -3;
 	// block1.setAngularVel({x: 1, y: 0.3, z: 0, speed: 40});
 	block1.attachShader(lightShader);
+	// block1.makePlayer()
 
 	// sprite1.setAngularVel(0.01);
 	XYZEngine.run();

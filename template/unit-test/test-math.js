@@ -36,11 +36,9 @@ QUnit.test('Multiplication', (assert) => {
 })
 
 QUnit.test('Transposition', (assert) => {
-	let mat1 = new XYZMatrix([[0, 1], [2, 3]]);
-	mat1.transpose();
-	let mat2 = new XYZMatrix([[0, 1], [2, 3]]);
-	XYZMatLab.transpose(mat2);
-	assert.deepEqual(mat1, XYZMatLab.transpose(mat2), "Correct transposition");
+	let mat1 = new XYZMatrix([[0, 1, 2], [3, 4, 6]]);
+	let mat2 = mat1.transpose();
+	assert.deepEqual(mat1.getElement(1, 2), mat2.getElement(2,1), "Correct transposition");
 })
 
 QUnit.test("Dot product", (assert) => {

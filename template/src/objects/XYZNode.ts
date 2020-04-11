@@ -121,13 +121,17 @@ export class XYZNode {
 			if (XYZKeyboard.getKeyState("Velocity", "Right")) vx += 1;
 			if (XYZKeyboard.getKeyState("Velocity", "Forward")) vz -= 1;
 			if (XYZKeyboard.getKeyState("Velocity", "Backward")) vz += 1;
-			this._linearVel.x = vx;
-			this._linearVel.z = vz;
+			let vec4Velocity = <XYZVector>this._rotation.multiplyBy(new XYZVector([vx, 0, vz, 1]));
+			this._linearVel = {
+				x: vec4Velocity.getElement(0),
+				y: vec4Velocity.getElement(1),
+				z: vec4Velocity.getElement(2)
+			}
 
 			let ax = 0;
 			let ay = 0;
-			if (XYZKeyboard.getKeyState("Angular velocity", "Left")) ay -= 1;
-			if (XYZKeyboard.getKeyState("Angular velocity", "Right")) ay += 1;
+			if (XYZKeyboard.getKeyState("Angular velocity", "Left")) ay += 1;
+			if (XYZKeyboard.getKeyState("Angular velocity", "Right")) ay -= 1;
 			if (XYZKeyboard.getKeyState("Angular velocity", "Forward")) ax -= 1;
 			if (XYZKeyboard.getKeyState("Angular velocity", "Backward")) ax += 1;
 

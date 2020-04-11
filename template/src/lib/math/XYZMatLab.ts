@@ -8,12 +8,6 @@ export class XYZMatLab {
 		return a.multiplyBy(b);;
 	}
 
-	public static transpose = (a: XYZMatrix): XYZMatrix | XYZVector => {
-		var outMatrix = a.makeCopy();
-		outMatrix.transpose();
-		return outMatrix;
-	}
-
 	public static makeTranslationMatrix = (vector: XYZVector): XYZMatrix => {
 		let matTranslation = (new XYZMatrix(4, 4)).identity();
 		matTranslation.setElement(0, 3, vector.getElement(0));
@@ -95,9 +89,12 @@ export class XYZMatLab {
 		return outMatrix;
 	}
 
-	public static makeLookAtMatrix = (matRotation: XYZMatrix, position: Vec3): XYZMatrix => {
-		let vecPosition = new XYZVector([position.x, position.y, position.z]);
-		let matTranslation = XYZMatLab.makeTranslationMatrix(vecPosition.multiplyBy(-1));
+	public static makeLookAtMatrix = (rotation: XYZMatrix, position: Vec3): XYZMatrix => {
+		
+		let vecPosition = new XYZVector([-position.x, -position.y, -position.z]);
+		let matRotation = rotation.transpose();
+
+		let matTranslation = XYZMatLab.makeTranslationMatrix(vecPosition);
 
 		return <XYZMatrix>matRotation.multiplyBy(matTranslation);
 	}

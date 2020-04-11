@@ -58,16 +58,13 @@ export class XYZMatrix {
 	}
 
 	transpose = (): XYZMatrix => {
-		var tmp = new XYZMatrix(this._cols, this._rows);
+		var outMatrix = new XYZMatrix(this._cols, this._rows);
 		for (var i = 0; i < this._cols; i++) { // s
 			for (var j = 0; j < this._rows; j++) {
-				tmp.setElement(j, i, this._matrix[i][j]);
+				outMatrix.setElement(i, j, this._matrix[i][j]);
 			}
 		}
-		this._matrix = tmp.getMatrix();
-		this._rows = tmp.getRows();
-		this._cols = tmp.getCols();
-		return this;
+		return outMatrix;
 	}
 
 	makeCopy = (): XYZMatrix => {
