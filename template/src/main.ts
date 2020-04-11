@@ -44,6 +44,7 @@ export async function main() {
 	let triangle1 = new XYZTriangle();
 	triangle1.attachShader(basicShader);
 	triangle1.setPosition({ x: 2, y: 0, z: 0 });
+	// triangle1.makePlayer();
 	// triangle1.setScale({ x: 0.3, y: 0.3, z: 1 })
 
 	// Triangle 2
@@ -62,7 +63,6 @@ export async function main() {
 	await sphere1.init();
 	sphere1.attachShader(lightShader2);
 	sphere1.setAngularVel({ x: 1, y: 1, z: 1, speed: 0.05 });
-	sphere1.setLinearVel({ x: 0.1, y: 0, z: 0})
 	// triangle2.parent = sphere1;
 	// triangle1.parent = triangle2;
 
@@ -70,8 +70,8 @@ export async function main() {
 	await block1.init();
 	block1.scale.x = 5;
 	block1.scale.z = 5;
-	block1.position.z = -5;
-	block1.setAngularVel({x: 1, y: 0.3, z: 0, speed: 40});
+	block1.position.y = -3;
+	// block1.setAngularVel({x: 1, y: 0.3, z: 0, speed: 40});
 	block1.attachShader(lightShader);
 
 	// sprite1.setAngularVel(0.01);

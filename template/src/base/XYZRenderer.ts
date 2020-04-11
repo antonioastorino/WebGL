@@ -4,6 +4,7 @@ import { XYZQuaternion } from "../lib/math/XYZQuaternion.js";
 import { XYZShader } from "./XYZShader.js"
 import { XYZTime } from "./XYZTime.js";
 import { XYZCamera } from "../objects/XYZCamera.js";
+import { RotationVec4 } from "../lib/data-types/XYZVertex.js";
 
 export class XYZRenderer {
 	private static _gl: WebGLRenderingContext;
@@ -69,7 +70,10 @@ export class XYZRenderer {
 		let deltaTime = XYZTime.deltaTime;
 		this._cameraList[this.activeCameraNumber].update(deltaTime);
 		this._cameraList[this.activeCameraNumber].reset();
-		this._mView = XYZMatLab.makeLookAtMatrix(new XYZQuaternion(0, 0, 0, 1), this._cameraList[this.activeCameraNumber].position);
+
+		let position = this._cameraList[this.activeCameraNumber].position;
+		let rotation = this._cameraList[this.activeCameraNumber].rotation;
+		this._mView = XYZMatLab.makeLookAtMatrix(rotation, position);
 		this._shaderList.forEach(
 			shader => { 
 				shader.drawAll(deltaTime); 

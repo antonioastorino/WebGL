@@ -2,14 +2,17 @@ import { XYZFileLoader } from "../base/XYZFileLoader.js";
 
 export class XYZKeyboard {
 	private static _keyStates: any = {};
-	private static _keyDictionary: any = {}; 
+	private static _keyDictionary: any = {};
 
 	public static init = async () => {
 		let keyDict = await XYZFileLoader.loadJson("../../etc/keyboard.json")
-		
+
 		// Add keys to _keyStates object and set initial state to released (0)
-		for (var key in keyDict) {
-			XYZKeyboard._keyStates[keyDict[key]] = 0;
+		for (var property in keyDict) {
+			let keys = keyDict[property];
+			for (var key in keys) {
+				XYZKeyboard._keyStates[keys[key]] = 0;
+			}
 		}
 		XYZKeyboard._keyDictionary = keyDict;
 
@@ -37,8 +40,8 @@ export class XYZKeyboard {
 		}
 	}
 
-	public static getKeyState = (action: string): number | undefined => {
-		let code = XYZKeyboard._keyDictionary[action];
+	public static getKeyState = (property: string, action: string): number | undefined => {
+		let code = XYZKeyboard._keyDictionary[property][action];
 		return XYZKeyboard._keyStates[code]
 	}
 }

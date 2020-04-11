@@ -1,6 +1,14 @@
 {
-	"Forward": "KeyW",
-	"Backward": "KeyS",
-	"Left": "KeyA",
-	"Right": "KeyD"
+	"Velocity": {
+		"Forward": "KeyW",
+		"Backward": "KeyS",
+		"Left": "KeyA",
+		"Right": "KeyD"
+	},
+	"Angular velocity": {
+		"Forward": "KeyI",
+		"Backward": "KeyK",
+		"Left": "KeyJ",
+		"Right": "KeyL"
+	}
 }

@@ -29,30 +29,10 @@ export class XYZNode {
 
 	/* TODO: it should not be possible to access the position directly but
 	only through forces. Only the initial position should be accessible upon
-	initialization. Same goes for the orientation
+	initialization.
 */
 	public setPosition = (value: Vec3) => { this._position = value; }
 	public setLinearVel = (value: Vec3) => { this._linearVel = value; }
-	public setOrientation = (orientation: RotationVec4 | number) => {
-		if (this._dimensions == 2 && typeof (orientation) == 'number') {
-			// only rotations about the z-axis are allowed
-			this._rotation = XYZMatLab.makeRotationMatrix(
-				<number>orientation,
-				0,
-				0,
-				1);
-		}
-		else if (this._dimensions == 3 && typeof (orientation) == 'object') {
-			this._rotation = XYZMatLab.makeRotationMatrix(
-				orientation.angle,
-				orientation.x,
-				orientation.y,
-				orientation.z);
-		}
-		else {
-			throw "Check orientation parameter!"
-		}
-	}
 
 	public setAngularVel = (angularVelocity: AngularVelocityVec4 | number) => {
 		if (this._dimensions == 2 && typeof (angularVelocity) == 'number') {
@@ -71,7 +51,7 @@ export class XYZNode {
 			};
 		}
 		else {
-			throw "Check orientation parameter!"
+			throw "Incorrect angular velocity!"
 		}
 	}
 
@@ -110,6 +90,7 @@ export class XYZNode {
 
 		if (this._angularVel.speed != 0) {
 			this._rotationAngle = this._angularVel.speed * deltaTime
+
 			let addedRotation = XYZMatLab.makeRotationMatrix(
 				this._rotationAngle,
 				this._angularVel.x,
@@ -136,20 +117,22 @@ export class XYZNode {
 		if (this._isPlayer) {
 			let vx = 0;
 			let vz = 0;
-			if (XYZKeyboard.getKeyState("Left")) {
-				vx -= 1;
-			}
-			if (XYZKeyboard.getKeyState("Right")) {
-				vx += 1;
-			}
-			if (XYZKeyboard.getKeyState("Forward")) {
-				vz -= 1
-			}
-			if (XYZKeyboard.getKeyState("Backward")) {
-				vz += 1;
-			}
+			if (XYZKeyboard.getKeyState("Velocity", "Left")) vx -= 1;
+			if (XYZKeyboard.getKeyState("Velocity", "Right")) vx += 1;
+			if (XYZKeyboard.getKeyState("Velocity", "Forward")) vz -= 1;
+			if (XYZKeyboard.getKeyState("Velocity", "Backward")) vz += 1;
 			this._linearVel.x = vx;
 			this._linearVel.z = vz;
+
+			let ax = 0;
+			let ay = 0;
+			if (XYZKeyboard.getKeyState("Angular velocity", "Left")) ay -= 1;
+			if (XYZKeyboard.getKeyState("Angular velocity", "Right")) ay += 1;
+			if (XYZKeyboard.getKeyState("Angular velocity", "Forward")) ax -= 1;
+			if (XYZKeyboard.getKeyState("Angular velocity", "Backward")) ax += 1;
+
+			if (ax || ay) this._angularVel = { speed: 100, x: ax, y: ay, z: 0 }
+			else this._angularVel = { speed: 0, x: 1, y: 0, z: 0 }
 		}
 	}
 }

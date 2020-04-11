@@ -15,10 +15,10 @@ export class XYZMatLab {
 	}
 
 	public static makeTranslationMatrix = (vector: XYZVector): XYZMatrix => {
-		let matTranslation = (new XYZMatrix(4,4)).identity();
-		matTranslation.setElement(0,3,vector.getElement(0));
-		matTranslation.setElement(1,3,vector.getElement(1));
-		matTranslation.setElement(2,3,vector.getElement(2));
+		let matTranslation = (new XYZMatrix(4, 4)).identity();
+		matTranslation.setElement(0, 3, vector.getElement(0));
+		matTranslation.setElement(1, 3, vector.getElement(1));
+		matTranslation.setElement(2, 3, vector.getElement(2));
 		return matTranslation;
 	}
 
@@ -45,24 +45,24 @@ export class XYZMatLab {
 	}
 
 	public static makeScaleMatrix = (scaleX: number, scaleY?: number, scaleZ?: number): XYZMatrix => {
-		let scaleMatrix = (new XYZMatrix(4,4)).identity();
-		scaleMatrix.setElement(0,0,scaleX);
+		let scaleMatrix = (new XYZMatrix(4, 4)).identity();
+		scaleMatrix.setElement(0, 0, scaleX);
 		if (scaleY == undefined || scaleZ == undefined) {
-			scaleMatrix.setElement(1,1,scaleX);
-			scaleMatrix.setElement(2,2,scaleX);
+			scaleMatrix.setElement(1, 1, scaleX);
+			scaleMatrix.setElement(2, 2, scaleX);
 		}
 		else {
-			scaleMatrix.setElement(1,1,scaleY);
-			scaleMatrix.setElement(2,2,scaleZ);
+			scaleMatrix.setElement(1, 1, scaleY);
+			scaleMatrix.setElement(2, 2, scaleZ);
 		}
 		return scaleMatrix;
 	}
 
 	public static makeTranslateMatrix = (posX: number, posY: number, posZ: number): XYZMatrix => {
-		let scaleMatrix = (new XYZMatrix(4,4)).identity();
-		scaleMatrix.setElement(0,3,posX);
-		scaleMatrix.setElement(1,3,posY);
-		scaleMatrix.setElement(2,3,posZ);
+		let scaleMatrix = (new XYZMatrix(4, 4)).identity();
+		scaleMatrix.setElement(0, 3, posX);
+		scaleMatrix.setElement(1, 3, posY);
+		scaleMatrix.setElement(2, 3, posZ);
 		return scaleMatrix;
 	}
 
@@ -95,11 +95,10 @@ export class XYZMatLab {
 		return outMatrix;
 	}
 
-	public static makeLookAtMatrix = (quat: XYZQuaternion, pos: Vec3): XYZMatrix => {
-		let vecPosition = new XYZVector([pos.x, pos.y, pos.z]);
-		let rotationMatrix = XYZMatLab.makeRotationMatrix(-quat.getAngleDeg(), quat.getVector());
-		let translationMatrix = XYZMatLab.makeTranslationMatrix(vecPosition.multiplyBy(-1));
+	public static makeLookAtMatrix = (matRotation: XYZMatrix, position: Vec3): XYZMatrix => {
+		let vecPosition = new XYZVector([position.x, position.y, position.z]);
+		let matTranslation = XYZMatLab.makeTranslationMatrix(vecPosition.multiplyBy(-1));
 
-		return <XYZMatrix>rotationMatrix.multiplyBy(translationMatrix);
+		return <XYZMatrix>matRotation.multiplyBy(matTranslation);
 	}
 }
