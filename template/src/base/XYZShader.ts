@@ -209,7 +209,7 @@ export class XYZShader {
 
 	public addMesh = (mesh: XYZMesh) => { this._meshList.push(mesh); }
 
-	public drawAll(deltaTime: number) {
+	public drawAll() {
 		XYZRenderer.gl.useProgram(this._shaderProgram); // Set program in use before getting locations
 		this.enableAttributes()
 		if (this._vPointLightPosUL != null && this._vPointLightIntUL != null) {
@@ -261,9 +261,7 @@ export class XYZShader {
 		}
 
 		this._meshList.forEach(mesh => {
-			mesh.update(deltaTime);
 			mesh.draw();
-			mesh.reset();
 		});
 	}
 

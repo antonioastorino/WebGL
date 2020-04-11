@@ -19,6 +19,10 @@ export class XYZMesh extends XYZNode {
 	protected _materials: XYZMaterial[] = [];
 	private _shader: XYZShader | null = null;
 
+	protected constructor() {
+		super()
+	}
+
 	public draw = () => {
 		let shader = <XYZShader>this._shader;
 		let gl = XYZRenderer.gl;

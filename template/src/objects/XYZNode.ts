@@ -3,16 +3,22 @@ import { XYZMatLab } from "../lib/math/XYZMatLab.js";
 import { XYZMatrix } from "../lib/math/XYZMatrix.js";
 import { XYZVector } from "../lib/math/XYZVector.js";
 import { XYZKeyboard } from "../inputs/XYZKeyboard.js";
+import { XYZRenderer } from "../base/XYZRenderer.js";
 
 export class XYZNode {
-	protected constructor() { }
+	protected constructor() {
+		XYZRenderer.addNode(this);
+	}
 	private _modelMatrix: XYZMatrix = (new XYZMatrix(4, 4)).identity();
 	protected _position: Vec3 = { x: 0, y: 0, z: 0 };
 	protected _rotation: XYZMatrix = (new XYZMatrix(4, 4)).identity();
-	private _anglesDeg: eulerAnglesDeg = {yaw: 0, pitch: 0, roll: 0};
+	private _anglesDeg: eulerAnglesDeg = { yaw: 0, pitch: 0, roll: 0 };
 	protected _scale: Vec3 = { x: 1, y: 1, z: 1 };
 	protected _dimensions: number = 0;
 	private _isPlayer: boolean = false;
+	private _relativePosition: Vec3 = { x: 0, y: 0, z: 0 }
+	private _relativeRotation: XYZMatrix = (new XYZMatrix(4, 4)).identity();
+	private _relativeScale: Vec3 = { x: 1, y: 1, z: 1 };
 
 	// Physics
 	private _isUpdated: boolean = false;
@@ -20,12 +26,26 @@ export class XYZNode {
 	private _linearVel: Vec3 = { x: 0, y: 0, z: 0 };
 	private _angularVel: AngularVelocityVec4 = { x: 0, y: 0, z: 1, speed: 0 };
 	private _rotationAngle: number = 0;
-	private _eulerAngularVelocityDeg: eulerAnglesDeg = {yaw: 0, pitch: 0, roll: 0};
+	private _eulerAngularVelocityDeg: eulerAnglesDeg = { yaw: 0, pitch: 0, roll: 0 };
 
-	public get position(): Vec3 { return this._position; }
-	public get rotation(): XYZMatrix { return this._rotation; }
-	public get scale(): Vec3 { return this._scale; }
-	public set parent(node: XYZNode | null) { this._parent = node; }
+	public getPositionVec3(): Vec3 { return this._position; }
+	public getRotationMat4(): XYZMatrix { return this._rotation; }
+	public getScaleVec3(): Vec3 { return this._scale; }
+
+	public setParent(node: XYZNode) {
+		this._parent = node;
+		this._relativePosition.x = this._position.x - this._parent._position.x;
+		this._relativePosition.y = this._position.y - this._parent._position.y;
+		this._relativePosition.z = this._position.z - this._parent._position.z;
+
+		this._relativeRotation = <XYZMatrix>this._parent._rotation.transpose().multiplyBy(
+			this._rotation
+		);
+		this._relativeScale.x = this._scale.x / this._parent._scale.x;
+		this._relativeScale.y = this._scale.y / this._parent._scale.y;
+		this._relativeScale.z = this._scale.z / this._parent._scale.z;
+	}
+
 	public reset() { this._isUpdated = false; }
 	public get modelMatrix(): XYZMatrix { return this._modelMatrix; }
 
@@ -64,61 +84,57 @@ export class XYZNode {
 
 		this.updatePlayer()
 
-		let addedPosition: Vec3 = {
-			x: this._linearVel.x * deltaTime,
-			y: this._linearVel.y * deltaTime,
-			z: this._linearVel.z * deltaTime
-		}
-		let finalPosition: Vec3 = {
-			x: this._position.x += addedPosition.x,
-			y: this._position.y += addedPosition.y,
-			z: this._position.z += addedPosition.z
-		}
-		let finalScale: Vec3 = {
-			x: this._scale.x,
-			y: this._scale.y,
-			z: this._scale.z
-		}
-
 		if (this._parent != null) {
-			finalPosition.x -= this._parent._position.x;
-			finalPosition.y -= this._parent._position.y;
-			finalPosition.z -= this._parent._position.z;
-			finalScale.x /= this._parent._scale.x;
-			finalScale.y /= this._parent._scale.y;
-			finalScale.z /= this._parent._scale.z;
-		}
+			// Update the parent and apply the changes to this node
+			this._parent.update(deltaTime);
+			let newPosition = <XYZVector>this._parent.modelMatrix.multiplyBy(
+				new XYZVector([
+					this._relativePosition.x,
+					this._relativePosition.y,
+					this._relativePosition.z,
+					1
+				]))
+			this._position = {
+				x: newPosition.x,
+				y: newPosition.y,
+				z: newPosition.z
+			}
 
-		if (this._eulerAngularVelocityDeg.yaw != 0
-			|| this._eulerAngularVelocityDeg.pitch != 0
-			|| this._eulerAngularVelocityDeg.roll !=0 ) {
+			this._rotation = <XYZMatrix>this._parent._rotation.multiplyBy(
+				this._relativeRotation
+			)
+		}
+		else {
+			this._position.x += this._linearVel.x * deltaTime,
+				this._position.y += this._linearVel.y * deltaTime,
+				this._position.z += this._linearVel.z * deltaTime
+
+			if (this._eulerAngularVelocityDeg.yaw != 0
+				|| this._eulerAngularVelocityDeg.pitch != 0
+				|| this._eulerAngularVelocityDeg.roll != 0) {
 				this._anglesDeg.yaw += this._eulerAngularVelocityDeg.yaw;
 				this._anglesDeg.pitch += this._eulerAngularVelocityDeg.pitch;
 				this._anglesDeg.roll += this._eulerAngularVelocityDeg.roll;
 				this._rotation = XYZMatLab.makeRotationMatrixFromEulerAngles(this._anglesDeg);
-		}
+			}
 
-		if (this._angularVel.speed != 0) {
-			this._rotationAngle = this._angularVel.speed * deltaTime
+			if (this._angularVel.speed != 0) {
+				this._rotationAngle = this._angularVel.speed * deltaTime
 
-			let addedRotation = XYZMatLab.makeRotationMatrix(
-				this._rotationAngle,
-				this._angularVel.x,
-				this._angularVel.y,
-				this._angularVel.z);
-			this._rotation = <XYZMatrix>this._rotation.multiplyBy(addedRotation);
+				let addedRotation = XYZMatLab.makeRotationMatrix(
+					this._rotationAngle,
+					this._angularVel.x,
+					this._angularVel.y,
+					this._angularVel.z);
+				this._rotation = <XYZMatrix>this._rotation.multiplyBy(addedRotation);
+			}
 		}
 
 		this._modelMatrix = XYZMatLab.makeModelMatrix(
-			finalPosition,
+			this._position,
 			this._rotation,
-			finalScale
+			this._scale
 		);
-
-		if (this._parent != null) {
-			this._parent.update(deltaTime);
-			this._modelMatrix = <XYZMatrix>(<XYZNode>this._parent).modelMatrix.multiplyBy(this._modelMatrix);
-		}
 	}
 
 	public makePlayer = () => { this._isPlayer = true; }
@@ -150,15 +166,15 @@ export class XYZNode {
 
 			let yaw = 0;
 			let pitch = 0;
-			if (XYZKeyboard.getKeyState("Euler angles", "Pitch+")) pitch += 1;
-			if (XYZKeyboard.getKeyState("Euler angles", "Pitch-")) pitch -= 1;
-			if (XYZKeyboard.getKeyState("Euler angles", "YawLeft")) yaw -= 1;
-			if (XYZKeyboard.getKeyState("Euler angles", "YawRight")) yaw += 1;
+			if (XYZKeyboard.getKeyState("Euler angles", "Pitch+")) pitch -= 1;
+			if (XYZKeyboard.getKeyState("Euler angles", "Pitch-")) pitch += 1;
+			if (XYZKeyboard.getKeyState("Euler angles", "YawLeft")) yaw += 1;
+			if (XYZKeyboard.getKeyState("Euler angles", "YawRight")) yaw -= 1;
 
-			if (yaw || pitch){
-				this._eulerAngularVelocityDeg = {yaw: yaw, pitch: pitch, roll: 0};
+			if (yaw || pitch) {
+				this._eulerAngularVelocityDeg = { yaw: yaw, pitch: pitch, roll: 0 };
 			}
-			else this._eulerAngularVelocityDeg = {yaw: 0, pitch: 0, roll: 0};
+			else this._eulerAngularVelocityDeg = { yaw: 0, pitch: 0, roll: 0 };
 		}
 	}
 }

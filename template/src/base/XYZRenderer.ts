@@ -1,20 +1,21 @@
 import { XYZMatrix } from "../lib/math/XYZMatrix.js";
 import { XYZMatLab } from "../lib/math/XYZMatLab.js";
-import { XYZQuaternion } from "../lib/math/XYZQuaternion.js";
 import { XYZShader } from "./XYZShader.js"
-import { XYZTime } from "./XYZTime.js";
 import { XYZCamera } from "../objects/XYZCamera.js";
-import { RotationVec4 } from "../lib/data-types/XYZVertex.js";
+import { XYZNode } from "../objects/XYZNode.js";
+import { XYZVector } from "../lib/math/XYZVector.js";
 
 export class XYZRenderer {
 	private static _gl: WebGLRenderingContext;
 	public static _canvas: HTMLCanvasElement;
 	private static _mView: XYZMatrix = (new XYZMatrix(4, 4)).identity();
 	private static _mProj: XYZMatrix = (new XYZMatrix(4, 4)).identity();
+	private static _nodeList: XYZNode[] = [];
 	private static _shaderList: XYZShader[] = [];
 	private static _cameraList: XYZCamera[] = [];
 	private static _activeCameraNumber: number = -1;
 
+	public static addNode(node: XYZNode) { this._nodeList.push(node); }
 	public static get activeCameraNumber(): number { return this._activeCameraNumber; }
 	public static addCamera(camera: XYZCamera) { 
 		this._cameraList.push(camera);
@@ -66,17 +67,26 @@ export class XYZRenderer {
 		return texObject;
 	}
 
-	public static drawAll() {
-		let deltaTime = XYZTime.deltaTime;
-		this._cameraList[this.activeCameraNumber].update(deltaTime);
-		this._cameraList[this.activeCameraNumber].reset();
-
-		let position = this._cameraList[this.activeCameraNumber].position;
-		let rotation = this._cameraList[this.activeCameraNumber].rotation;
+	public static updateAll(deltaTime: number) {
+		this._nodeList.forEach((node: XYZNode) => {
+			node.update(deltaTime);
+		})
+		let position = this._cameraList[this.activeCameraNumber].getPositionVec3();
+		let rotation = this._cameraList[this.activeCameraNumber].getRotationMat4();
 		this._mView = XYZMatLab.makeLookAtMatrix(rotation, position);
+	}
+
+	public static resetAll() {
+		this._nodeList.forEach((node: XYZNode) => {
+			node.reset();
+		})
+	}
+
+	public static drawAll() {
+		this.gl.clear(XYZRenderer.gl.COLOR_BUFFER_BIT | XYZRenderer.gl.DEPTH_BUFFER_BIT);
 		this._shaderList.forEach(
 			shader => { 
-				shader.drawAll(deltaTime); 
+				shader.drawAll(); 
 			}
 		)
 	}

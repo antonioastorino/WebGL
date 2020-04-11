@@ -10,9 +10,9 @@ export async function main() {
 	await XYZEngine.init();
 
 	let camera1 = new XYZCamera();
-	camera1.position.z = 4;
-	camera1.setLinearVel({x:0, y:0, z:0});
-	// camera1.makePlayer();
+	camera1.getPositionVec3().z = 10;
+	camera1.setLinearVel({ x: 0, y: 0, z: 0 });
+	camera1.makePlayer();
 
 	let pointLight1 = new XYZPoint();
 	pointLight1.position.x = 2;
@@ -51,13 +51,14 @@ export async function main() {
 	triangle2.setPosition({ x: 0, y: 2, z: 0 });
 	triangle2.setScale({ x: 0.5, y: 0.3, z: 1 });
 	triangle2.makePlayer();
+	// camera1.setParent(triangle2);
 
 	let sprite1 = new XYZSprite('wooden-wall.jpg');
 	await sprite1.init();
 	sprite1.attachShader(spriteShader);
 	sprite1.setPosition({ x: 0.6, y: 0.6, z: 0 })
 	sprite1.setScale({ x: 0.3, y: 0.3, z: 1 })
-	
+
 	let sphere1 = new XYZModel("./assets/meshes/", "sphere-smooth.obj");
 	await sphere1.init();
 	sphere1.attachShader(lightShader2);
@@ -65,9 +66,9 @@ export async function main() {
 
 	let block1 = new XYZModel("./assets/meshes/", "textured-object.obj");
 	await block1.init();
-	block1.scale.x = 5;
-	block1.scale.z = 5;
-	block1.position.y = -3;
+	block1.getScaleVec3().x = 5;
+	block1.getScaleVec3().z = 5;
+	block1.getPositionVec3().y = -3;
 	// block1.setAngularVel({x: 1, y: 0.3, z: 0, speed: 40});
 	block1.attachShader(lightShader);
 	// block1.makePlayer()
