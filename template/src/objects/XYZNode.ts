@@ -1,4 +1,4 @@
-import { Vec3, RotationVec4, AngularVelocityVec4 } from "../lib/data-types/XYZVertex.js";
+import { Vec3, AngularVelocityVec4, eulerAnglesDeg } from "../lib/data-types/XYZVertex.js";
 import { XYZMatLab } from "../lib/math/XYZMatLab.js";
 import { XYZMatrix } from "../lib/math/XYZMatrix.js";
 import { XYZVector } from "../lib/math/XYZVector.js";
@@ -9,6 +9,7 @@ export class XYZNode {
 	private _modelMatrix: XYZMatrix = (new XYZMatrix(4, 4)).identity();
 	protected _position: Vec3 = { x: 0, y: 0, z: 0 };
 	protected _rotation: XYZMatrix = (new XYZMatrix(4, 4)).identity();
+	private _anglesDeg: eulerAnglesDeg = {yaw: 0, pitch: 0, roll: 0};
 	protected _scale: Vec3 = { x: 1, y: 1, z: 1 };
 	protected _dimensions: number = 0;
 	private _isPlayer: boolean = false;
@@ -19,6 +20,7 @@ export class XYZNode {
 	private _linearVel: Vec3 = { x: 0, y: 0, z: 0 };
 	private _angularVel: AngularVelocityVec4 = { x: 0, y: 0, z: 1, speed: 0 };
 	private _rotationAngle: number = 0;
+	private _eulerAngularVelocityDeg: eulerAnglesDeg = {yaw: 0, pitch: 0, roll: 0};
 
 	public get position(): Vec3 { return this._position; }
 	public get rotation(): XYZMatrix { return this._rotation; }
@@ -29,8 +31,7 @@ export class XYZNode {
 
 	/* TODO: it should not be possible to access the position directly but
 	only through forces. Only the initial position should be accessible upon
-	initialization.
-*/
+	initialization. */
 	public setPosition = (value: Vec3) => { this._position = value; }
 	public setLinearVel = (value: Vec3) => { this._linearVel = value; }
 
@@ -88,6 +89,15 @@ export class XYZNode {
 			finalScale.z /= this._parent._scale.z;
 		}
 
+		if (this._eulerAngularVelocityDeg.yaw != 0
+			|| this._eulerAngularVelocityDeg.pitch != 0
+			|| this._eulerAngularVelocityDeg.roll !=0 ) {
+				this._anglesDeg.yaw += this._eulerAngularVelocityDeg.yaw;
+				this._anglesDeg.pitch += this._eulerAngularVelocityDeg.pitch;
+				this._anglesDeg.roll += this._eulerAngularVelocityDeg.roll;
+				this._rotation = XYZMatLab.makeRotationMatrixFromEulerAngles(this._anglesDeg);
+		}
+
 		if (this._angularVel.speed != 0) {
 			this._rotationAngle = this._angularVel.speed * deltaTime
 
@@ -137,6 +147,18 @@ export class XYZNode {
 
 			if (ax || ay) this._angularVel = { speed: 100, x: ax, y: ay, z: 0 }
 			else this._angularVel = { speed: 0, x: 1, y: 0, z: 0 }
+
+			let yaw = 0;
+			let pitch = 0;
+			if (XYZKeyboard.getKeyState("Euler angles", "Pitch+")) pitch += 1;
+			if (XYZKeyboard.getKeyState("Euler angles", "Pitch-")) pitch -= 1;
+			if (XYZKeyboard.getKeyState("Euler angles", "YawLeft")) yaw -= 1;
+			if (XYZKeyboard.getKeyState("Euler angles", "YawRight")) yaw += 1;
+
+			if (yaw || pitch){
+				this._eulerAngularVelocityDeg = {yaw: yaw, pitch: pitch, roll: 0};
+			}
+			else this._eulerAngularVelocityDeg = {yaw: 0, pitch: 0, roll: 0};
 		}
 	}
 }

@@ -29,3 +29,9 @@ export interface VertexWithColor {
 	vertex: Vec3,
 	color: RGB
 }
+
+export interface eulerAnglesDeg {
+	yaw: number,
+	pitch: number,
+	roll: number
+}

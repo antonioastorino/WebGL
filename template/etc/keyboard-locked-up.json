@@ -1,0 +1,14 @@
+{
+	"Velocity": {
+		"Forward": "KeyW",
+		"Backward": "KeyS",
+		"Left": "KeyA",
+		"Right": "KeyD"
+	},
+	"Euler angles": {
+		"Pitch+": "ArrowUp",
+		"Pitch-": "ArrowDown",
+		"YawLeft": "ArrowLeft",
+		"YawRight": "ArrowRight"
+	}
+}

@@ -11,8 +11,8 @@ export async function main() {
 
 	let camera1 = new XYZCamera();
 	camera1.position.z = 4;
-	// camera1.setLinearVel({x:0, y:0, z:10});
-	camera1.makePlayer();
+	camera1.setLinearVel({x:0, y:0, z:0});
+	// camera1.makePlayer();
 
 	let pointLight1 = new XYZPoint();
 	pointLight1.position.x = 2;
@@ -44,15 +44,13 @@ export async function main() {
 	let triangle1 = new XYZTriangle();
 	triangle1.attachShader(basicShader);
 	triangle1.setPosition({ x: 2, y: 0, z: 0 });
-	// triangle1.makePlayer();
-	// triangle1.setScale({ x: 0.3, y: 0.3, z: 1 })
 
 	// Triangle 2
 	let triangle2 = new XYZTriangle();
 	triangle2.attachShader(basicShader);
 	triangle2.setPosition({ x: 0, y: 2, z: 0 });
 	triangle2.setScale({ x: 0.5, y: 0.3, z: 1 });
-	// triangle2.makePlayer();
+	triangle2.makePlayer();
 
 	let sprite1 = new XYZSprite('wooden-wall.jpg');
 	await sprite1.init();
@@ -64,8 +62,6 @@ export async function main() {
 	await sphere1.init();
 	sphere1.attachShader(lightShader2);
 	sphere1.setAngularVel({ x: 1, y: 1, z: 1, speed: 0.05 });
-	// triangle2.parent = sphere1;
-	// triangle1.parent = triangle2;
 
 	let block1 = new XYZModel("./assets/meshes/", "textured-object.obj");
 	await block1.init();

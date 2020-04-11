@@ -5,7 +5,7 @@ export class XYZKeyboard {
 	private static _keyDictionary: any = {};
 
 	public static init = async () => {
-		let keyDict = await XYZFileLoader.loadJson("../../etc/keyboard.json")
+		let keyDict = await XYZFileLoader.loadJson("../../etc/keyboard-locked-up.json")
 
 		// Add keys to _keyStates object and set initial state to released (0)
 		for (var property in keyDict) {
@@ -26,7 +26,6 @@ export class XYZKeyboard {
 	private static press(e: KeyboardEvent) {
 		if (XYZKeyboard._keyStates[e.code] == 0) {
 			XYZKeyboard._keyStates[e.code] = 1;
-			console.log(e.code + " pressed")
 		}
 	}
 
@@ -36,12 +35,16 @@ export class XYZKeyboard {
 	private static release(e: KeyboardEvent) {
 		if (XYZKeyboard._keyStates[e.code] == 1) {
 			XYZKeyboard._keyStates[e.code] = 0;
-			console.log(e.code + " Released")
 		}
 	}
 
 	public static getKeyState = (property: string, action: string): number | undefined => {
-		let code = XYZKeyboard._keyDictionary[property][action];
-		return XYZKeyboard._keyStates[code]
+		try {
+			let code = XYZKeyboard._keyDictionary[property][action];
+			return XYZKeyboard._keyStates[code]
+		}
+		catch{
+			return undefined;
+		}
 	}
 }

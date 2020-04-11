@@ -1,7 +1,7 @@
 import { XYZMatrix } from './XYZMatrix.js'
 import { XYZVector } from './XYZVector.js'
 import { XYZQuaternion } from './XYZQuaternion.js'
-import { Vec3 } from '../data-types/XYZVertex.js'
+import { Vec3, eulerAnglesDeg } from '../data-types/XYZVertex.js'
 
 export class XYZMatLab {
 	public static multiply = (a: XYZMatrix, b: XYZMatrix | XYZVector | number): XYZMatrix | XYZVector => {
@@ -16,12 +16,61 @@ export class XYZMatLab {
 		return matTranslation;
 	}
 
-	// Returns a rotation matrix about a given vector. The vector doesn't need to be normalized
-	public static makeRotationMatrix = (angle_deg: number, x: XYZVector | number, y?: number, z?: number): XYZMatrix => {
+	/**
+	 * Returns a matrix which is the product of three rotation matrices:
+	 * 1. Ry - yaw (rotation about the model y-axis)
+	 * 2. Rx - pitch (rotation about the model x-axis)
+	 * 3. Rz - roll (rotation about the model z-axis)
+	 * The resulting matrix is Rz * Rx * Ry
+	 * @param anglesDeg
+	 */
+	public static makeRotationMatrixFromEulerAngles(anglesDeg: eulerAnglesDeg): XYZMatrix {
+		let phi = anglesDeg.pitch * Math.PI / 180;
+		let theta = anglesDeg.yaw * Math.PI / 180;
+		let psi = anglesDeg.roll * Math.PI / 180;
+
+		let cosPhi = Math.cos(phi);
+		let sinPhi = Math.sin(phi);
+		let cosTheta = Math.cos(theta);
+		let sinTheta = Math.sin(theta);
+		let cosPsi = Math.cos(psi);
+		let sinPsi = Math.sin(psi);
+
+		let a00 = cosTheta * cosPsi;
+		let a10 = cosTheta * sinPsi;
+		let a20 = - sinTheta;
+
+		let a01 = -cosPhi * sinPsi + sinPhi * sinTheta * cosPsi;
+		let a11 = cosPhi * cosPsi + sinPhi * sinTheta * sinPsi;
+		let a21 = sinPhi * cosTheta;
+
+		let a02 = sinPhi * sinPsi + cosPhi * sinTheta * cosPsi;
+		let a12 = - sinPhi * cosPsi + cosPhi * sinTheta * sinPsi;
+		let a22 = cosPhi * cosTheta;
+
+		let matRotation = new XYZMatrix([
+			[a00, a10, a20, 0],
+			[a01, a11, a21, 0],
+			[a02, a12, a22, 0],
+			[0, 0, 0, 1]
+		]);
+
+		return matRotation;
+	}
+
+	/**
+	 * Returns a rotation matrix about a given vector. The vector doesn't need to be normalized
+	 * @param angle_deg		angle of rotation in degrees
+	 * @param x				x-component of the rotation vector
+	 * @param y				y-component of the rotation vector
+	 * @param z				z-component of the rotation vector
+	 */
+	public static makeRotationMatrix(angle_deg: number, x: XYZVector | number, y?: number, z?: number): XYZMatrix {
 		let quat: XYZQuaternion;
-		if (y == undefined || z == undefined) {
+		if (y == undefined && z == undefined) {
 			quat = new XYZQuaternion(angle_deg, (<XYZVector>x).getDirection());
 		}
+		else if (y == undefined || z == undefined) throw "Invalid function arguments"
 		else {
 			let dir = (new XYZVector([<number>x, y, z])).getDirection();
 			quat = new XYZQuaternion(angle_deg, dir);
@@ -90,12 +139,11 @@ export class XYZMatLab {
 	}
 
 	public static makeLookAtMatrix = (rotation: XYZMatrix, position: Vec3): XYZMatrix => {
-		
+
 		let vecPosition = new XYZVector([-position.x, -position.y, -position.z]);
 		let matRotation = rotation.transpose();
 
 		let matTranslation = XYZMatLab.makeTranslationMatrix(vecPosition);
-
 		return <XYZMatrix>matRotation.multiplyBy(matTranslation);
 	}
 }
