@@ -119,10 +119,10 @@ export class XYZShader {
 		}
 
 		if (this._dirLights.length > 0) {
-			vertexShaderText = vertexShaderText.replace("$numOfDirLights$", this._pointLights.length.toString());
+			vertexShaderText = vertexShaderText.replace("$numOfDirLights$", this._dirLights.length.toString());
 			vertexShaderText = vertexShaderText.split("/*dirLight").join("");
 			vertexShaderText = vertexShaderText.split("dirLight*/").join("");
-			fragmentShaderText = fragmentShaderText.replace("$numOfDirLights$", this._pointLights.length.toString());
+			fragmentShaderText = fragmentShaderText.replace("$numOfDirLights$", this._dirLights.length.toString());
 			fragmentShaderText = fragmentShaderText.split("/*dirLight").join("");
 			fragmentShaderText = fragmentShaderText.split("dirLight*/").join("");
 		}
@@ -146,6 +146,9 @@ export class XYZShader {
 		for (let i = 1; i < newSplit.length; i++) {
 			fragmentShaderText = fragmentShaderText + newSplit[i].split("*/")[1];
 		}
+
+		// console.log(vertexShaderText);
+		// console.log(fragmentShaderText);
 
 		let vertexShader = <WebGLShader>XYZRenderer.gl.createShader(XYZRenderer.gl.VERTEX_SHADER);
 		let fragmentShader = <WebGLShader>XYZRenderer.gl.createShader(XYZRenderer.gl.FRAGMENT_SHADER);
@@ -179,8 +182,7 @@ export class XYZShader {
 			throw 'ERROR validating program!' + XYZRenderer.gl.getProgramInfoLog(shaderProgram)
 		}
 
-		// console.log(vertexShaderText);
-		// console.log(fragmentShaderText);
+
 		this._shaderProgram = shaderProgram;
 	}
 
