@@ -64,9 +64,6 @@ export class XYZObjFileReader {
 		const objFileText = await XYZFileLoader.loadText(fileDir + fileName);
 		var lines = objFileText.split('\n');
 
-		let vertexArray: Vec3[] = [];
-		let textureArray: Vec2[] = [];
-		let normalArray: Vec3[] = [];
 		let materials: XYZMaterial[] = [];
 		let matStartIndex = 0;
 		let matVertexCount = 0;
@@ -83,74 +80,74 @@ export class XYZObjFileReader {
 			}
 		}
 
+		let posCoordArray: number[] = [];
+		let texCoordArray: number[] = [];
+		let normCoordArray: number[] = [];
+		
+		let posCoordIndex = 0;
+		let texCoordIndex = 0;
+		let normCoordIndex = 0;
+
+		let vertexArrayBufferIndex = 0;
+		let textureArrayBufferIndex = 0;
+		let normalArrayBufferIndex = 0;
+
 		lines.forEach(async (line: string) => {
-			if (line.startsWith("v ")) {
-				let vertexText = line.split(" ")
-				vertexArray.push({
-					x: parseFloat(vertexText[1]),
-					y: parseFloat(vertexText[2]),
-					z: parseFloat(vertexText[3])
-				});
-			}
-			else if (line.startsWith("vt ")) {
-				let textureText = line.split(" ")
-				textureArray.push({
-					x: parseFloat(textureText[1]),
-					y: parseFloat(textureText[2])
-				});
-			}
-			else if (line.startsWith("vn ")) {
-				let normalText = line.split(" ")
-				normalArray.push({
-					x: parseFloat(normalText[1]),
-					y: parseFloat(normalText[2]),
-					z: parseFloat(normalText[3])
-				});
-			}
-			else if (line.startsWith("usemtl ")) {
-				if (matCount > -1) {
-					materials[matCount].vertexCount = matVertexCount;
-				}
-				matCount++;
-				if (materials[matCount].name != line.split(" ")[1]) {
-					throw "Material not matching object descriptor"
-				}
-				materials[matCount].startIndex = matStartIndex;
-				matVertexCount = 0;
-			}
-			else if (line.startsWith("f ")) {
-				line = line.replace("f ", "");
-				let faceText = line.split(" ")
-				faceText.forEach((vertex: string) => {
-					matVertexCount += 1;
-					matStartIndex += 1;
-					let faceIndices = vertex.split("/");
-					// Load vertex coordinate array
-					let vIndex = parseInt(faceIndices[0]) - 1;
-					vertexArrayBuffer = vertexArrayBuffer.concat([
-						vertexArray[vIndex].x,
-						vertexArray[vIndex].y,
-						vertexArray[vIndex].z,
-					])
-					// Check for texture and normals
-					if (faceIndices.length > 1) {
-						if (faceIndices[1] != "") { // there is texture
-							let tIndex = parseInt(faceIndices[1]) - 1;
-							textureArrayBuffer = textureArrayBuffer.concat([
-								textureArray[tIndex].x,
-								textureArray[tIndex].y
-							])
-						}
-						if (faceIndices.length == 3) { // there are normals
-							let nIndex = parseInt(faceIndices[2]) - 1;
-							normalArrayBuffer = normalArrayBuffer.concat([
-								normalArray[nIndex].x,
-								normalArray[nIndex].y,
-								normalArray[nIndex].z,
-							])
+			let lineSplit = line.split(" ");
+			switch (lineSplit[0]) {
+				case "v":
+						posCoordArray[posCoordIndex++] = parseFloat(lineSplit[1]);
+						posCoordArray[posCoordIndex++] = parseFloat(lineSplit[2]);
+						posCoordArray[posCoordIndex++] = parseFloat(lineSplit[3]);
+					break;
+				case "vt":
+						texCoordArray[texCoordIndex++] = parseFloat(lineSplit[1]);
+						texCoordArray[texCoordIndex++] = parseFloat(lineSplit[2]);
+					break;
+				case "vn":
+						normCoordArray[normCoordIndex++] = parseFloat(lineSplit[1]);
+						normCoordArray[normCoordIndex++] = parseFloat(lineSplit[2]);
+						normCoordArray[normCoordIndex++] = parseFloat(lineSplit[3]);
+					break;
+				case "usemtl":
+					if (matCount > -1) {
+						materials[matCount].vertexCount = matVertexCount;
+					}
+					matCount++;
+					if (materials[matCount].name != line.split(" ")[1]) {
+						throw "Material not matching object descriptor"
+					}
+					materials[matCount].startIndex = matStartIndex;
+					matVertexCount = 0;
+					break;
+				case "f":
+					for (var i = 1; i < 4; i++) {
+						let vertex = lineSplit[i];
+						matVertexCount += 1;
+						matStartIndex += 1;
+						let faceIndices = vertex.split("/");
+						// Load vertex coordinate array
+						let vIndex = (parseInt(faceIndices[0]) - 1) * 3;
+							vertexArrayBuffer[vertexArrayBufferIndex++] = posCoordArray[vIndex];
+							vertexArrayBuffer[vertexArrayBufferIndex++] = posCoordArray[vIndex + 1];
+							vertexArrayBuffer[vertexArrayBufferIndex++] = posCoordArray[vIndex + 2];
+						// Check for texture and normals
+						if (faceIndices.length > 1) {
+							if (faceIndices[1] != "") { // there is texture
+								let tIndex = (parseInt(faceIndices[1]) - 1) * 2;
+									textureArrayBuffer[textureArrayBufferIndex++] = texCoordArray[tIndex];
+									textureArrayBuffer[textureArrayBufferIndex++] = texCoordArray[tIndex+1];
+							}
+							if (faceIndices.length == 3) { // there are normals
+								let nIndex = (parseInt(faceIndices[2]) - 1) * 3;
+									normalArrayBuffer[normalArrayBufferIndex++] = normCoordArray[nIndex];
+									normalArrayBuffer[normalArrayBufferIndex++] = normCoordArray[nIndex+1];
+									normalArrayBuffer[normalArrayBufferIndex++] = normCoordArray[nIndex+2];
+							}
 						}
 					}
-				})
+				default:
+					break;
 			}
 		});
 		if (materials.length > 0) {
