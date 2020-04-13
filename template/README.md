@@ -19,7 +19,7 @@ The method updatePlayer() in the XYZNode class implements the actions.
 There is only one keyboard handler but many objects can be defined as players, in which case the will all move synchronously.
 
 ### Meshes
-Meshes are loaded from the ```assets``` folder where they must be saved as standard ```.obj``` files (in ```./assets/objects/```), along with their corresponding ```.mtl``` files (in ```./assets/materials/```). If present, texture files must be saved in the ```./assets/textures/``` folder.
+Meshes are normally loaded from the ```assets``` folder where they must be saved as standard ```.obj``` files (in ```./assets/objects/```), along with their corresponding ```.mtl``` files (in ```./assets/materials/```). If present, texture files must be saved in the ```./assets/textures/``` folder. If a different path for the object file is specified, say ```<custom_path>```, the corresponding material and textures must be located in ```<custom_path>/../materials/``` and ```<custom_path>/../textures/```, respectively.
 
 ### Unit tests
 Unit tests can be found in the ```./unit-test/``` folder.
