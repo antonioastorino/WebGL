@@ -5,10 +5,10 @@ import { XYZFileLoader } from "./XYZFileLoader.js";
 
 export class XYZObjFileReader {
 	// read .mtl files and creates a list of materials used by the specified object
-	private static readMtlLib = async (filePath: string): Promise<{[id:string]: XYZMaterial}> => {
+	private static readMtlLib = async (filePath: string): Promise<{ [id: string]: XYZMaterial }> => {
 		let fileText = await XYZFileLoader.loadText(filePath);
 
-		let materials: {[id:string]: XYZMaterial} = {};
+		let materials: { [id: string]: XYZMaterial } = {};
 		let materialText = fileText.split("newmtl ");
 		let makeVec3FromString = (str: string): RGB => {
 			let valuesText = str.split(" ");
@@ -50,7 +50,7 @@ export class XYZObjFileReader {
 						break;
 				}
 			});
-			materials[lines[0]] =newMaterial;
+			materials[lines[0]] = newMaterial;
 		}
 		return materials;
 	}
@@ -64,7 +64,7 @@ export class XYZObjFileReader {
 		const objFileText = await XYZFileLoader.loadText(fileDir + fileName);
 		var lines = objFileText.split('\n');
 
-		let materials: {[id:string]: XYZMaterial} = {};
+		let materials: { [id: string]: XYZMaterial } = {};
 		let matStartIndex = 0;
 		let matVertexCount = 0;
 		let matCount = -1;
@@ -84,22 +84,23 @@ export class XYZObjFileReader {
 		let texCoordArray: number[] = [];
 		let normCoordArray: number[] = [];
 		let matName = "";
+
 		lines.forEach(async (line: string) => {
 			let lineSplit = line.split(" ");
 			switch (lineSplit[0]) {
 				case "v":
-						posCoordArray.push(parseFloat(lineSplit[1]));
-						posCoordArray.push(parseFloat(lineSplit[2]));
-						posCoordArray.push(parseFloat(lineSplit[3]));
+					posCoordArray.push(parseFloat(lineSplit[1]));
+					posCoordArray.push(parseFloat(lineSplit[2]));
+					posCoordArray.push(parseFloat(lineSplit[3]));
 					break;
 				case "vt":
-						texCoordArray.push(parseFloat(lineSplit[1]));
-						texCoordArray.push(parseFloat(lineSplit[2]));
+					texCoordArray.push(parseFloat(lineSplit[1]));
+					texCoordArray.push(parseFloat(lineSplit[2]));
 					break;
 				case "vn":
-						normCoordArray.push(parseFloat(lineSplit[1]));
-						normCoordArray.push(parseFloat(lineSplit[2]));
-						normCoordArray.push(parseFloat(lineSplit[3]));
+					normCoordArray.push(parseFloat(lineSplit[1]));
+					normCoordArray.push(parseFloat(lineSplit[2]));
+					normCoordArray.push(parseFloat(lineSplit[3]));
 					break;
 				case "usemtl":
 					if (matCount > -1) {
@@ -119,23 +120,52 @@ export class XYZObjFileReader {
 						let faceIndices = vertex.split("/");
 						// Load vertex coordinate array
 						let vIndex = (parseInt(faceIndices[0]) - 1) * 3;
-							vertexArrayBuffer.push(posCoordArray[vIndex]);
-							vertexArrayBuffer.push(posCoordArray[vIndex + 1]);
-							vertexArrayBuffer.push(posCoordArray[vIndex + 2]);
+						vertexArrayBuffer.push(posCoordArray[vIndex]);
+						vertexArrayBuffer.push(posCoordArray[vIndex + 1]);
+						vertexArrayBuffer.push(posCoordArray[vIndex + 2]);
 						// Check for texture and normals
 						if (faceIndices.length > 1) {
 							if (faceIndices[1] != "") { // there is texture
 								let tIndex = (parseInt(faceIndices[1]) - 1) * 2;
-									textureArrayBuffer.push(texCoordArray[tIndex]);
-									textureArrayBuffer.push(texCoordArray[tIndex+1]);
+								textureArrayBuffer.push(texCoordArray[tIndex]);
+								textureArrayBuffer.push(texCoordArray[tIndex + 1]);
 							}
 							if (faceIndices.length == 3) { // there are normals
 								let nIndex = (parseInt(faceIndices[2]) - 1) * 3;
-									normalArrayBuffer.push(normCoordArray[nIndex]);
-									normalArrayBuffer.push(normCoordArray[nIndex+1]);
-									normalArrayBuffer.push(normCoordArray[nIndex+2]);
+								normalArrayBuffer.push(normCoordArray[nIndex]);
+								normalArrayBuffer.push(normCoordArray[nIndex + 1]);
+								normalArrayBuffer.push(normCoordArray[nIndex + 2]);
 							}
 						}
+					}
+					for (var j = 1; j < lineSplit.length - 3; j++) {
+						let indices = [j, j + 2, j + 3];
+						indices.forEach(i => {
+							let vertex = lineSplit[i];
+							matVertexCount += 1;
+							matStartIndex += 1;
+							let faceIndices = vertex.split("/");
+							// Load vertex coordinate array
+							let vIndex = (parseInt(faceIndices[0]) - 1) * 3;
+							vertexArrayBuffer.push(posCoordArray[vIndex]);
+							vertexArrayBuffer.push(posCoordArray[vIndex + 1]);
+							vertexArrayBuffer.push(posCoordArray[vIndex + 2]);
+							// Check for texture and normals
+							if (faceIndices.length > 1) {
+								if (faceIndices[1] != "") { // there is texture
+									let tIndex = (parseInt(faceIndices[1]) - 1) * 2;
+									textureArrayBuffer.push(texCoordArray[tIndex]);
+									textureArrayBuffer.push(texCoordArray[tIndex + 1]);
+								}
+								if (faceIndices.length == 3) { // there are normals
+									let nIndex = (parseInt(faceIndices[2]) - 1) * 3;
+									normalArrayBuffer.push(normCoordArray[nIndex]);
+									normalArrayBuffer.push(normCoordArray[nIndex + 1]);
+									normalArrayBuffer.push(normCoordArray[nIndex + 2]);
+								}
+							}
+
+						})
 					}
 				default:
 					break;
@@ -149,7 +179,7 @@ export class XYZObjFileReader {
 		Object.keys(materials).forEach((name: string) => {
 			materialArray.push(materials[name]);
 		})
-		
+
 		return {
 			materials: materialArray,
 			vertexArrayBuffer: vertexArrayBuffer,
