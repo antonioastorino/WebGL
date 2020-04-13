@@ -23,37 +23,44 @@ varying vec2 fragTexCoord; // input from vertex shader
 uniform sampler2D texSampler;
 texture*/
 
-const float Id = 1.0;
+const float Id = 0.4;
+const float Ia = 0.2;
 
 void main() {
 	vec3 N = normalize(fragNormal); // surface normal
 	vec3 V = - normalize(fragPosition); // eye normalized location
 	vec3 specular = vec3(0.0, 0.0, 0.0);
 	vec3 directional = vec3(1.0, 1.0, 1.0);
-	vec3 color = vec3(1.0 ,1.0 ,1.0);
+	vec3 texColor = vec3(1.0 ,1.0 ,1.0);
+	vec3 ambient = vec3(0.0, 0.0, 0.0);
+	vec3 diffuse = vec3(0.0, 0.0, 0.0);
+
 /*pointLight
 for (int i = 0; i < numOfPointLights; i++){
 	float decay = min(1.0, 1.0/distance(pointLightWorldPosition[i], fragPosition));
 	vec3 L = normalize(pointLightWorldPosition[i] - fragPosition);
 	vec3 H = normalize(L + V); // halfway ray
-	specular += pow(max(dot(N, H), 0.0), sNs) * vKs * decay * pointLightIntensity[i];; // Blinn-Phong reflection
+	specular += pow(max(dot(N, H), 0.0), sNs) * vKs * decay * pointLightIntensity[i] / float(numOfPointLights);
+	ambient += decay * pointLightIntensity[i]/ float(numOfPointLights);
+	diffuse += decay * pointLightIntensity[i] * max(0.0, dot(N, L)) / float(numOfPointLights);
 }
 pointLight*/
 
 /*dirLight
 	directional = vec3(0.0, 0.0, 0.0);
 	for (int i = 0; i < numOfDirLights; i++){
-		directional += max(dot(normalize(-dirLightWorldDirection[i]), N), 0.0) * dirLightIntensity[i];
+		directional += max(dot(normalize(-dirLightWorldDirection[i]), N), 0.0) * dirLightIntensity[i] / float(numOfDirLights);
+		ambient += normalize(dirLightIntensity[i]) / float(numOfDirLights);
+		diffuse += normalize(dirLightIntensity[i]) * max(0.0, dot(N, -dirLightWorldDirection[i])) / float(numOfDirLights);
 	}
 dirLight*/
 
 /*texture
-	color = texture2D(texSampler, fragTexCoord).xyz;
+	texColor = texture2D(texSampler, fragTexCoord).xyz;
 texture*/
 
-	vec3 ambient = vKa;
-
-	vec3 diffuse = Id * max(dot(N, V), 0.0) * vKd;
-	vec3 fragColor = ambient * directional * (diffuse + specular) * color;
+	ambient *= vKa * Ia;
+	diffuse *= vKd * Id;
+	vec3 fragColor = (ambient + diffuse + specular + directional) * texColor;
 	gl_FragColor = vec4(fragColor, 1);
 }

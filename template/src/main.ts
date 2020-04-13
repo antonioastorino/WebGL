@@ -10,11 +10,11 @@ export async function main() {
 	await XYZEngine.init("../../etc/keyboard-locked-up.json");
 
 	let camera1 = new XYZCamera();
-	camera1.setPosition(0, 4, 10);
+	camera1.setPosition(-64, 20, 68);
 	camera1.makePlayer();
 
 	let pointLight1 = new XYZPoint();
-	pointLight1.setPosition(10, 10, 30);
+	pointLight1.setPosition(10, 20, 30);
 	pointLight1.setRgbIntensity(40, 40, 40);
 
 	let pointLight2 = new XYZPoint();
@@ -23,7 +23,7 @@ export async function main() {
 
 	let sun1 = new XYZSun();
 	sun1.setDirection(-1, -1, 0);
-	sun1.setRgbIntensity(4, 4, 5);
+	sun1.setRgbIntensity(0.2, 0.2, 0.2);
 
 	// let lightShader = await XYZEngine.makeShader("3D", [sun1, pointLight2], true);
 	let lightShader2 = await XYZEngine.makeShader("3D", [sun1, pointLight1, pointLight2], false);
@@ -46,9 +46,17 @@ export async function main() {
 
 	let cube = new XYZModel("./assets/meshes/", "cube.obj");
 	await cube.init();
-	cube.setScale(10, 1,10);
+	cube.setScale(10, 10,10);
+	cube.setPosition(-10, 5, -10);
 	cube.rotateAboutGlobalAxis({x:0, y: 1, z: 1, speed: 10})
 	cube.attachShader(lightShader2);
+
+	let cube2 = new XYZModel("./assets/meshes/", "cube2.obj");
+	await cube2.init();
+	cube2.setScale(10, 10,10);
+	cube2.setPosition(10, 5, 10);
+	cube2.rotateAboutGlobalAxis({x:1, y: 1, z: 0, speed: 10})
+	cube2.attachShader(lightShader2);
 
 	let layer0 = new XYZModel("./assets/meshes/", "layer0.obj");
 	await layer0.init();
