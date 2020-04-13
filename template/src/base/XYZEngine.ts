@@ -7,9 +7,9 @@ import { XYZTime } from "./XYZTime.js";
 export class XYZEngine {
 	private static _initialized = false;
 
-	public static init = async () => {
+	public static init = async (keyboardConfigFile: string) => {
 		XYZEngine._initialized = true;
-		await XYZKeyboard.init();
+		await XYZKeyboard.init(keyboardConfigFile);
 		XYZRenderer.init();
 	}
 

@@ -23,8 +23,7 @@ varying vec2 fragTexCoord; // input from vertex shader
 uniform sampler2D texSampler;
 texture*/
 
-const float Ia = 0.2;
-const float Id = 0.5;
+const float Id = 1.0;
 
 void main() {
 	vec3 N = normalize(fragNormal); // surface normal
@@ -51,9 +50,9 @@ dirLight*/
 	color = texture2D(texSampler, fragTexCoord).xyz;
 texture*/
 
-	vec3 ambient = vKa * Ia;
+	vec3 ambient = vKa;
 
 	vec3 diffuse = Id * max(dot(N, V), 0.0) * vKd;
-	vec3 fragColor = (ambient + diffuse + specular + directional) * color;
+	vec3 fragColor = ambient * (diffuse + specular + directional) * color;
 	gl_FragColor = vec4(fragColor, 1);
 }

@@ -4,8 +4,8 @@ export class XYZKeyboard {
 	private static _keyStates: any = {};
 	private static _keyDictionary: any = {};
 
-	public static init = async () => {
-		let keyDict = await XYZFileLoader.loadJson("../../etc/keyboard-locked-up.json")
+	public static init = async (configFile: string) => {
+		let keyDict = await XYZFileLoader.loadJson(configFile);
 
 		// Add keys to _keyStates object and set initial state to released (0)
 		for (var property in keyDict) {

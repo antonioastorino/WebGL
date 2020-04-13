@@ -53,27 +53,65 @@ export class XYZNode {
 	only through forces. Only the initial position should be accessible upon
 	initialization. */
 	public setPosition = (value: Vec3) => { this._position = value; }
-	public setLinearVel = (value: Vec3) => { this._linearVel = value; }
 
-	public setAngularVel = (angularVelocity: AngularVelocityVec4 | number) => {
+	public translateAlongGlobalAxis = (value: Vec3) => { this._linearVel = value; }
+
+	public rotateAboutGlobalAxis = (angularVelocity: AngularVelocityVec4 | number) => {
 		if (this._dimensions == 2 && typeof (angularVelocity) == 'number') {
 			// only rotations about the z-axis are allowed
 			this._angularVel = { x: 0, y: 0, z: 1, speed: <number>angularVelocity };
 		}
 		else if (this._dimensions == 3 && typeof (angularVelocity) == 'object') {
 			angularVelocity = <AngularVelocityVec4>angularVelocity;
-			let direction = (new XYZVector([angularVelocity.x, angularVelocity.y, angularVelocity.z])).getDirection();
 			let speed = angularVelocity.speed;
-			this._angularVel = {
-				x: direction.x,
-				y: direction.y,
-				z: direction.z,
-				speed: speed
-			};
+			try {
+				let direction = (new XYZVector([angularVelocity.x, angularVelocity.y, angularVelocity.z])).getDirection();
+				this._angularVel = {
+					x: direction.x,
+					y: direction.y,
+					z: direction.z,
+					speed: speed
+				};
+			}
+			catch {
+				this._angularVel.speed = 0; // set speed to zero will ignore angular velocity
+			}
 		}
 		else {
 			throw "Incorrect angular velocity!"
 		}
+	}
+
+	public rotateThroughEulerAngles(speed: number, angles?: eulerAnglesDeg) {
+		if (this._dimensions == 2 && angles == undefined) {
+			// only rotations about the z-axis are allowed
+			this._angularVel = { x: 0, y: 0, z: 1, speed: speed };
+		}
+		else if (this._dimensions == 3 && angles != undefined) {
+			try {
+				let direction = (new XYZVector([angles.yaw, angles.pitch, angles.roll])).getDirection();
+				this._eulerAngularVelocityDeg = {
+					yaw: direction.x * speed,
+					pitch: direction.y * speed,
+					roll: direction.z * speed,
+				};
+			}
+			catch {
+				this._eulerAngularVelocityDeg = { yaw: 0, pitch: 0, roll: 0 };
+			}
+		}
+		else {
+			throw "Incorrect angular velocity!"
+		}
+	}
+
+	public translateAlongLocalAxes = (speedX: number, speedY: number, speedZ: number) => {
+		let vec4Velocity = <XYZVector>this._rotation.multiplyBy(new XYZVector([speedX, speedY, speedZ, 1]));
+		this.translateAlongGlobalAxis({
+			x: vec4Velocity.x,
+			y: vec4Velocity.y,
+			z: vec4Velocity.z
+		})
 	}
 
 	public setScale = (scale: Vec3) => { this._scale = scale; }
@@ -105,22 +143,17 @@ export class XYZNode {
 			)
 		}
 		else {
-			this._position.x += this._linearVel.x * deltaTime,
-				this._position.y += this._linearVel.y * deltaTime,
-				this._position.z += this._linearVel.z * deltaTime
+			this._position.x += this._linearVel.x * deltaTime;
+			this._position.y += this._linearVel.y * deltaTime;
+			this._position.z += this._linearVel.z * deltaTime;
 
-			if (this._eulerAngularVelocityDeg.yaw != 0
-				|| this._eulerAngularVelocityDeg.pitch != 0
-				|| this._eulerAngularVelocityDeg.roll != 0) {
-				this._anglesDeg.yaw += this._eulerAngularVelocityDeg.yaw;
-				this._anglesDeg.pitch += this._eulerAngularVelocityDeg.pitch;
-				this._anglesDeg.roll += this._eulerAngularVelocityDeg.roll;
-				this._rotation = XYZMatLab.makeRotationMatrixFromEulerAngles(this._anglesDeg);
-			}
+			this._anglesDeg.yaw += this._eulerAngularVelocityDeg.yaw;
+			this._anglesDeg.pitch += this._eulerAngularVelocityDeg.pitch;
+			this._anglesDeg.roll += this._eulerAngularVelocityDeg.roll;
+			this._rotation = XYZMatLab.makeRotationMatrixFromEulerAngles(this._anglesDeg);
 
 			if (this._angularVel.speed != 0) {
 				this._rotationAngle = this._angularVel.speed * deltaTime
-
 				let addedRotation = XYZMatLab.makeRotationMatrix(
 					this._rotationAngle,
 					this._angularVel.x,
@@ -138,21 +171,16 @@ export class XYZNode {
 	}
 
 	public makePlayer = () => { this._isPlayer = true; }
-	// public isPlayer = (): boolean => { return this._isPlayer; }
+
 	private updatePlayer = () => {
 		if (this._isPlayer) {
 			let vx = 0;
 			let vz = 0;
-			if (XYZKeyboard.getKeyState("Velocity", "Left")) vx -= 1;
-			if (XYZKeyboard.getKeyState("Velocity", "Right")) vx += 1;
-			if (XYZKeyboard.getKeyState("Velocity", "Forward")) vz -= 1;
-			if (XYZKeyboard.getKeyState("Velocity", "Backward")) vz += 1;
-			let vec4Velocity = <XYZVector>this._rotation.multiplyBy(new XYZVector([vx, 0, vz, 1]));
-			this._linearVel = {
-				x: vec4Velocity.getElement(0),
-				y: vec4Velocity.getElement(1),
-				z: vec4Velocity.getElement(2)
-			}
+			if (XYZKeyboard.getKeyState("Velocity", "Left")) vx -= 10;
+			if (XYZKeyboard.getKeyState("Velocity", "Right")) vx += 10;
+			if (XYZKeyboard.getKeyState("Velocity", "Forward")) vz -= 10;
+			if (XYZKeyboard.getKeyState("Velocity", "Backward")) vz += 10;
+			this.translateAlongLocalAxes(vx, 0, vz);
 
 			let ax = 0;
 			let ay = 0;
@@ -160,21 +188,15 @@ export class XYZNode {
 			if (XYZKeyboard.getKeyState("Angular velocity", "Right")) ay -= 1;
 			if (XYZKeyboard.getKeyState("Angular velocity", "Forward")) ax -= 1;
 			if (XYZKeyboard.getKeyState("Angular velocity", "Backward")) ax += 1;
-
-			if (ax || ay) this._angularVel = { speed: 100, x: ax, y: ay, z: 0 }
-			else this._angularVel = { speed: 0, x: 1, y: 0, z: 0 }
+			this.rotateAboutGlobalAxis({ speed: 100, x: ax, y: ay, z: 0 });
 
 			let yaw = 0;
 			let pitch = 0;
-			if (XYZKeyboard.getKeyState("Euler angles", "Pitch+")) pitch -= 1;
-			if (XYZKeyboard.getKeyState("Euler angles", "Pitch-")) pitch += 1;
+			if (XYZKeyboard.getKeyState("Euler angles", "Pitch+")) pitch += 1;
+			if (XYZKeyboard.getKeyState("Euler angles", "Pitch-")) pitch -= 1;
 			if (XYZKeyboard.getKeyState("Euler angles", "YawLeft")) yaw += 1;
 			if (XYZKeyboard.getKeyState("Euler angles", "YawRight")) yaw -= 1;
-
-			if (yaw || pitch) {
-				this._eulerAngularVelocityDeg = { yaw: yaw, pitch: pitch, roll: 0 };
-			}
-			else this._eulerAngularVelocityDeg = { yaw: 0, pitch: 0, roll: 0 };
+			this.rotateThroughEulerAngles(2, { yaw: yaw, pitch: pitch, roll: 0 });
 		}
 	}
 }
