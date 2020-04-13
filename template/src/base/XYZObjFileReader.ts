@@ -1,4 +1,4 @@
-import { Vec3, Vec2, RGB } from "../lib/data-types/XYZVertex.js";
+import { RGB } from "../lib/data-types/XYZVertex.js";
 import { XYZMaterial } from "../objects/XYZMaterial.js"
 import { XYZRenderer } from "./XYZRenderer.js";
 import { XYZFileLoader } from "./XYZFileLoader.js";

@@ -29,7 +29,7 @@ void main() {
 	vec3 N = normalize(fragNormal); // surface normal
 	vec3 V = - normalize(fragPosition); // eye normalized location
 	vec3 specular = vec3(0.0, 0.0, 0.0);
-	vec3 directional = vec3(0.0, 0.0, 0.0);
+	vec3 directional = vec3(1.0, 1.0, 1.0);
 	vec3 color = vec3(1.0 ,1.0 ,1.0);
 /*pointLight
 for (int i = 0; i < numOfPointLights; i++){
@@ -41,6 +41,7 @@ for (int i = 0; i < numOfPointLights; i++){
 pointLight*/
 
 /*dirLight
+	directional = vec3(0.0, 0.0, 0.0);
 	for (int i = 0; i < numOfDirLights; i++){
 		directional += max(dot(normalize(-dirLightWorldDirection[i]), N), 0.0) * dirLightIntensity[i];
 	}
@@ -53,6 +54,6 @@ texture*/
 	vec3 ambient = vKa;
 
 	vec3 diffuse = Id * max(dot(N, V), 0.0) * vKd;
-	vec3 fragColor = ambient * (diffuse + specular + directional) * color;
+	vec3 fragColor = ambient * directional * (diffuse + specular) * color;
 	gl_FragColor = vec4(fragColor, 1);
 }

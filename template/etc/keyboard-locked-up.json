@@ -3,7 +3,8 @@
 		"Forward": "KeyW",
 		"Backward": "KeyS",
 		"Left": "KeyA",
-		"Right": "KeyD"
+		"Right": "KeyD",
+		"ShiftLeft": "ShiftLeft"
 	},
 	"Euler angles": {
 		"Pitch+": "ArrowUp",

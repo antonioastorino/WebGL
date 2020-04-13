@@ -220,13 +220,13 @@ export class XYZShader {
 			this._pointLights.forEach((light: XYZLightSource) => {
 				let dirLight = <XYZPoint>light;
 
-				pointLightPosArray.push(dirLight.position.x);
-				pointLightPosArray.push(dirLight.position.y);
-				pointLightPosArray.push(dirLight.position.z);
+				pointLightPosArray.push(dirLight.getPosition().x);
+				pointLightPosArray.push(dirLight.getPosition().y);
+				pointLightPosArray.push(dirLight.getPosition().z);
 
-				pointLightIntArray.push(dirLight.rgbIntensity.r);
-				pointLightIntArray.push(dirLight.rgbIntensity.g);
-				pointLightIntArray.push(dirLight.rgbIntensity.b);
+				pointLightIntArray.push(dirLight.getRgbIntensity().r);
+				pointLightIntArray.push(dirLight.getRgbIntensity().g);
+				pointLightIntArray.push(dirLight.getRgbIntensity().b);
 			})
 
 			XYZRenderer.gl.uniform3fv(
@@ -244,13 +244,13 @@ export class XYZShader {
 			this._dirLights.forEach((light: XYZLightSource) => {
 				let dirLight = <XYZSun>light;
 
-				dirLightDirArray.push(dirLight.direction.x);
-				dirLightDirArray.push(dirLight.direction.y);
-				dirLightDirArray.push(dirLight.direction.z);
+				dirLightDirArray.push(dirLight.getDirection().x);
+				dirLightDirArray.push(dirLight.getDirection().y);
+				dirLightDirArray.push(dirLight.getDirection().z);
 
-				dirLightIntArray.push(dirLight.rgbIntensity.r);
-				dirLightIntArray.push(dirLight.rgbIntensity.g);
-				dirLightIntArray.push(dirLight.rgbIntensity.b);
+				dirLightIntArray.push(dirLight.getRgbIntensity().r);
+				dirLightIntArray.push(dirLight.getRgbIntensity().g);
+				dirLightIntArray.push(dirLight.getRgbIntensity().b);
 			})
 
 			XYZRenderer.gl.uniform3fv(

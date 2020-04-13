@@ -1,4 +1,5 @@
-import { Vec3, RGB } from "../lib/data-types/XYZVertex.js";
+import { RGB } from "../lib/data-types/XYZVertex.js";
+import { XYZVec3 } from "../lib/data-types/XYZVec3.js";
 
 export class XYZLightSource {
 	private _type: string;
@@ -7,12 +8,12 @@ export class XYZLightSource {
 		this._type = type;
 	}
 	public get type() { return this._type; }
-	public get rgbIntensity(): RGB { return this._rgbIntensity; }
-	public set rgbIntensity(value: RGB) {
-		if (value.r < 0 || value.g < 0 || value.b < 0) {
+	public getRgbIntensity = (): RGB => { return this._rgbIntensity; }
+	public setRgbIntensity = (r: number, g: number, b: number) => {
+		if (r < 0 || g < 0 || b < 0) {
 			throw "Intensity values must all be non negative";
 		}
-		this._rgbIntensity = value;
+		this._rgbIntensity = { r: r, g: g, b: b };
 	}
 }
 
@@ -21,13 +22,13 @@ export class XYZPoint extends XYZLightSource {
 		super("point light");
 	}
 	// the location of the light bulb in world coordinates
-	private _position: Vec3 = { x: 0, y: 0, z: 1 };
-	public get position(): Vec3 { return this._position; }
-	public set position(value: Vec3) {
-		if (value.x == 0 && value.y == 0 && value.z == 0) {
+	private _position: XYZVec3 = new XYZVec3([0, 0, 1]);
+	public getPosition = (): XYZVec3 => { return this._position; }
+	public setPosition = (x: number, y: number, z: number) => {
+		if (x == 0 && y == 0 && z == 0) {
 			throw "position must be a vector with finite length";
 		}
-		this._position = value;
+		this._position = new XYZVec3([x, y, z]);
 	}
 }
 
@@ -36,12 +37,12 @@ export class XYZSun extends XYZLightSource {
 		super("directional light");
 	}
 	// the direction towards which the light is pointing
-	private _direction: Vec3 = { x: 0, y: -1, z: 0};
-	public get direction(): Vec3 { return this._direction; }
-	public set direction(value: Vec3) {
-		if (value.x == 0 && value.y == 0 && value.z == 0) {
+	private _direction: XYZVec3 = new XYZVec3([0, -1, 0]);
+	public getDirection(): XYZVec3 { return this._direction; }
+	public setDirection = (x: number, y: number, z: number) => {
+		if (x == 0 && y == 0 && z == 0) {
 			throw "direction must be a vector with finite length";
 		}
-		this._direction = value;
+		this._direction = new XYZVec3([x, y, z]);
 	}
 }

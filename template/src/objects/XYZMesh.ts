@@ -64,11 +64,11 @@ export class XYZMesh extends XYZNode {
 		if (shader.mMVPUniformLocation != null) {
 			let mMVP: XYZMatrix
 			if (this._dimensions == 3) {
-				mMVP = <XYZMatrix>XYZRenderer.worldMatrix.multiplyBy(this.modelMatrix);
+				mMVP = <XYZMatrix>XYZRenderer.worldMatrix.multiplyByMatrix(this.modelMatrix);
 			}
 			else {
 				let mScale = XYZMatLab.makeScaleMatrix(1 / XYZRenderer.aspectRatio, 1, 1);
-				mMVP = <XYZMatrix>mScale.multiplyBy(this.modelMatrix);
+				mMVP = <XYZMatrix>mScale.multiplyByMatrix(this.modelMatrix);
 			}
 			gl.uniformMatrix4fv(
 				shader.mMVPUniformLocation,
@@ -88,8 +88,8 @@ export class XYZMesh extends XYZNode {
 				shader.mModelUniformLocation,
 				false, // transpose 
 				XYZMatLab.makeModelMatrix(
-					this._position,
-					this._rotation,
+					this._vec3position,
+					this._mat4Rotation,
 					this._scale
 				).makeFloat32Array());
 		}

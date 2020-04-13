@@ -1,4 +1,7 @@
 import { XYZVector } from "./XYZVector.js";
+import { XYZVec2 } from "../data-types/XYZVec2.js";
+import { XYZVec3 } from "../data-types/XYZVec3.js";
+import { XYZVec4 } from "../data-types/XYZVec4.js";
 
 /**
  * @class Matrix
@@ -40,7 +43,7 @@ export class XYZMatrix {
 			this._cols = cols;
 			this._matrix = matrix;
 		}
-		if (this._rows == 0 || this._cols == 0) { 
+		if (this._rows == 0 || this._cols == 0) {
 			throw "Zero size not allowed";
 		}
 		else if (this._rows == 1 && this._cols == 1) {
@@ -84,7 +87,7 @@ export class XYZMatrix {
 		// scans by rows first (column major)
 		for (let col = 0; col < this._cols; col++) {
 			for (let row = 0; row < this._rows; row++) {
-				outArray[col*this._rows + row] = this._matrix[col][row];
+				outArray[col * this._rows + row] = this._matrix[col][row];
 			}
 		}
 		return new Float32Array(outArray);
@@ -95,42 +98,50 @@ export class XYZMatrix {
 		return this;
 	}
 
-	public multiplyBy = (other: XYZMatrix | XYZVector | number ): XYZMatrix | XYZVector => {
-		if (typeof (other) == 'number') {
-			var outMatrix = new XYZMatrix(this._rows, this._cols);
-			for (var i = 0; i < this._cols; i++) { 
-				for (var j = 0; j < this._rows; j++) {
-					outMatrix.setElement(i, j, this._matrix[i][j] * other);
-				}
+	public multiplyByScalar = (other: number): XYZMatrix => {
+		var outMatrix = new XYZMatrix(this._rows, this._cols);
+		for (var i = 0; i < this._cols; i++) {
+			for (var j = 0; j < this._rows; j++) {
+				outMatrix.setElement(i, j, this._matrix[i][j] * other);
 			}
-			return outMatrix;
 		}
-		else if (other.type == "vector") {
-			let elements = Array<number>(this._rows)
-			for (var i = 0; i < this._cols; i++) {
-				elements[i] = 0;
-				for (var j = 0; j < this._rows; j++) {
-					elements[i] += this._matrix[j][i] * (<XYZVector>other).getElement(j);
-				}
+		return outMatrix;
+	}
+
+	public multiplyByVector = (other: XYZVector): XYZVector | XYZVec2 | XYZVec3 | XYZVec4 => {
+		let elements = Array<number>(this._rows)
+		for (var i = 0; i < this._cols; i++) {
+			elements[i] = 0;
+			for (var j = 0; j < this._rows; j++) {
+				elements[i] += this._matrix[j][i] * other.getElement(j);
 			}
-			return new XYZVector(elements);
 		}
-		else if (other.type == "matrix") {
-			let P = this._cols;
-			let N = this._rows;
-			let M = (<XYZMatrix>other).getCols();
-			var outMatrix = new XYZMatrix(N, M);
-			for (var i = 0; i < N; i++) { // row number
-				for (var j = 0; j < M; j++) { // col number
-					var sum = 0;
-					for (var p = 0; p < P; p++) {
-						sum = sum + this._matrix[p][i] * other.getElement(j, p);
-					}
-					outMatrix.setElement(i, j, sum);
+		switch (other.type) {
+			case "vec2":
+				return new XYZVec2(elements);
+			case "vec3":
+				return new XYZVec3(elements);
+			case "vec4":
+				return new XYZVec4(elements);
+			default:
+				return new XYZVector(elements);
+		}
+	}
+
+	public multiplyByMatrix = (other: XYZMatrix): XYZMatrix => {
+		let P = this._cols;
+		let N = this._rows;
+		let M = (<XYZMatrix>other).getCols();
+		var outMatrix = new XYZMatrix(N, M);
+		for (var i = 0; i < N; i++) { // row number
+			for (var j = 0; j < M; j++) { // col number
+				var sum = 0;
+				for (var p = 0; p < P; p++) {
+					sum = sum + this._matrix[p][i] * other.getElement(j, p);
 				}
+				outMatrix.setElement(i, j, sum);
 			}
-			return outMatrix;
 		}
-		throw "Incompatible matrices"
+		return outMatrix;
 	}
 }

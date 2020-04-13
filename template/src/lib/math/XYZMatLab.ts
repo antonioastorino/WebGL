@@ -1,13 +1,10 @@
 import { XYZMatrix } from './XYZMatrix.js'
 import { XYZVector } from './XYZVector.js'
 import { XYZQuaternion } from './XYZQuaternion.js'
-import { Vec3, eulerAnglesDeg } from '../data-types/XYZVertex.js'
+import { eulerAnglesDeg } from '../data-types/XYZVertex.js'
+import { XYZVec3 } from '../data-types/XYZVec3.js'
 
 export class XYZMatLab {
-	public static multiply = (a: XYZMatrix, b: XYZMatrix | XYZVector | number): XYZMatrix | XYZVector => {
-		return a.multiplyBy(b);;
-	}
-
 	public static makeTranslationMatrix = (vector: XYZVector): XYZMatrix => {
 		let matTranslation = (new XYZMatrix(4, 4)).identity();
 		matTranslation.setElement(0, 3, vector.getElement(0));
@@ -65,15 +62,15 @@ export class XYZMatLab {
 	 * @param y				y-component of the rotation vector
 	 * @param z				z-component of the rotation vector
 	 */
-	public static makeRotationMatrix(angle_deg: number, x: XYZVector | number, y?: number, z?: number): XYZMatrix {
+	public static makeRotationMatrix(angle_deg: number, x: number | XYZVec3, y?: number, z?: number): XYZMatrix {
 		let quat: XYZQuaternion;
 		if (y == undefined && z == undefined) {
-			quat = new XYZQuaternion(angle_deg, (<XYZVector>x).getDirection());
+			quat = new XYZQuaternion(angle_deg, (<XYZVec3>x));
 		}
 		else if (y == undefined || z == undefined) throw "Invalid function arguments"
 		else {
-			let dir = (new XYZVector([<number>x, y, z])).getDirection();
-			quat = new XYZQuaternion(angle_deg, dir);
+			let dir = (new XYZVec3([<number>x, y, z])).getDirection();
+			quat = new XYZQuaternion(angle_deg, <XYZVec3>dir);
 		}
 		let i = quat.i;
 		let j = quat.j;
@@ -100,25 +97,17 @@ export class XYZMatLab {
 		}
 		return scaleMatrix;
 	}
-
-	public static makeTranslateMatrix = (posX: number, posY: number, posZ: number): XYZMatrix => {
-		let scaleMatrix = (new XYZMatrix(4, 4)).identity();
-		scaleMatrix.setElement(0, 3, posX);
-		scaleMatrix.setElement(1, 3, posY);
-		scaleMatrix.setElement(2, 3, posZ);
-		return scaleMatrix;
-	}
-
+	
 	public static makeModelMatrix = (
-		position: Vec3,
+		position: XYZVec3,
 		rotation: XYZMatrix,
-		scale: Vec3
+		scale: XYZVec3
 	): XYZMatrix => {
 		let matRotation = rotation;
-		let matTranslation = XYZMatLab.makeTranslateMatrix(position.x, position.y, position.z);
+		let matTranslation = XYZMatLab.makeTranslationMatrix(position);
 		let matScale = XYZMatLab.makeScaleMatrix(scale.x, scale.y, scale.z);
 
-		return <XYZMatrix>matTranslation.multiplyBy(<XYZMatrix>matRotation.multiplyBy(matScale));
+		return <XYZMatrix>matTranslation.multiplyByMatrix(<XYZMatrix>matRotation.multiplyByMatrix(matScale));
 	}
 
 	public static makePerspectiveMatrix(aspect: number, fov_deg: number, near: number, far: number) {
@@ -138,12 +127,12 @@ export class XYZMatLab {
 		return outMatrix;
 	}
 
-	public static makeLookAtMatrix = (rotation: XYZMatrix, position: Vec3): XYZMatrix => {
+	public static makeLookAtMatrix = (rotation: XYZMatrix, position: XYZVec3): XYZMatrix => {
 
 		let vecPosition = new XYZVector([-position.x, -position.y, -position.z]);
 		let matRotation = rotation.transpose();
 
 		let matTranslation = XYZMatLab.makeTranslationMatrix(vecPosition);
-		return <XYZMatrix>matRotation.multiplyBy(matTranslation);
+		return <XYZMatrix>matRotation.multiplyByMatrix(matTranslation);
 	}
 }

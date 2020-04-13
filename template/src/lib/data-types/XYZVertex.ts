@@ -1,21 +1,14 @@
-export interface Vec2 {
+export interface RotationVec4 {
 	x: number,
-	y: number
-}
-
-export interface Vec3 extends Vec2 {
-	z: number
-}
-
-export interface Vec4 extends Vec3 {
-	w: number
-}
-
-export interface RotationVec4 extends Vec3 {
+	y: number,
+	z: number,
 	angle: number
 }
 
-export interface AngularVelocityVec4 extends Vec3 {
+export interface AngularVelocityVec4 {
+	x: number,
+	y: number,
+	z: number,
 	speed: number
 }
 
@@ -23,11 +16,6 @@ export interface RGB {
 	r: number,
 	g: number,
 	b: number
-}
-
-export interface VertexWithColor {
-	vertex: Vec3,
-	color: RGB
 }
 
 export interface eulerAnglesDeg {

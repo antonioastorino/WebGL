@@ -10,31 +10,24 @@ export async function main() {
 	await XYZEngine.init("../../etc/keyboard-locked-up.json");
 
 	let camera1 = new XYZCamera();
-	camera1.getPositionVec3().z = 10;
-	camera1.getPositionVec3().y = 4;
+	camera1.setPosition(0, 4, 10);
 	camera1.makePlayer();
 
 	let pointLight1 = new XYZPoint();
-	pointLight1.position.x = 10;
-	pointLight1.position.y = 10;
-	pointLight1.position.z = 10;
-	pointLight1.rgbIntensity = {r: 40, g: 40, b: 40};
+	pointLight1.setPosition(10, 10, 30);
+	pointLight1.setRgbIntensity(40, 40, 40);
 
 	let pointLight2 = new XYZPoint();
-	pointLight2.position.x = -6;
-	pointLight2.position.y = 10;
-	pointLight2.position.z = 3;
-	pointLight1.rgbIntensity = {r: 40, g: 25, b: 40};
+	pointLight2.setPosition(-10, 10, -30);
+	pointLight2.setRgbIntensity(40, 25, 40);
 
 	let sun1 = new XYZSun();
-	sun1.direction.x = -1;
-	sun1.direction.y = -1;
-	sun1.direction.z = 0;
-	sun1.rgbIntensity = {r: 0.3, g: 0.3, b: 0.3};
+	sun1.setDirection(-1, -1, 0);
+	sun1.setRgbIntensity(4, 4, 5);
 
 	// let lightShader = await XYZEngine.makeShader("3D", [sun1, pointLight2], true);
 	let lightShader2 = await XYZEngine.makeShader("3D", [sun1, pointLight1, pointLight2], false);
-	// let spriteShader = await XYZEngine.makeShader("2D", [], true);
+	let spriteShader = await XYZEngine.makeShader("2D", [], true);
 	// let basicShader = await XYZEngine.makeShader("basic", [], false);
 
 	//
@@ -45,21 +38,21 @@ export async function main() {
 	// triangle1.attachShader(basicShader);
 	// triangle1.setPosition({ x: 2, y: 0, z: 0 });
 
-	// let sprite1 = new XYZSprite('wooden-wall.jpg');
-	// await sprite1.init();
-	// sprite1.attachShader(spriteShader);
-	// sprite1.setPosition({ x: 0.8, y: 0.8, z: 0 })
-	// sprite1.setScale({ x: 0.2, y: 0.2, z: 1 })
+	let sprite1 = new XYZSprite('wooden-wall.jpg');
+	await sprite1.init();
+	sprite1.attachShader(spriteShader);
+	sprite1.setPosition(0.8, 0.8, 0)
+	sprite1.setScale(0.2, 0.2, 1)
 
-	// let cube = new XYZModel("./assets/meshes/", "cube.obj");
-	// await cube.init();
-	// cube.setScale({x: 10, y: 1, z: 10});
-	// cube.setAngularVel({speed: 20, x: 1, y: 1, z: 0});
-	// cube.attachShader(lightShader2);
+	let cube = new XYZModel("./assets/meshes/", "cube.obj");
+	await cube.init();
+	cube.setScale(10, 1,10);
+	cube.rotateAboutGlobalAxis({x:0, y: 1, z: 1, speed: 10})
+	cube.attachShader(lightShader2);
 
 	let layer0 = new XYZModel("./assets/meshes/", "layer0.obj");
 	await layer0.init();
-	layer0.setScale({x: 1, y: 1, z: 1});
+	layer0.setScale(1, 1, 1);
 	// layer0.setAngularVel({speed: 20, x: 0, y: 1, z: 0});
 	layer0.attachShader(lightShader2);
 

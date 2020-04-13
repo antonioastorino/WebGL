@@ -1,18 +1,23 @@
+import { XYZVec2 } from "../data-types/XYZVec2.js";
+import { XYZVec3 } from "../data-types/XYZVec3.js";
+import { XYZVec4 } from "../data-types/XYZVec4.js";
+
 export class XYZVector {
 	private _elements: number[];
 	constructor(elements: number[]) {
 		this._elements = elements;
 	}
 	public get type(): string { return "vector"; }
-	
-	public multiplyBy = (value: number): XYZVector => {
+
+	public multiplyByScalar = (value: number): XYZVector => {
+		let outVector = new XYZVector(Array<number>(this.size))
 		for (var i = 0; i < this.size; i++) { // col number
-			this._elements[i] *= value;
+			outVector._elements[i] = this._elements[i] * value;
 		}
-		return this
+		return outVector;
 	}
 
-	public makeCopy = (): XYZVector => {
+	public makeCopy = (): XYZVector | XYZVec2 | XYZVec3 | XYZVec4 => {
 		let outVector = new XYZVector(this._elements);
 		return outVector;
 	}
@@ -20,30 +25,12 @@ export class XYZVector {
 	public dot = (other: XYZVector): number => {
 		if (this.size == other.size) {
 			let result = 0;
-			for (var i = 0; i < this.size; i ++) {
-				result += this.getElement(i)*other.getElement(i)
+			for (var i = 0; i < this.size; i++) {
+				result += this.getElement(i) * other.getElement(i)
 			}
 			return result;
 		}
 		else throw "Vector with different sizes!"
-	}
-
-	public cross = (other: XYZVector): XYZVector => {
-		if (this.size == 3 && other.size == 3) {
-			let a0 = <number>this.x;
-			let a1 = <number>this.y;
-			let a2 = <number>this.z;
-
-			let b0 = <number>other.x;
-			let b1 = <number>other.y;
-			let b2 = <number>other.z;
-
-			let x = a1*b2 - b1*a2;
-			let y = a2*b0 - b2*a0;
-			let z = a0*b1 - b0*a1;			
-			return new XYZVector([x, y, z]);
-		}
-		else throw "Wrong vector dimensions"
 	}
 
 	public get size(): number { return this._elements.length; }
@@ -52,17 +39,12 @@ export class XYZVector {
 		return Math.sqrt(this.dot(this));
 	}
 
-	public normalize = (): XYZVector => {
+	public getDirection = (): XYZVector => {
 		let norm = this.norm()
 		if (norm > 0) {
-			return <XYZVector>this.multiplyBy(1.0/this.norm());
+			return this.multiplyByScalar(1.0 / norm);
 		}
-		throw "A zero vector cannot be normalized" 
-	}
-
-	public getDirection = (): XYZVector => {
-		let tmp = this.makeCopy();
-		return tmp.normalize();
+		throw "A zero vector cannot be normalized"
 	}
 
 	public getElement = (elem: number): number => {
@@ -72,39 +54,4 @@ export class XYZVector {
 	public setElement = (elem: number, value: number) => {
 		this._elements[elem] = value;
 	}
-
-	public get x(): number { 
-		if (this.size < 5) return this.getElement(0);
-		else throw "Parameter not defined for vector with more than 4 elements";
-	}
-	public get y(): number { 
-		if (this.size < 5) return this.getElement(1);
-		else throw "Parameter not defined for vector with more than 4 elements";
-	}
-	public get z(): number { 
-		if (this.size < 5) return this.getElement(2);
-		else throw "Parameter not defined for vector with more than 4 elements";
-	}
-	public get w(): number { 
-		if (this.size < 5) return this.getElement(3);
-		else throw "Parameter not defined for vector with more than 4 elements";
-	}
-
-	public set x(value: number) { 
-		if (this.size < 5) this.setElement(0, value);
-		else throw "Parameter not defined for vector with more than 4 elements";
-	}
-	public set y(value: number) { 
-		if (this.size < 5) this.setElement(1, value);
-		else throw "Parameter not defined for vector with more than 4 elements";
-	}
-	public set z(value: number) { 
-		if (this.size < 5) this.setElement(2, value);
-		else throw "Parameter not defined for vector with more than 4 elements";
-	}
-	public set w(value: number) { 
-		if (this.size < 5) this.setElement(3, value);
-		else throw "Parameter not defined for vector with more than 4 elements";
-	}
-
 }

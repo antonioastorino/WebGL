@@ -1,12 +1,11 @@
-import { Vec3 } from "../lib/data-types/XYZVertex.js";
 import { XYZMesh } from './XYZMesh.js'
 
 export class XYZTriangle extends XYZMesh {
 	constructor() {
 		super();
-		let V1: Vec3 = { x: 0, y: 1, z: 0 };
-		let V2: Vec3 = { x: -1, y: -1, z: 0 };
-		let V3: Vec3 = { x: 1, y: -1, z: 0 };
+		let V1 = { x: 0, y: 1, z: 0 };
+		let V2 = { x: -1, y: -1, z: 0 };
+		let V3 = { x: 1, y: -1, z: 0 };
 		this._vertPosArray = [
 			V1.x, V1.y, V1.z,
 			V2.x, V2.y, V2.z,

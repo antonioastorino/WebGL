@@ -3,7 +3,6 @@ import { XYZMatLab } from "../lib/math/XYZMatLab.js";
 import { XYZShader } from "./XYZShader.js"
 import { XYZCamera } from "../objects/XYZCamera.js";
 import { XYZNode } from "../objects/XYZNode.js";
-import { XYZVector } from "../lib/math/XYZVector.js";
 
 export class XYZRenderer {
 	private static _gl: WebGLRenderingContext;
@@ -17,41 +16,41 @@ export class XYZRenderer {
 
 	public static addNode(node: XYZNode) { this._nodeList.push(node); }
 	public static get activeCameraNumber(): number { return this._activeCameraNumber; }
-	public static addCamera(camera: XYZCamera) { 
-		this._cameraList.push(camera);
-		this._activeCameraNumber = this._cameraList.length - 1;
+	public static addCamera(camera: XYZCamera) {
+		XYZRenderer._cameraList.push(camera);
+		XYZRenderer._activeCameraNumber = this._cameraList.length - 1;
 	}
 
-	public static init() {
-		this._canvas = <HTMLCanvasElement>document.getElementById("glCanvas");
-		this._gl = <WebGLRenderingContext>this._canvas.getContext('webgl');
-		this._gl.clearColor(0, 0, 0, 1.0);
-		this._gl.clear(this._gl.COLOR_BUFFER_BIT | this._gl.DEPTH_BUFFER_BIT);
-		this._gl.enable(this._gl.DEPTH_TEST);
-		// this._gl.enable(this._gl.CULL_FACE);
-		// this._gl.frontFace(this._gl.CCW);
-		// this._gl.cullFace(this._gl.BACK);
+	public static init = () => {
+		XYZRenderer._canvas = <HTMLCanvasElement>document.getElementById("glCanvas");
+		XYZRenderer._gl = <WebGLRenderingContext>XYZRenderer._canvas.getContext('webgl');
+		XYZRenderer._gl.clearColor(0, 0, 0, 1.0);
+		XYZRenderer._gl.clear(XYZRenderer._gl.COLOR_BUFFER_BIT | XYZRenderer._gl.DEPTH_BUFFER_BIT);
+		XYZRenderer._gl.enable(XYZRenderer._gl.DEPTH_TEST);
+		// XYZRenderer._gl.enable(this._gl.CULL_FACE);
+		// XYZRenderer._gl.frontFace(this._gl.CCW);
+		// XYZRenderer._gl.cullFace(this._gl.BACK);
 
 		let updateAspectRatio = () => {
-			this._canvas.width = window.innerWidth;
-			this._canvas.height = window.innerHeight;
-			this.gl.viewport(0, 0, window.innerWidth, window.innerHeight);
-			this.mProj = XYZMatLab.makePerspectiveMatrix(XYZRenderer.aspectRatio, 55, 0.1, 1000);
+			XYZRenderer._canvas.width = window.innerWidth;
+			XYZRenderer._canvas.height = window.innerHeight;
+			XYZRenderer.gl.viewport(0, 0, window.innerWidth, window.innerHeight);
+			XYZRenderer._mProj = XYZMatLab.makePerspectiveMatrix(XYZRenderer.aspectRatio, 55, 0.1, 1000);
 		}
-		updateAspectRatio()
+		updateAspectRatio();
 		window.addEventListener('resize', updateAspectRatio);
 	}
 
 	public static get aspectRatio() { return this._canvas.width / this._canvas.height; }
 
-	public static set mView(matrix: XYZMatrix) { this._mView = matrix; }
-	public static set mProj(matrix: XYZMatrix) { this._mProj = matrix; }
+	public static set mView(matrix: XYZMatrix) { this._mView = matrix.makeCopy(); }
+	public static set mProj(matrix: XYZMatrix) { this._mProj = matrix.makeCopy(); }
 
-	public static get worldMatrix(): XYZMatrix { return <XYZMatrix>this._mProj.multiplyBy(this._mView); }
-	public static get mView(): XYZMatrix { return <XYZMatrix>this._mView; }
+	public static get worldMatrix(): XYZMatrix { return this._mProj.multiplyByMatrix(this._mView); }
+	public static get mView(): XYZMatrix { return this._mView; }
 	public static addShader(shader: XYZShader) { this._shaderList.push(shader); }
 
-	public static createTextureObject(texture:HTMLImageElement) {
+	public static createTextureObject(texture: HTMLImageElement) {
 		let gl = XYZRenderer.gl;
 		let texObject = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, texObject);
@@ -85,8 +84,8 @@ export class XYZRenderer {
 	public static drawAll() {
 		this.gl.clear(XYZRenderer.gl.COLOR_BUFFER_BIT | XYZRenderer.gl.DEPTH_BUFFER_BIT);
 		this._shaderList.forEach(
-			shader => { 
-				shader.drawAll(); 
+			shader => {
+				shader.drawAll();
 			}
 		)
 	}
