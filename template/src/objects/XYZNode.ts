@@ -11,13 +11,13 @@ export class XYZNode {
 		XYZRenderer.addNode(this);
 	}
 	private _modelMatrix: XYZMatrix = (new XYZMatrix(4, 4)).identity();
-	protected _vec3position = new XYZVec3([0, 0, 0]);
+	protected _vec3Position = new XYZVec3([0, 0, 0]);
 	protected _mat4Rotation: XYZMatrix = (new XYZMatrix(4, 4)).identity();
 	private _anglesDeg: eulerAnglesDeg = { yaw: 0, pitch: 0, roll: 0 };
 	protected _scale = new XYZVec3([1, 1, 1]);
 	protected _dimensions: number = 0;
 	private _isPlayer: boolean = false;
-	private _relativePosition = new XYZVec3([0, 0, 0]);
+	private _vec3RelativePosition = new XYZVec3([0, 0, 0]);
 	private _relativeRotation: XYZMatrix = (new XYZMatrix(4, 4)).identity();
 	private _relativeScale = new XYZVec3([1, 1, 1]);
 
@@ -29,15 +29,15 @@ export class XYZNode {
 	private _rotationAngle: number = 0;
 	private _eulerAngularVelocityDeg: eulerAnglesDeg = { yaw: 0, pitch: 0, roll: 0 };
 
-	public getPositionVec3(): XYZVec3 { return this._vec3position; }
+	public getPositionVec3(): XYZVec3 { return this._vec3Position; }
 	public getRotationMat4(): XYZMatrix { return this._mat4Rotation; }
 	public getScaleVec3(): XYZVec3 { return this._scale; }
 
 	public setParent(node: XYZNode) {
 		this._parent = node;
-		this._relativePosition.x = this._vec3position.x - this._parent._vec3position.x;
-		this._relativePosition.y = this._vec3position.y - this._parent._vec3position.y;
-		this._relativePosition.z = this._vec3position.z - this._parent._vec3position.z;
+		this._vec3RelativePosition.x = this._vec3Position.x - this._parent._vec3Position.x;
+		this._vec3RelativePosition.y = this._vec3Position.y - this._parent._vec3Position.y;
+		this._vec3RelativePosition.z = this._vec3Position.z - this._parent._vec3Position.z;
 
 		this._relativeRotation = <XYZMatrix>this._parent._mat4Rotation.transpose().multiplyByMatrix(
 			this._mat4Rotation
@@ -53,7 +53,7 @@ export class XYZNode {
 	/* TODO: it should not be possible to access the position directly but
 	only through forces. Only the initial position should be accessible upon
 	initialization. */
-	public setPosition = (x: number, y: number, z: number) => { this._vec3position = new XYZVec3([x, y, z]); }
+	public setPosition = (x: number, y: number, z: number) => { this._vec3Position = new XYZVec3([x, y, z]); }
 
 	public translateAlongGlobalAxis = (speedX: number, speedY: number, speedZ: number) => {
 		this._linearVel.x = speedX;
@@ -110,7 +110,7 @@ export class XYZNode {
 		}
 	}
 
-	public translateAlongLocalAxes = (speedX: number, speedY: number, speedZ: number) => {
+	public setLinearVelocity = (speedX: number, speedY: number, speedZ: number) => {
 		let vec4Velocity = <XYZVec4>this._mat4Rotation.multiplyByVector(new XYZVec4([speedX, speedY, speedZ, 1]));
 		this.translateAlongGlobalAxis(vec4Velocity.x, vec4Velocity.y, vec4Velocity.z);
 	}
@@ -128,22 +128,29 @@ export class XYZNode {
 		if (this._parent != null) {
 			// Update the parent and apply the changes to this node
 			this._parent.update(deltaTime);
-			this._vec3position = (<XYZVec4>this._parent.modelMatrix.multiplyByVector(
+			this._vec3Position = (<XYZVec4>this._parent._mat4Rotation.multiplyByVector(
 				new XYZVec4([
-					this._relativePosition.x,
-					this._relativePosition.y,
-					this._relativePosition.z,
+					this._vec3RelativePosition.x,
+					this._vec3RelativePosition.y,
+					this._vec3RelativePosition.z,
 					1
 				]))).xyz
+			
+			this._vec3Position.x += this._parent._vec3Position.x
+			this._vec3Position.y += this._parent._vec3Position.y
+			this._vec3Position.z += this._parent._vec3Position.z
 
 			this._mat4Rotation = <XYZMatrix>this._parent._mat4Rotation.multiplyByMatrix(
 				this._relativeRotation
 			)
+			this._vec3RelativePosition.x += this._linearVel.x * deltaTime;
+			this._vec3RelativePosition.y += this._linearVel.y * deltaTime;
+			this._vec3RelativePosition.z += this._linearVel.z * deltaTime;
 		}
 		else {
-			this._vec3position.x += this._linearVel.x * deltaTime;
-			this._vec3position.y += this._linearVel.y * deltaTime;
-			this._vec3position.z += this._linearVel.z * deltaTime;
+			this._vec3Position.x += this._linearVel.x * deltaTime;
+			this._vec3Position.y += this._linearVel.y * deltaTime;
+			this._vec3Position.z += this._linearVel.z * deltaTime;
 
 			if (this._eulerAngularVelocityDeg.yaw
 				|| this._eulerAngularVelocityDeg.pitch
@@ -165,7 +172,7 @@ export class XYZNode {
 		}
 
 		this._modelMatrix = XYZMatLab.makeModelMatrix(
-			this._vec3position,
+			this._vec3Position,
 			this._mat4Rotation,
 			this._scale
 		);
@@ -188,7 +195,7 @@ export class XYZNode {
 				if (XYZKeyboard.getKeyState("Velocity", "Forward")) vz -= 10;
 				if (XYZKeyboard.getKeyState("Velocity", "Backward")) vz += 10;
 			}
-			this.translateAlongLocalAxes(vx, vy, vz);
+			this.setLinearVelocity(vx, vy, vz);
 
 			let ax = 0;
 			let ay = 0;
