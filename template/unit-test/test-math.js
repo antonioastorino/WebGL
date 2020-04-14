@@ -39,13 +39,13 @@ QUnit.test('Matrix times scalar', (assert) => {
 QUnit.test('Matrix times matrix', (assert) => {
 	let mat = (new XYZMatrix(3, 3)).identity().setElement(2, 2, 4);
 	let mat2 = mat.multiplyByMatrix(mat);
-	assert.deepEqual(mat2.getElement(2,2), 16, 'Very good!');
+	assert.deepEqual(mat2.getElement(2, 2), 16, 'Very good!');
 })
 
 QUnit.test('Transposition', (assert) => {
 	let mat1 = new XYZMatrix([[0, 1, 2], [3, 4, 6]]);
 	let mat2 = mat1.transpose();
-	assert.deepEqual(mat1.getElement(1, 2), mat2.getElement(2,1), "Correct transposition");
+	assert.deepEqual(mat1.getElement(0, 1), mat2.getElement(1, 0), "Correct transposition");
 })
 
 QUnit.test("Dot product", (assert) => {

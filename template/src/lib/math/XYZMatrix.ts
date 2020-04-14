@@ -80,7 +80,7 @@ export class XYZMatrix {
 
 	getRows = (): number => { return this._rows; }
 	getCols = (): number => { return this._cols; }
-	getElement = (row: number, col: number): number => { return this._matrix[row][col]; }
+	getElement = (row: number, col: number): number => { return this._matrix[col][row]; }
 	getMatrix = (): Array<Array<number>> => { return this._matrix; }
 	makeFloat32Array = (): Float32Array => {
 		let outArray = new Array<number>(this._rows * this._cols);
@@ -113,7 +113,7 @@ export class XYZMatrix {
 		for (var i = 0; i < this._cols; i++) {
 			elements[i] = 0;
 			for (var j = 0; j < this._rows; j++) {
-				elements[i] += this._matrix[j][i] * other.getElement(j);
+				elements[i] += this.getElement(i, j) * other.getElement(j);
 			}
 		}
 		switch (other.type) {
@@ -131,13 +131,13 @@ export class XYZMatrix {
 	public multiplyByMatrix = (other: XYZMatrix): XYZMatrix => {
 		let P = this._cols;
 		let N = this._rows;
-		let M = (<XYZMatrix>other).getCols();
+		let M = other.getCols();
 		var outMatrix = new XYZMatrix(N, M);
 		for (var i = 0; i < N; i++) { // row number
 			for (var j = 0; j < M; j++) { // col number
 				var sum = 0;
 				for (var p = 0; p < P; p++) {
-					sum = sum + this._matrix[p][i] * other.getElement(j, p);
+					sum = sum + this.getElement(i, p) * other.getElement(p, j);
 				}
 				outMatrix.setElement(i, j, sum);
 			}
