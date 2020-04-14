@@ -1,7 +1,6 @@
 import { XYZMatrix } from './XYZMatrix.js'
 import { XYZVector } from './XYZVector.js'
 import { XYZQuaternion } from './XYZQuaternion.js'
-import { eulerAnglesDeg } from '../data-types/XYZVertex.js'
 import { XYZVec3 } from '../data-types/XYZVec3.js'
 
 export class XYZMatLab {
@@ -21,7 +20,7 @@ export class XYZMatLab {
 	 * The resulting matrix is Rz * Rx * Ry
 	 * @param anglesDeg
 	 */
-	public static makeRotationMatrixFromEulerAngles(anglesDeg: eulerAnglesDeg): XYZMatrix {
+	public static makeRotationMatrixFromEulerAngles(anglesDeg: { pitch: number, yaw: number, roll: number }): XYZMatrix {
 		let phi = anglesDeg.pitch * Math.PI / 180;
 		let theta = anglesDeg.yaw * Math.PI / 180;
 		let psi = anglesDeg.roll * Math.PI / 180;
@@ -84,6 +83,46 @@ export class XYZMatLab {
 		])
 	}
 
+	public static makeEulerAnglesFromRotationMatrix = (mat4Rotation: XYZMatrix): {
+		yaw: number,
+		pitch: number,
+		roll: number
+	} => {
+
+		let yaw, roll, pitch, theta, phi, psi;
+		let R11 = mat4Rotation.getElement(0, 0);
+		let R12 = mat4Rotation.getElement(0, 1);
+		let R13 = mat4Rotation.getElement(0, 2);
+		let R21 = mat4Rotation.getElement(1, 0);
+		let R31 = mat4Rotation.getElement(2, 0);
+		let R32 = mat4Rotation.getElement(2, 1);
+		let R33 = mat4Rotation.getElement(2, 2);
+
+		if (Math.abs(R31) != 1) {
+			theta = - Math.asin(R31);
+			let cosTheta = Math.cos(theta);
+			phi = Math.atan2(R32 / cosTheta, R33 / cosTheta);
+			psi = Math.atan2(R21 / cosTheta, R11 / cosTheta);
+
+		}
+		else {
+			phi = 0;
+			if (R31 == -1) {
+				theta = Math.PI / 2.0;
+				psi = Math.atan2(R12, R13);
+			}
+			else {
+				theta = - Math.PI / 2.0;
+				psi = Math.atan2(- R12, - R13);
+			}
+		}
+
+		yaw = theta * 180 / Math.PI;
+		pitch = phi * 180 / Math.PI;
+		roll = psi * 180 / Math.PI;
+		return { yaw: yaw, pitch: pitch, roll: roll };
+	}
+
 	public static makeScaleMatrix = (scaleX: number, scaleY?: number, scaleZ?: number): XYZMatrix => {
 		let scaleMatrix = (new XYZMatrix(4, 4)).identity();
 		scaleMatrix.setElement(0, 0, scaleX);
@@ -97,7 +136,7 @@ export class XYZMatLab {
 		}
 		return scaleMatrix;
 	}
-	
+
 	public static makeModelMatrix = (
 		position: XYZVec3,
 		rotation: XYZMatrix,

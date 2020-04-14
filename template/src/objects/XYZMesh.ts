@@ -88,9 +88,9 @@ export class XYZMesh extends XYZNode {
 				shader.mModelUniformLocation,
 				false, // transpose 
 				XYZMatLab.makeModelMatrix(
-					this._vec3Position,
-					this._mat4Rotation,
-					this._scale
+					this._v3Pos,
+					this._m4Rot,
+					this._v3Scale
 				).makeFloat32Array());
 		}
 

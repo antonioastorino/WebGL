@@ -35,3 +35,7 @@ An installer file for MacOS is provided to setup the environment in a double-cli
 - run ```./bin/run-all```
 ### Uninstall:
 - run ```./bin/uninstall-mac```
+
+# References:
+## Math
+[Euler angles from rotation matrix](https://www.gregslabaugh.net/publications/euler.pdf) - notice that psi and phi are swapped here compared to my function in the MatLab class.

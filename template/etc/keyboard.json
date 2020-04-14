@@ -3,12 +3,23 @@
 		"Forward": "KeyW",
 		"Backward": "KeyS",
 		"Left": "KeyA",
+
 		"Right": "KeyD"
 	},
 	"Angular velocity": {
-		"Forward": "KeyI",
-		"Backward": "KeyK",
-		"Left": "KeyJ",
-		"Right": "KeyL"
+		"Forward": "KeyP",
+		"Backward": "Semicolon",
+		"Left": "KeyL",
+		"Right": "Quote"
+	},
+	"Euler angles": {
+		"Pitch+": "ArrowUp",
+		"Pitch-": "ArrowDown",
+		"YawLeft": "ArrowLeft",
+		"YawRight": "ArrowRight"
+	},
+	"Modifiers": {
+		"ShiftLeft": "ShiftLeft",
+		"ShiftRight": "ShiftRight"
 	}
 }
