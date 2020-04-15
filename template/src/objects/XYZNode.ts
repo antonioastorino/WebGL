@@ -24,9 +24,10 @@ export class XYZNode {
 	private _linearVel = new XYZVec3([0, 0, 0]);
 	private _angularVel = { x: 0, y: 0, z: 1, speed: 0 };
 
-	public getPositionVec3(): XYZVec3 { return this._v3Pos; }
-	public getRotationMat4(): XYZMatrix { return this._m4Rot; }
-	public getScaleVec3(): XYZVec3 { return this._v3Scale; }
+	public getVec3Pos(): XYZVec3 { return this._v3Pos; }
+	public getMat4Rot(): XYZMatrix { return this._m4Rot; }
+	public getVec3Scale(): XYZVec3 { return this._v3Scale; }
+	public getMat4Model = (): XYZMatrix => { return this._modelMatrix; }
 
 	public setParent(node: XYZNode) {
 		this._parent = node;
@@ -40,23 +41,12 @@ export class XYZNode {
 	}
 
 	public reset() { this._isUpdated = false; }
-	public get modelMatrix(): XYZMatrix { return this._modelMatrix; }
 
-	/* TODO: it should not be possible to access the position directly but
-	only through forces. Only the initial position should be accessible upon
-	initialization. */
-	public setPosition = (x: number, y: number, z: number) => { this._v3Pos = new XYZVec3([x, y, z]); }
+	public setPos = (x: number, y: number, z: number) => { this._v3Pos = new XYZVec3([x, y, z]); }
 
 	private getLocalXAxis = (): XYZVec4 => { return new XYZVec4(this._modelMatrix.getMatrix()[0]); }
 	private getLocalYAxis = (): XYZVec4 => { return new XYZVec4(this._modelMatrix.getMatrix()[1]); }
 	private getLocalZAxis = (): XYZVec4 => { return new XYZVec4(this._modelMatrix.getMatrix()[2]); }
-
-	public translateAlongGlobalAxis = (speedX: number, speedY: number, speedZ: number) => {
-		this._linearVel.x = speedX;
-		this._linearVel.y = speedY;
-		this._linearVel.z = speedZ;
-	}
-
 
 	private rotateAboutLocalX = (speed: number) => {
 		let axis = this.getLocalXAxis();
@@ -81,13 +71,13 @@ export class XYZNode {
 		this._m4Rot = XYZMatLab.makeRotationMatrix(speed, x, y, z).multiplyByMatrix(this._m4Rot);
 	}
 
-	public setAngularVelocity = (x: number, y: number, z: number, speed: number) => {
+	public setAngVel = (x: number, y: number, z: number, speed: number) => {
 		if (this._dimensions == 2) {
 			// only rotations about the z-axis are allowed
 			this._angularVel = { x: 0, y: 0, z: 1, speed: speed };
 		}
 		else {
-			try { // fails if the axis has zero length
+			try { // fails if axis has zero length
 				let axis = <XYZVec3>(new XYZVec3([x, y, z])).getDirection();
 				this._angularVel = { x: axis.x, y: axis.y, z: axis.z, speed: speed };
 			}
@@ -97,9 +87,17 @@ export class XYZNode {
 		}
 	}
 
-	public setLinearVelocity = (speedX: number, speedY: number, speedZ: number) => {
-		let vec4Velocity = <XYZVec4>this._m4Rot.multiplyByVector(new XYZVec4([speedX, speedY, speedZ, 1]));
-		this.translateAlongGlobalAxis(vec4Velocity.x, vec4Velocity.y, vec4Velocity.z);
+	// set the linear velocity in local coordinates
+	public setLocalLinVel = (speedX: number, speedY: number, speedZ: number) => {
+		let vec4Velocity = <XYZVec4>this._m4Rot.multiplyByVector(new XYZVec4([speedX, speedY, speedZ, 0]));
+		this.setGlobalLinVel(vec4Velocity.x, vec4Velocity.y, vec4Velocity.z);
+	}
+
+	// set the linear velocity in world coordinates
+	public setGlobalLinVel = (speedX: number, speedY: number, speedZ: number) => {
+		this._linearVel.x = speedX;
+		this._linearVel.y = speedY;
+		this._linearVel.z = speedZ;
 	}
 
 	public setScale = (scaleX: number, scaleY: number, scaleZ: number) => {
@@ -167,17 +165,17 @@ export class XYZNode {
 			let vx = 0;
 			let vy = 0;
 			let vz = 0;
-
-			if (XYZKeyboard.getKeyState("Velocity", "Left")) vx -= 30;
-			if (XYZKeyboard.getKeyState("Velocity", "Right")) vx += 30;
+			let v = 30;
+			if (XYZKeyboard.getKeyState("Velocity", "Left")) vx -= v;
+			if (XYZKeyboard.getKeyState("Velocity", "Right")) vx += v;
 			if (XYZKeyboard.getKeyState("Modifiers", "ShiftLeft")) {
-				if (XYZKeyboard.getKeyState("Velocity", "Forward")) vy += 15;
-				if (XYZKeyboard.getKeyState("Velocity", "Backward")) vy -= 15;
+				if (XYZKeyboard.getKeyState("Velocity", "Forward")) vy += v;
+				if (XYZKeyboard.getKeyState("Velocity", "Backward")) vy -= v;
 			} else {
-				if (XYZKeyboard.getKeyState("Velocity", "Forward")) vz -= 10;
-				if (XYZKeyboard.getKeyState("Velocity", "Backward")) vz += 10;
+				if (XYZKeyboard.getKeyState("Velocity", "Forward")) vz -= v;
+				if (XYZKeyboard.getKeyState("Velocity", "Backward")) vz += v;
 			}
-			this.setLinearVelocity(vx, vy, vz);
+			this.setLocalLinVel(vx, vy, vz);
 
 			let ax = 0;
 			let ay = 0;
@@ -192,7 +190,7 @@ export class XYZNode {
 			}
 			if (XYZKeyboard.getKeyState("Angular velocity", "Forward")) ax += 1;
 			if (XYZKeyboard.getKeyState("Angular velocity", "Backward")) ax -= 1;
-			this.setAngularVelocity(ax, ay, az, 100);
+			this.setAngVel(ax, ay, az, 50);
 		}
 	}
 }

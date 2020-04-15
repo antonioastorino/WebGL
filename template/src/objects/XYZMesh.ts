@@ -25,7 +25,7 @@ export class XYZMesh extends XYZNode {
 
 	public draw = () => {
 		let shader = <XYZShader>this._shader;
-		let gl = XYZRenderer.gl;
+		let gl = XYZRenderer.getGl()
 		gl.bindBuffer(gl.ARRAY_BUFFER, this._posArrayBufferObject);
 
 		gl.vertexAttribPointer(
@@ -64,11 +64,11 @@ export class XYZMesh extends XYZNode {
 		if (shader.mMVPUniformLocation != null) {
 			let mMVP: XYZMatrix
 			if (this._dimensions == 3) {
-				mMVP = <XYZMatrix>XYZRenderer.worldMatrix.multiplyByMatrix(this.modelMatrix);
+				mMVP = <XYZMatrix>XYZRenderer.getMat4World().multiplyByMatrix(this.getMat4Model());
 			}
 			else {
 				let mScale = XYZMatLab.makeScaleMatrix(1 / XYZRenderer.aspectRatio, 1, 1);
-				mMVP = <XYZMatrix>mScale.multiplyByMatrix(this.modelMatrix);
+				mMVP = <XYZMatrix>mScale.multiplyByMatrix(this.getMat4Model());
 			}
 			gl.uniformMatrix4fv(
 				shader.mMVPUniformLocation,
@@ -80,7 +80,7 @@ export class XYZMesh extends XYZNode {
 			gl.uniformMatrix4fv(
 				shader.mViewUniformLocation,
 				false, // transpose 
-				XYZRenderer.mView.makeFloat32Array());
+				XYZRenderer.getMat4View().makeFloat32Array());
 		}
 
 		if (shader.mModelUniformLocation != null) {
@@ -138,7 +138,7 @@ export class XYZMesh extends XYZNode {
 	}
 
 	public attachShader = (shader: XYZShader) => {
-		let gl = XYZRenderer.gl;
+		let gl = XYZRenderer.getGl();
 		if (shader.dimensions != this._dimensions) throw "Shader incompatible with object"
 		this._shader = shader;
 		shader.enableAttributes()
@@ -156,7 +156,7 @@ export class XYZMesh extends XYZNode {
 		}
 
 		if (this._texCoordArray.length > 0 && shader.isTextureEnabled()) {
-			this._texCoordArrayBufferObject = XYZRenderer.gl.createBuffer(); // get buffer ID
+			this._texCoordArrayBufferObject = gl.createBuffer(); // get buffer ID
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordArrayBufferObject); // select buffer
 			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._texCoordArray), gl.STATIC_DRAW); // load data
 		}

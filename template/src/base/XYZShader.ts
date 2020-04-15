@@ -150,36 +150,37 @@ export class XYZShader {
 		// console.log(vertexShaderText);
 		// console.log(fragmentShaderText);
 
-		let vertexShader = <WebGLShader>XYZRenderer.gl.createShader(XYZRenderer.gl.VERTEX_SHADER);
-		let fragmentShader = <WebGLShader>XYZRenderer.gl.createShader(XYZRenderer.gl.FRAGMENT_SHADER);
+		let gl = XYZRenderer.getGl();
+		let vertexShader = <WebGLShader>gl.createShader(gl.VERTEX_SHADER);
+		let fragmentShader = <WebGLShader>gl.createShader(gl.FRAGMENT_SHADER);
 
-		XYZRenderer.gl.shaderSource(vertexShader, vertexShaderText);
-		XYZRenderer.gl.shaderSource(fragmentShader, fragmentShaderText);
-		XYZRenderer.gl.compileShader(vertexShader)
-		if (!XYZRenderer.gl.getShaderParameter(vertexShader, XYZRenderer.gl.COMPILE_STATUS)) {
-			throw 'ERROR compiling vertex shader\n' + XYZRenderer.gl.getShaderInfoLog(vertexShader);
+		gl.shaderSource(vertexShader, vertexShaderText);
+		gl.shaderSource(fragmentShader, fragmentShaderText);
+		gl.compileShader(vertexShader)
+		if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+			throw 'ERROR compiling vertex shader\n' + gl.getShaderInfoLog(vertexShader);
 		}
-		XYZRenderer.gl.compileShader(fragmentShader)
-		if (!XYZRenderer.gl.getShaderParameter(fragmentShader, XYZRenderer.gl.COMPILE_STATUS)) {
-			throw 'ERROR compiling fragment shader\n' + XYZRenderer.gl.getShaderInfoLog(fragmentShader);
+		gl.compileShader(fragmentShader)
+		if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+			throw 'ERROR compiling fragment shader\n' + gl.getShaderInfoLog(fragmentShader);
 		}
 
-		let shaderProgram = XYZRenderer.gl.createProgram();
+		let shaderProgram = gl.createProgram();
 		if (!shaderProgram) {
 			throw "Shader program not created";
 		}
 
-		XYZRenderer.gl.attachShader(shaderProgram, vertexShader);
-		XYZRenderer.gl.attachShader(shaderProgram, fragmentShader);
+		gl.attachShader(shaderProgram, vertexShader);
+		gl.attachShader(shaderProgram, fragmentShader);
 
-		XYZRenderer.gl.linkProgram(shaderProgram);
-		if (!XYZRenderer.gl.getProgramParameter(shaderProgram, XYZRenderer.gl.LINK_STATUS)) {
-			throw 'ERROR linking program!' + XYZRenderer.gl.getProgramInfoLog(shaderProgram)
+		gl.linkProgram(shaderProgram);
+		if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+			throw 'ERROR linking program!' + gl.getProgramInfoLog(shaderProgram)
 		}
 
-		XYZRenderer.gl.validateProgram(shaderProgram);
-		if (!XYZRenderer.gl.getProgramParameter(shaderProgram, XYZRenderer.gl.VALIDATE_STATUS)) {
-			throw 'ERROR validating program!' + XYZRenderer.gl.getProgramInfoLog(shaderProgram)
+		gl.validateProgram(shaderProgram);
+		if (!gl.getProgramParameter(shaderProgram, gl.VALIDATE_STATUS)) {
+			throw 'ERROR validating program!' + gl.getProgramInfoLog(shaderProgram)
 		}
 
 
@@ -187,32 +188,33 @@ export class XYZShader {
 	}
 
 	public assignLocations = async () => {
+		let gl = XYZRenderer.getGl();
 		this._shaderProgram = <WebGLProgram>this._shaderProgram;
-		XYZRenderer.gl.useProgram(this._shaderProgram); // Set program in use before getting locations
+		gl.useProgram(this._shaderProgram); // Set program in use before getting locations
 
-		this._positionAttributeLocation = XYZRenderer.gl.getAttribLocation(this._shaderProgram, 'vertPosition'); // get position ID
-		this._normalAttributeLocation = XYZRenderer.gl.getAttribLocation(this._shaderProgram, 'vertNormal'); // get position ID
-		this._texCoordAttributeLocation = XYZRenderer.gl.getAttribLocation(this._shaderProgram, 'vertTexCoord'); // get position ID
-		this._mMVPUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'mMVP'); // get mMVP ID
-		this._mViewUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'mView'); // get mView ID
-		this._mModelUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'mModel'); // get mModel ID
+		this._positionAttributeLocation = gl.getAttribLocation(this._shaderProgram, 'vertPosition'); // get position ID
+		this._normalAttributeLocation = gl.getAttribLocation(this._shaderProgram, 'vertNormal'); // get position ID
+		this._texCoordAttributeLocation = gl.getAttribLocation(this._shaderProgram, 'vertTexCoord'); // get position ID
+		this._mMVPUniformLocation = gl.getUniformLocation(this._shaderProgram, 'mMVP'); // get mMVP ID
+		this._mViewUniformLocation = gl.getUniformLocation(this._shaderProgram, 'mView'); // get mView ID
+		this._mModelUniformLocation = gl.getUniformLocation(this._shaderProgram, 'mModel'); // get mModel ID
 
 		// lighting parameters
-		this._vPointLightPosUL = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'pointLightPosition'); // get pointLightPosition ID
-		this._vPointLightIntUL = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'pointLightIntensity'); // get pointLightIntensity ID
-		this._vDirLightDirUL = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'dirLightDirection'); // get pointLightPosition ID
-		this._vDirLightIntUL = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'dirLightIntensity'); // get pointLightIntensity ID
-		this._sNsUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'sNs'); // get sNs ID
-		this._vKaUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'vKa'); // get vKa ID
-		this._vKdUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'vKd'); // get vKd ID
-		this._vKsUniformLocation = XYZRenderer.gl.getUniformLocation(this._shaderProgram, 'vKs'); // get vKs ID
-		XYZRenderer.gl.useProgram(null);
+		this._vPointLightPosUL = gl.getUniformLocation(this._shaderProgram, 'pointLightPosition'); // get pointLightPosition ID
+		this._vPointLightIntUL = gl.getUniformLocation(this._shaderProgram, 'pointLightIntensity'); // get pointLightIntensity ID
+		this._vDirLightDirUL = gl.getUniformLocation(this._shaderProgram, 'dirLightDirection'); // get pointLightPosition ID
+		this._vDirLightIntUL = gl.getUniformLocation(this._shaderProgram, 'dirLightIntensity'); // get pointLightIntensity ID
+		this._sNsUniformLocation = gl.getUniformLocation(this._shaderProgram, 'sNs'); // get sNs ID
+		this._vKaUniformLocation = gl.getUniformLocation(this._shaderProgram, 'vKa'); // get vKa ID
+		this._vKdUniformLocation = gl.getUniformLocation(this._shaderProgram, 'vKd'); // get vKd ID
+		this._vKsUniformLocation = gl.getUniformLocation(this._shaderProgram, 'vKs'); // get vKs ID
+		gl.useProgram(null);
 	}
 
 	public addMesh = (mesh: XYZMesh) => { this._meshList.push(mesh); }
 
 	public drawAll() {
-		XYZRenderer.gl.useProgram(this._shaderProgram); // Set program in use before getting locations
+		XYZRenderer.getGl().useProgram(this._shaderProgram); // Set program in use before getting locations
 		this.enableAttributes()
 		if (this._vPointLightPosUL != null && this._vPointLightIntUL != null) {
 			let pointLightPosArray: number[] = [];
@@ -229,11 +231,11 @@ export class XYZShader {
 				pointLightIntArray.push(dirLight.getRgbIntensity().b);
 			})
 
-			XYZRenderer.gl.uniform3fv(
+			XYZRenderer.getGl().uniform3fv(
 				this._vPointLightPosUL,
 				new Float32Array(pointLightPosArray));
 
-			XYZRenderer.gl.uniform3fv(
+			XYZRenderer.getGl().uniform3fv(
 				this._vPointLightIntUL,
 				new Float32Array(pointLightIntArray));
 		}
@@ -253,11 +255,11 @@ export class XYZShader {
 				dirLightIntArray.push(dirLight.getRgbIntensity().b);
 			})
 
-			XYZRenderer.gl.uniform3fv(
+			XYZRenderer.getGl().uniform3fv(
 				this._vDirLightDirUL,
 				new Float32Array(dirLightDirArray));
 
-			XYZRenderer.gl.uniform3fv(
+			XYZRenderer.getGl().uniform3fv(
 				this._vDirLightIntUL,
 				new Float32Array(dirLightIntArray));
 		}
@@ -283,20 +285,20 @@ export class XYZShader {
 		let attributeCounter = 0; // counts how many attributes are enabled
 		if (this._positionAttributeLocation > -1) {
 			attributeCounter++;
-			XYZRenderer.gl.enableVertexAttribArray(this._positionAttributeLocation);
+			XYZRenderer.getGl().enableVertexAttribArray(this._positionAttributeLocation);
 		}
 
 		if (this._normalAttributeLocation > -1) {
 			attributeCounter++;
-			XYZRenderer.gl.enableVertexAttribArray(this._normalAttributeLocation);
+			XYZRenderer.getGl().enableVertexAttribArray(this._normalAttributeLocation);
 		}
 
 		if (this._texCoordAttributeLocation > -1) {
 			attributeCounter++;
-			XYZRenderer.gl.enableVertexAttribArray(this._texCoordAttributeLocation);
+			XYZRenderer.getGl().enableVertexAttribArray(this._texCoordAttributeLocation);
 		}
 
 		// disable unused attributes
-		for (; attributeCounter < 8; attributeCounter++) XYZRenderer.gl.disableVertexAttribArray(attributeCounter);
+		for (; attributeCounter < 8; attributeCounter++) XYZRenderer.getGl().disableVertexAttribArray(attributeCounter);
 	}
 }

@@ -34,7 +34,7 @@ export class XYZEngine {
 	}
 
 	public static run () {
-		if (XYZRenderer.activeCameraNumber < 0) {
+		if (XYZRenderer.getActiveCameraNumber() < 0) {
 			throw "No camera defined";
 		}
 		let loop = () => {
