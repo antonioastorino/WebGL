@@ -9,20 +9,20 @@ export async function main() {
 	await XYZEngine.init("../../etc/keyboard.json");
 
 	let camera1 = new XYZCamera();
-	camera1.setPos(0, 10, 50);
+	camera1.setPos(0, 10, 40);
 	camera1.makePlayer();
 
 	let pointLight1 = new XYZPoint();
-	pointLight1.setPosition(10, 20, 30);
+	pointLight1.setPosition(20, 20, 0);
 	pointLight1.setRgbIntensity(40, 40, 40);
 
 	let pointLight2 = new XYZPoint();
-	pointLight2.setPosition(-10, 10, -30);
-	pointLight2.setRgbIntensity(40, 25, 40);
+	pointLight2.setPosition(-20, 20, 0);
+	pointLight2.setRgbIntensity(20, 25, 20);
 
 	let sun1 = new XYZSun();
 	sun1.setDirection(-1, -1, 0);
-	sun1.setRgbIntensity(0.2, 0.2, 0.2);
+	sun1.setRgbIntensity(0.4, 0.4, 0.4);
 
 	// let lightShader = await XYZEngine.makeShader("3D", [sun1, pointLight2], true);
 	let shaderLight = await XYZEngine.makeShader("3D", [sun1, pointLight1, pointLight2], false);
@@ -36,26 +36,26 @@ export async function main() {
 	sprite1.setPos(0, 0, 0)
 	sprite1.setScale(0.1, 0.1, 1)
 
-	let cube1 = new XYZModel("./assets/meshes/", "cube.obj");
+	let cube1 = new XYZModel("./assets/meshes/", "cube2.obj");
 	await cube1.init();
 	cube1.setScale(8, 8, 8);
 	cube1.setPos(0, 10, 0);
 	cube1.attachShader(shaderLight);
 
-	let cube2 = new XYZModel("./assets/meshes/", "cube2.obj");
+	let cube2 = new XYZModel("./assets/meshes/", "wooden-cube.obj");
 	await cube2.init();
 	cube2.setScale(8, 8, 8);
 	cube2.setPos(10, 10, 0);
-	// cube2.setLinearVelocity(2,0,0);
-	cube2.attachShader(shaderLight);
+	// cube2.setLocalLinVel(2,0,0);
+	cube2.attachShader(shaderLightAndTex);
 	cube2.setParent(cube1);
 
-	let cube3 = new XYZModel("./assets/meshes/", "wooden-cube.obj");
+	let cube3 = new XYZModel("./assets/meshes/", "cube.obj");
 	await cube3.init();
 	cube3.setScale(8, 8, 8);
 	cube3.setPos(10, 10, 10);
 	// cube3.setLinearVelocity(0,0,2);
-	cube3.attachShader(shaderLightAndTex);
+	cube3.attachShader(shaderLight);
 	cube3.setParent(cube2);
 
 	let layer0 = new XYZModel("./assets/meshes/", "layer0.obj");
@@ -74,5 +74,7 @@ export async function main() {
 	sphere.setPos(0,20,0);
 	sphere.setScale(5,5,5);
 	sphere.setAngVel(0, 1, 0, 100);
+
+	// sprite1.setAngularVel(0.01);
 	XYZEngine.run();
 }
