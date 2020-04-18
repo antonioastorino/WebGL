@@ -40,6 +40,7 @@ export class XYZEngine {
 		let loop = () => {
 			let deltaTime = XYZTime.deltaTime;
 			XYZRenderer.updateAll(deltaTime);
+			XYZRenderer.shadowAll();
 			XYZRenderer.drawAll();
 			XYZRenderer.resetAll();
 			requestAnimationFrame(loop);

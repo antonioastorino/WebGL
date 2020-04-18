@@ -21,8 +21,13 @@ export var ShaderTypes: { [id: string]: ShaderFile } = {
 		vertexShaderFile: "../../shaders/test-vs.glsl",
 		fragmentShaderFile: "../../shaders/test-fs.glsl",
 		dimensions: 3,
-		lighting: ""
-
+		lighting: "whatever"
+	},
+	"shadows": {
+		vertexShaderFile: "../../shaders/shadows-vs.glsl",
+		fragmentShaderFile: "../../shaders/shadows-fs.glsl",
+		dimensions: 3,
+		lighting: "whatever"
 	},
 	"2D": {
 		vertexShaderFile: "../../shaders/2D-vs.glsl",
@@ -52,6 +57,7 @@ export class XYZShader {
 	private _vKaUniformLocation: WebGLUniformLocation | null = null;
 	private _vKdUniformLocation: WebGLUniformLocation | null = null;
 	private _vKsUniformLocation: WebGLUniformLocation | null = null;
+	private _sSamplerUL: WebGLUniformLocation | null = null;
 	private _textureEnabled: boolean = false;
 
 	// Light sources
@@ -61,6 +67,11 @@ export class XYZShader {
 	private _vDirLightDirUL: WebGLUniformLocation | null = null; // Position in world coordinates
 	private _vDirLightIntUL: WebGLUniformLocation | null = null; // RGB intensity
 
+	// Shadows
+	private _texObject: WebGLTexture | null = null;
+	private _frameBuffer: WebGLFramebuffer | null = null;
+	private _sShadowSamplerUL: WebGLUniformLocation | null = null;
+
 	private _shaderProgram: WebGLProgram | null = null;
 	private _meshList: Array<XYZMesh> = [];
 	private _pointLights: Array<XYZLightSource> = [];
@@ -69,9 +80,8 @@ export class XYZShader {
 	private _dimensions: number = 0;
 
 	constructor(shaderType: string) {
-		if (ShaderTypes[shaderType] != undefined) {
-			this._shaderType = shaderType;
-		}
+		if (ShaderTypes[shaderType] == undefined) throw "Undefined shader type";
+		this._shaderType = shaderType;
 	}
 
 	public addLightSource = (source: XYZLightSource) => {
@@ -100,8 +110,18 @@ export class XYZShader {
 			ShaderTypes[this._shaderType].fragmentShaderFile);
 		this.createShaderProgram(shaderText.vertexShaderText, shaderText.fragmentShaderText);
 		this.assignLocations();
+		if (this._shaderType == "shadows") {
+			XYZRenderer.getGl().useProgram(this._shaderProgram);
+			let texObjectData = XYZRenderer.createShadowTextureObject(1024);
+			this._texObject = texObjectData.texObject;
+			this._frameBuffer = texObjectData.frameBuffer;
+			XYZRenderer.setShadowShader(this);
+		}
+		else {
+			XYZRenderer.addShader(this);
+		}
 		this._isInitialized = true;
-		XYZRenderer.addShader(this);
+	
 
 	}
 
@@ -147,8 +167,8 @@ export class XYZShader {
 			fragmentShaderText = fragmentShaderText + newSplit[i].split("*/")[1];
 		}
 
-		// console.log(vertexShaderText);
-		// console.log(fragmentShaderText);
+		console.log(vertexShaderText);
+		console.log(fragmentShaderText);
 
 		let gl = XYZRenderer.getGl();
 		let vertexShader = <WebGLShader>gl.createShader(gl.VERTEX_SHADER);
@@ -183,11 +203,10 @@ export class XYZShader {
 			throw 'ERROR validating program!' + gl.getProgramInfoLog(shaderProgram)
 		}
 
-
 		this._shaderProgram = shaderProgram;
 	}
 
-	public assignLocations = async () => {
+	public async assignLocations() {
 		let gl = XYZRenderer.getGl();
 		this._shaderProgram = <WebGLProgram>this._shaderProgram;
 		gl.useProgram(this._shaderProgram); // Set program in use before getting locations
@@ -208,13 +227,40 @@ export class XYZShader {
 		this._vKaUniformLocation = gl.getUniformLocation(this._shaderProgram, 'vKa'); // get vKa ID
 		this._vKdUniformLocation = gl.getUniformLocation(this._shaderProgram, 'vKd'); // get vKd ID
 		this._vKsUniformLocation = gl.getUniformLocation(this._shaderProgram, 'vKs'); // get vKs ID
+
+		// texture
+		this._sSamplerUL = gl.getUniformLocation(this._shaderProgram, 'texSampler'); // get vKs ID
+		gl.activeTexture(gl.TEXTURE0);
+		gl.uniform1i(this._sSamplerUL, 0);  // texture unit 0
+
+		// shadow texture
+		this._sShadowSamplerUL = gl.getUniformLocation(this._shaderProgram, 'shadowTexSampler'); // get vKs ID
+		gl.activeTexture(gl.TEXTURE1);
+		gl.uniform1i(this._sShadowSamplerUL, 1);  // texture unit 0
+
 		gl.useProgram(null);
 	}
+
+	public getShaderProgram() { return this._shaderProgram; }
+	public getPosAL() { return this._positionAttributeLocation; }
+	public getNormAL() { return this._normalAttributeLocation; }
+	public getTexCoorAL() { return this._texCoordAttributeLocation; }
+	public getMVPUL() { return this._mMVPUniformLocation; }
+	public getViewUL() { return this._mViewUniformLocation; }
+	public getModelUL() { return this._mModelUniformLocation; }
+	public getNsUL() { return this._sNsUniformLocation; }
+	public getKaUL() { return this._vKaUniformLocation; }
+	public getKdUL() { return this._vKdUniformLocation; }
+	public getKsUL() { return this._vKsUniformLocation; }
+	public sSamplerUL() { return this._sSamplerUL; }
+	public sShadowSamplerUL() { return this._sShadowSamplerUL; }
+	public getTexObject = (): WebGLTexture | null => { return this._texObject; }
+	public getFrameBuffer = (): WebGLFramebuffer | null => { return this._frameBuffer; }
+	public getDimensions() { return this._dimensions; }
 
 	public addMesh = (mesh: XYZMesh) => { this._meshList.push(mesh); }
 
 	public drawAll() {
-		XYZRenderer.getGl().useProgram(this._shaderProgram); // Set program in use before getting locations
 		this.enableAttributes()
 		if (this._vPointLightPosUL != null && this._vPointLightIntUL != null) {
 			let pointLightPosArray: number[] = [];
@@ -268,18 +314,6 @@ export class XYZShader {
 			mesh.draw();
 		});
 	}
-
-	public get positionAttributeLocation() { return this._positionAttributeLocation; }
-	public get normalAttributeLocation() { return this._normalAttributeLocation; }
-	public get texCoordAttributeLocation() { return this._texCoordAttributeLocation; }
-	public get mMVPUniformLocation() { return this._mMVPUniformLocation; }
-	public get mViewUniformLocation() { return this._mViewUniformLocation; }
-	public get mModelUniformLocation() { return this._mModelUniformLocation; }
-	public get sNsUniformLocation() { return this._sNsUniformLocation; }
-	public get vKaUniformLocation() { return this._vKaUniformLocation; }
-	public get vKdUniformLocation() { return this._vKdUniformLocation; }
-	public get vKsUniformLocation() { return this._vKsUniformLocation; }
-	public get dimensions() { return this._dimensions; }
 
 	public enableAttributes = () => {
 		let attributeCounter = 0; // counts how many attributes are enabled

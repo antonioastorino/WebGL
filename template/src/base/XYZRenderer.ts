@@ -11,6 +11,7 @@ export class XYZRenderer {
 	private static _mProj: XYZMatrix = (new XYZMatrix(4, 4)).identity();
 	private static _nodeList: XYZNode[] = [];
 	private static _shaderList: XYZShader[] = [];
+	private static _shadowShader: XYZShader;
 	private static _cameraList: XYZCamera[] = [];
 	private static _activeCameraNumber: number = -1;
 
@@ -54,10 +55,15 @@ export class XYZRenderer {
 	public static getMat4World(): XYZMatrix { return this._mProj.multiplyByMatrix(this._mView); }
 	public static getMat4View(): XYZMatrix { return this._mView; }
 	public static addShader(shader: XYZShader) { this._shaderList.push(shader); }
+	public static setShadowShader(shader: XYZShader) { this._shadowShader = shader; }
+	public static getShadowShaderTexObject() { return this._shadowShader.getTexObject(); }
 
-	public static createTextureObject(texture: HTMLImageElement) {
+
+	public static createTextureObject = (texture: HTMLImageElement): WebGLTexture => {
 		let gl = XYZRenderer._gl;
 		let texObject = gl.createTexture();
+		if (texObject == null) throw "Texture object not created";
+		gl.activeTexture(gl.TEXTURE1);
 		gl.bindTexture(gl.TEXTURE_2D, texObject);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -68,7 +74,33 @@ export class XYZRenderer {
 			gl.UNSIGNED_BYTE,
 			texture
 		);
+		gl.bindTexture(gl.TEXTURE_2D, null);
 		return texObject;
+	}
+
+	public static createShadowTextureObject = (texSize: number): {
+		texObject: WebGLTexture,
+		frameBuffer: WebGLFramebuffer
+	} => {
+		let gl = XYZRenderer._gl;
+		let texObject = gl.createTexture();
+		if (texObject == null) throw "Texture object not created";
+		gl.bindTexture(gl.TEXTURE_2D, texObject);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texImage2D(
+			gl.TEXTURE_2D, 	0, gl.RGBA, texSize, texSize,
+							0, gl.RGBA, gl.UNSIGNED_BYTE, null
+		);
+		let frameBuffer = gl.createFramebuffer();
+		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
+		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texObject, 0);
+		if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE) throw "Error when creating framebuffer"
+		gl.bindTexture(gl.TEXTURE_2D, null);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		return { texObject, frameBuffer };
 	}
 
 	// update the position of every node
@@ -89,10 +121,28 @@ export class XYZRenderer {
 	}
 
 	// draw all meshes, grouped by shader
+	public static shadowAll = () => {
+		let gl = XYZRenderer._gl;
+		let shader = XYZRenderer._shadowShader;
+		gl.useProgram(shader.getShaderProgram()); // Set program in use before getting locations
+		gl.bindFramebuffer(gl.FRAMEBUFFER, shader.getFrameBuffer());
+		gl.clearColor(.5, .1, .1, 1);   // clear to blue
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+		gl.viewport(0, 0, 1024, 1024);
+		// gl.activeTexture(gl.TEXTURE0 + 1);
+		// gl.bindTexture(gl.TEXTURE_2D, shader.getTexObject());
+		shader.drawAll();
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	}
+
 	public static drawAll = () => {
-		XYZRenderer._gl.clear(XYZRenderer._gl.COLOR_BUFFER_BIT | XYZRenderer._gl.DEPTH_BUFFER_BIT);
+		let gl = XYZRenderer._gl;
+		// gl.clearColor(0.3, 0.3, 0, 1);   // clear to blue
+		// gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		XYZRenderer._shaderList.forEach(
 			shader => {
+				gl.useProgram(shader.getShaderProgram()); // Set program in use before getting locations
+				gl.viewport(0, 0, window.innerWidth, window.innerHeight);
 				shader.drawAll();
 			}
 		)

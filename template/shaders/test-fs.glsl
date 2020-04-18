@@ -1,7 +1,8 @@
 precision mediump float;
-varying vec2 fragTexCoord; // input from vertex shader
-uniform sampler2D texSampler;
+
+varying vec3 fragPosition;
 
 void main() {
-	gl_FragColor = texture2D(texSampler, fragTexCoord);
+	float color = (0.1 - fragPosition.z) / 999.0;
+	gl_FragColor = vec4(color, color, color, 1);
 }

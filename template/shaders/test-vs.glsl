@@ -1,11 +1,14 @@
 precision mediump float;
 
 attribute vec3 vertPosition;
-attribute vec2 vertTexCoord;
-varying vec2 fragTexCoord; // output to fragment shader
+
+uniform mat4 mModel;
+uniform mat4 mView;
 uniform mat4 mMVP;
+mat4 mMV = mView * mModel;
+varying vec3 fragPosition;
 
 void main() {
-	fragTexCoord = vertTexCoord;
+	fragPosition = vec4( mMV * vec4(vertPosition, 1)).xyz;
 	gl_Position = mMVP * vec4(vertPosition, 1.0);
 }

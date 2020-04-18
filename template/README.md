@@ -39,3 +39,5 @@ An installer file for MacOS is provided to setup the environment in a double-cli
 # References:
 ## Math
 [Euler angles from rotation matrix](https://www.gregslabaugh.net/publications/euler.pdf) - notice that psi and phi are swapped here compared to my function in the MatLab class.
+## Textures
+[How to use multiple textures](https://webglfundamentals.org/webgl/lessons/webgl-2-textures.html)
