@@ -4,6 +4,7 @@ import { XYZMatLab } from "../lib/math/XYZMatLab.js";
 import { XYZMatrix } from "../lib/math/XYZMatrix.js";
 import { XYZMaterial } from "./XYZMaterial.js";
 import { XYZNode } from "./XYZNode.js"
+import { RGB } from "../lib/data-types/XYZVertex.js";
 
 export class XYZMesh extends XYZNode {
 	// Geometry
@@ -30,7 +31,7 @@ export class XYZMesh extends XYZNode {
 		gl.bindBuffer(gl.ARRAY_BUFFER, this._posArrayBufferObject);
 
 		gl.vertexAttribPointer(
-			shader.getPosAL(), // ID
+			shader.getAttribLoc('vertPosition'), // ID
 			this._dimensions, // number of components per vertex attribute
 			gl.FLOAT, // type,
 			false, // normalized
@@ -38,10 +39,10 @@ export class XYZMesh extends XYZNode {
 			0 // offset
 		);
 
-		if (shader.getNormAL() > -1) {
+		if (shader.getAttribLoc('vertNormal') > -1) {
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._normArrayBufferObject);
 			gl.vertexAttribPointer(
-				shader.getNormAL(), // ID
+				shader.getAttribLoc('vertNormal'), // ID
 				3, // number of components per vertex attribute
 				gl.FLOAT, // type,
 				false, // normalized
@@ -50,10 +51,10 @@ export class XYZMesh extends XYZNode {
 			);
 		}
 
-		if (shader.getTexCoorAL() > -1) {
+		if (shader.getAttribLoc('vertTexCoord') > -1) {
 			gl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordArrayBufferObject);
 			gl.vertexAttribPointer(
-				shader.getTexCoorAL(), // ID
+				shader.getAttribLoc('vertTexCoord'), // ID
 				2, // number of components per vertex attribute
 				gl.FLOAT, // type,
 				false, // normalized
@@ -62,31 +63,31 @@ export class XYZMesh extends XYZNode {
 			);
 		}
 
-		if (shader.getMVPUL() != null) {
+		if (shader.getUnifLoc('mMVP') != null) {
 			let mMVP: XYZMatrix
 			if (this._dimensions == 3) {
 				mMVP = <XYZMatrix>XYZRenderer.getMat4World().multiplyByMatrix(this.getMat4Model());
 			}
 			else {
-				let mScale = XYZMatLab.makeScaleMatrix(1 / XYZRenderer.aspectRatio, 1, 1);
+				let mScale = XYZMatLab.makeScaleMatrix(1 / XYZRenderer.getAspectRatio(), 1, 1);
 				mMVP = <XYZMatrix>mScale.multiplyByMatrix(this.getMat4Model());
 			}
 			gl.uniformMatrix4fv(
-				shader.getMVPUL(),
+				shader.getUnifLoc('mMVP'),
 				false, // transpose 
 				mMVP.makeFloat32Array());
 		}
 
-		if (shader.getViewUL() != null) {
+		if (shader.getUnifLoc('mView') != null) {
 			gl.uniformMatrix4fv(
-				shader.getViewUL(),
+				shader.getUnifLoc('mView'),
 				false, // transpose 
 				XYZRenderer.getMat4View().makeFloat32Array());
 		}
 
-		if (shader.getModelUL() != null) {
+		if (shader.getUnifLoc('mModel') != null) {
 			gl.uniformMatrix4fv(
-				shader.getModelUL(),
+				shader.getUnifLoc('mModel'),
 				false, // transpose 
 				XYZMatLab.makeModelMatrix(
 					this._v3Pos,
@@ -97,42 +98,33 @@ export class XYZMesh extends XYZNode {
 
 		if (this._materials.length > 0)
 			this._materials.forEach((material: XYZMaterial) => {
-				if (shader.getNsUL() != null) {
-					gl.uniform1f(
-						shader.getNsUL(),
-						material.Ns
-					)
+				let scalarUniforms = ['Ns'];
+				for (let index in scalarUniforms) {
+					let unif = scalarUniforms[index];
+					if (shader.getUnifLoc(unif) != null) {
+						gl.uniform1f(
+							shader.getUnifLoc(unif),
+							<number>material.getParam(unif)
+						)
+					}
 				}
-				if (shader.getKaUL() != null) {
-					gl.uniform3f(
-						shader.getKaUL(),
-						material.Ka.r,
-						material.Ka.g,
-						material.Ka.b
-					)
-				}
-				if (shader.getKdUL() != null) {
-					gl.uniform3f(
-						shader.getKdUL(),
-						material.Kd.r,
-						material.Kd.g,
-						material.Kd.b
-					)
+				let rgbUniforms = ['Ka', 'Kd', 'Ks'];
+				for (let index in rgbUniforms) {
+					let unif = rgbUniforms[index];
+					if (shader.getUnifLoc(unif) != null) {
+						gl.uniform3f(
+							shader.getUnifLoc(unif),
+							(<RGB>material.getParam(unif)).r,
+							(<RGB>material.getParam(unif)).g,
+							(<RGB>material.getParam(unif)).b
+						)
+					}
 				}
 
-				if (shader.getKsUL() != null) {
-					gl.uniform3f(
-						shader.getKsUL(),
-						material.Ks.r,
-						material.Ks.g,
-						material.Ks.b
-					)
+				if (shader.getUnifLoc('texSampler') != null) {
+					gl.bindTexture(gl.TEXTURE_2D, material.getTexObject());
 				}
-				if (shader.sSamplerUL() != null) {
-					gl.activeTexture(gl.TEXTURE0);
-					gl.bindTexture(gl.TEXTURE_2D, material.texObject);
-				}
-				gl.drawArrays(gl.TRIANGLES, material.startIndex, material.vertexCount);
+				gl.drawArrays(gl.TRIANGLES, material.startIndex, material.getVertexCount());
 			})
 		else {
 			gl.drawArrays(gl.TRIANGLES, 0, this._numOfVertices);

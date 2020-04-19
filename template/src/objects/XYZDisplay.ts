@@ -1,11 +1,9 @@
-import { XYZFileLoader } from "../base/XYZFileLoader.js";
 import { XYZRenderer } from "../base/XYZRenderer.js";
 import { XYZMesh } from "./XYZMesh.js";
 import { XYZMaterial } from "./XYZMaterial.js";
 
 export class XYZDisplay extends XYZMesh {
-	private _texFileName: string;
-	constructor(texFileName: string) {
+	constructor() {
 		super();
 		this._dimensions = 2;
 		this._vertPosArray = [
@@ -25,15 +23,13 @@ export class XYZDisplay extends XYZMesh {
 			1, 1,
 			0, 1
 		];
-		this._texFileName = texFileName;
-
 	}
 	
 	public init = async () => {
 		// let texture = await XYZFileLoader.loadImage(this._texFileName);
 		let material = new XYZMaterial("");
-		material.texObject = XYZRenderer.getShadowShaderTexObject();
-		material.vertexCount = 6;
+		material.setTexObject(XYZRenderer.getShadowShaderTexObject());
+		material.setVertexCount(6);
 		this._materials.push(material);	
 	}
 }

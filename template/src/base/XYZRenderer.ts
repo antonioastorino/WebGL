@@ -44,14 +44,14 @@ export class XYZRenderer {
 			XYZRenderer._canvas.width = window.innerWidth;
 			XYZRenderer._canvas.height = window.innerHeight;
 			gl.viewport(0, 0, window.innerWidth, window.innerHeight);
-			XYZRenderer._mProj = XYZMatLab.makePerspectiveMatrix(XYZRenderer.aspectRatio, 55, 0.1, 1000);
+			XYZRenderer._mProj = XYZMatLab.makePerspectiveMatrix(XYZRenderer.getAspectRatio(), 55, 0.1, 1000);
 		}
 		updateAspectRatio();
 		window.addEventListener('resize', updateAspectRatio);
 		XYZRenderer._gl = gl;
 	}
 
-	public static get aspectRatio() { return this._canvas.width / this._canvas.height; }
+	public static getAspectRatio() { return this._canvas.width / this._canvas.height; }
 
 	public static setMat4View(matrix: XYZMatrix) { this._mView = matrix.makeCopy(); }
 	public static setMat4Proj(matrix: XYZMatrix) { this._mProj = matrix.makeCopy(); }

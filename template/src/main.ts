@@ -37,7 +37,7 @@ export async function main() {
 	// sprite1.attachShader(shaderSprite);
 	// sprite1.setPos(0, 0, 0)
 	// sprite1.setScale(0.1, 0.1, 1)
-	let display1 = new XYZDisplay("");
+	let display1 = new XYZDisplay();
 	await display1.init();
 	display1.attachShaders([shaderSprite]);
 	display1.setScale(0.3, 0.3, 3);

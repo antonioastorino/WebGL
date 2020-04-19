@@ -7,7 +7,7 @@ export class XYZLightSource {
 	protected constructor(type: string) {
 		this._type = type;
 	}
-	public get type() { return this._type; }
+	public getType() { return this._type; }
 	public getRgbIntensity = (): RGB => { return this._rgbIntensity; }
 	public setRgbIntensity = (r: number, g: number, b: number) => {
 		if (r < 0 || g < 0 || b < 0) {

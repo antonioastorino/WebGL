@@ -22,27 +22,22 @@ export class XYZObjFileReader {
 			let lines = materialText[i].split("\n");
 			let newMaterial = new XYZMaterial(lines[0]);
 			lines.forEach(async (line: string) => {
-				switch (line.split(" ")[0]) {
+				let key = line.split(" ")[0];
+				switch (key) {
 					case "Ns":
-						newMaterial.Ns = parseFloat(line.split(" ")[1])
+						newMaterial.setParam(key, parseFloat(line.split(" ")[1]));
 						break;
 					case "Ka":
-						newMaterial.Ka = makeVec3FromString(line);
-						break;
 					case "Kd":
-						newMaterial.Kd = makeVec3FromString(line);
-						break;
 					case "Ks":
-						newMaterial.Ks = makeVec3FromString(line);
-						break;
 					case "Ke":
-						newMaterial.Ke = makeVec3FromString(line);
+						newMaterial.setParam(key, makeVec3FromString(line));
 						break;
 					case "map_Kd":
 						let texFileName = line.split("map_Kd ")[1];
 						try {
 							let texture = await XYZFileLoader.loadImage(texFileName);
-							newMaterial.texObject = XYZRenderer.createTextureObject(texture);
+							newMaterial.setTexObject(XYZRenderer.createTextureObject(texture));
 						}
 						catch {
 							throw "File not found";
@@ -104,7 +99,7 @@ export class XYZObjFileReader {
 					break;
 				case "usemtl":
 					if (matCount > -1) {
-						materials[matName].vertexCount = matVertexCount;
+						materials[matName].setVertexCount(matVertexCount);
 					}
 					matName = lineSplit[1];
 					materials[matName].startIndex = matStartIndex;
@@ -174,7 +169,7 @@ export class XYZObjFileReader {
 		if (Object.keys(materials).length == 0) {
 			throw "Material name not found or object material missing"
 		}
-		materials[matName].vertexCount = matVertexCount;
+		materials[matName].setVertexCount(matVertexCount);
 		let materialArray: XYZMaterial[] = [];
 		Object.keys(materials).forEach((name: string) => {
 			materialArray.push(materials[name]);
