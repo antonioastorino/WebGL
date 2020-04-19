@@ -21,8 +21,7 @@ export var ShaderTypes: { [id: string]: ShaderFile } = {
 		vertexShaderFile: "../../shaders/test-vs.glsl",
 		fragmentShaderFile: "../../shaders/test-fs.glsl",
 		dimensions: 3,
-		lighting: ""
-
+		lighting: "whatever"
 	},
 	"2D": {
 		vertexShaderFile: "../../shaders/2D-vs.glsl",
@@ -35,31 +34,34 @@ export var ShaderTypes: { [id: string]: ShaderFile } = {
 		fragmentShaderFile: "../../shaders/3D-fs.glsl",
 		dimensions: 3,
 		lighting: "phong"
-	}
+	},
 }
 
 export class XYZShader {
+	private _attributes: { [id: string]: number } = {
+		vertPosition: -1,
+		vertNormal: -1,
+		vertTexCoord: -1,
+	}
+	private _uniforms: { [id: string]: WebGLUniformLocation | null } = {
+		mMVP: null,
+		mView: null,
+		mModel: null,
+		pointLightPosition: null,
+		pointLightIntensity: null,
+		dirLightDirection: null,
+		dirLightIntensity: null,
+		Ns: null,
+		Ka: null,
+		Kd: null,
+		Ks: null,
+		texSampler: null,
+	}
+
 	private _isInitialized = false;
-	// Geometry
-	private _positionAttributeLocation: number = -1;
-	private _normalAttributeLocation: number = -1;
-	private _mMVPUniformLocation: WebGLUniformLocation | null = null;
-	private _mViewUniformLocation: WebGLUniformLocation | null = null;
-	private _mModelUniformLocation: WebGLUniformLocation | null = null;
-	// Material
-	private _texCoordAttributeLocation: number = -1;
-	private _sNsUniformLocation: WebGLUniformLocation | null = null;
-	private _vKaUniformLocation: WebGLUniformLocation | null = null;
-	private _vKdUniformLocation: WebGLUniformLocation | null = null;
-	private _vKsUniformLocation: WebGLUniformLocation | null = null;
 	private _textureEnabled: boolean = false;
 
-	// Light sources
-	private _vPointLightPosUL: WebGLUniformLocation | null = null; // Position in world coordinates
-	private _vPointLightIntUL: WebGLUniformLocation | null = null; // RGB intensity
 
-	private _vDirLightDirUL: WebGLUniformLocation | null = null; // Position in world coordinates
-	private _vDirLightIntUL: WebGLUniformLocation | null = null; // RGB intensity
 
 	private _shaderProgram: WebGLProgram | null = null;
 	private _meshList: Array<XYZMesh> = [];
@@ -69,9 +71,8 @@ export class XYZShader {
 	private _dimensions: number = 0;
 
 	constructor(shaderType: string) {
-		if (ShaderTypes[shaderType] != undefined) {
-			this._shaderType = shaderType;
-		}
+		if (ShaderTypes[shaderType] == undefined) throw "Undefined shader type";
+		this._shaderType = shaderType;
 	}
 
 	public addLightSource = (source: XYZLightSource) => {
@@ -81,7 +82,7 @@ export class XYZShader {
 		if (ShaderTypes[this._shaderType].lighting == "") {
 			throw "This shader does not support lighting";
 		}
-		switch (source.type) {
+		switch (source.getType()) {
 			case "point light":
 				this._pointLights.push(source);
 				break;
@@ -102,6 +103,7 @@ export class XYZShader {
 		this.assignLocations();
 		this._isInitialized = true;
 		XYZRenderer.addShader(this);
+
 
 	}
 
@@ -147,8 +149,8 @@ export class XYZShader {
 			fragmentShaderText = fragmentShaderText + newSplit[i].split("*/")[1];
 		}
 
-		// console.log(vertexShaderText);
-		// console.log(fragmentShaderText);
+		console.log(vertexShaderText);
+		console.log(fragmentShaderText);
 
 		let gl = XYZRenderer.getGl();
 		let vertexShader = <WebGLShader>gl.createShader(gl.VERTEX_SHADER);
@@ -183,40 +185,38 @@ export class XYZShader {
 			throw 'ERROR validating program!' + gl.getProgramInfoLog(shaderProgram)
 		}
 
-
 		this._shaderProgram = shaderProgram;
 	}
 
-	public assignLocations = async () => {
+	public async assignLocations() {
 		let gl = XYZRenderer.getGl();
 		this._shaderProgram = <WebGLProgram>this._shaderProgram;
 		gl.useProgram(this._shaderProgram); // Set program in use before getting locations
 
-		this._positionAttributeLocation = gl.getAttribLocation(this._shaderProgram, 'vertPosition'); // get position ID
-		this._normalAttributeLocation = gl.getAttribLocation(this._shaderProgram, 'vertNormal'); // get position ID
-		this._texCoordAttributeLocation = gl.getAttribLocation(this._shaderProgram, 'vertTexCoord'); // get position ID
-		this._mMVPUniformLocation = gl.getUniformLocation(this._shaderProgram, 'mMVP'); // get mMVP ID
-		this._mViewUniformLocation = gl.getUniformLocation(this._shaderProgram, 'mView'); // get mView ID
-		this._mModelUniformLocation = gl.getUniformLocation(this._shaderProgram, 'mModel'); // get mModel ID
 
-		// lighting parameters
-		this._vPointLightPosUL = gl.getUniformLocation(this._shaderProgram, 'pointLightPosition'); // get pointLightPosition ID
-		this._vPointLightIntUL = gl.getUniformLocation(this._shaderProgram, 'pointLightIntensity'); // get pointLightIntensity ID
-		this._vDirLightDirUL = gl.getUniformLocation(this._shaderProgram, 'dirLightDirection'); // get pointLightPosition ID
-		this._vDirLightIntUL = gl.getUniformLocation(this._shaderProgram, 'dirLightIntensity'); // get pointLightIntensity ID
-		this._sNsUniformLocation = gl.getUniformLocation(this._shaderProgram, 'sNs'); // get sNs ID
-		this._vKaUniformLocation = gl.getUniformLocation(this._shaderProgram, 'vKa'); // get vKa ID
-		this._vKdUniformLocation = gl.getUniformLocation(this._shaderProgram, 'vKd'); // get vKd ID
-		this._vKsUniformLocation = gl.getUniformLocation(this._shaderProgram, 'vKs'); // get vKs ID
+		for (var attr in this._attributes) {
+			this._attributes[attr] = gl.getAttribLocation(this._shaderProgram, attr);
+		}
+
+		for (var unif in this._uniforms) {
+			this._uniforms[unif] = gl.getUniformLocation(this._shaderProgram, unif);
+		}
+
 		gl.useProgram(null);
 	}
 
+	public getShaderProgram() { return this._shaderProgram; }
+	public getAttribLoc(attribute: string) { return this._attributes[attribute]; }
+	public getUnifLoc(uniform: string) { return this._uniforms[uniform]; }
+	public getDimensions() { return this._dimensions; }
 	public addMesh = (mesh: XYZMesh) => { this._meshList.push(mesh); }
 
 	public drawAll() {
-		XYZRenderer.getGl().useProgram(this._shaderProgram); // Set program in use before getting locations
+		let gl = XYZRenderer.getGl();
+		gl.useProgram(this._shaderProgram);
 		this.enableAttributes()
-		if (this._vPointLightPosUL != null && this._vPointLightIntUL != null) {
+		if (this._uniforms['pointLightPosition'] != null
+			&& this._uniforms['pointLightIntensity'] != null) {
 			let pointLightPosArray: number[] = [];
 			let pointLightIntArray: number[] = [];
 			this._pointLights.forEach((light: XYZLightSource) => {
@@ -231,16 +231,17 @@ export class XYZShader {
 				pointLightIntArray.push(dirLight.getRgbIntensity().b);
 			})
 
-			XYZRenderer.getGl().uniform3fv(
-				this._vPointLightPosUL,
+			gl.uniform3fv(
+				this._uniforms['pointLightPosition'],
 				new Float32Array(pointLightPosArray));
 
-			XYZRenderer.getGl().uniform3fv(
-				this._vPointLightIntUL,
+			gl.uniform3fv(
+				this._uniforms['pointLightIntensity'],
 				new Float32Array(pointLightIntArray));
 		}
 
-		if (this._vDirLightDirUL != null && this._vDirLightIntUL != null) {
+		if (this._uniforms['dirLightDirection'] != null
+			&& this._uniforms['dirLightIntensity'] != null) {
 			let dirLightDirArray: number[] = [];
 			let dirLightIntArray: number[] = [];
 			this._dirLights.forEach((light: XYZLightSource) => {
@@ -255,50 +256,28 @@ export class XYZShader {
 				dirLightIntArray.push(dirLight.getRgbIntensity().b);
 			})
 
-			XYZRenderer.getGl().uniform3fv(
-				this._vDirLightDirUL,
+			gl.uniform3fv(
+				this._uniforms['dirLightDirection'],
 				new Float32Array(dirLightDirArray));
 
-			XYZRenderer.getGl().uniform3fv(
-				this._vDirLightIntUL,
+			gl.uniform3fv(
+				this._uniforms['dirLightIntensity'],
 				new Float32Array(dirLightIntArray));
 		}
 
-		this._meshList.forEach(mesh => {
-			mesh.draw();
-		});
+		this._meshList.forEach(mesh => { mesh.draw(); });
 	}
-
-	public get positionAttributeLocation() { return this._positionAttributeLocation; }
-	public get normalAttributeLocation() { return this._normalAttributeLocation; }
-	public get texCoordAttributeLocation() { return this._texCoordAttributeLocation; }
-	public get mMVPUniformLocation() { return this._mMVPUniformLocation; }
-	public get mViewUniformLocation() { return this._mViewUniformLocation; }
-	public get mModelUniformLocation() { return this._mModelUniformLocation; }
-	public get sNsUniformLocation() { return this._sNsUniformLocation; }
-	public get vKaUniformLocation() { return this._vKaUniformLocation; }
-	public get vKdUniformLocation() { return this._vKdUniformLocation; }
-	public get vKsUniformLocation() { return this._vKsUniformLocation; }
-	public get dimensions() { return this._dimensions; }
 
 	public enableAttributes = () => {
 		let attributeCounter = 0; // counts how many attributes are enabled
-		if (this._positionAttributeLocation > -1) {
-			attributeCounter++;
-			XYZRenderer.getGl().enableVertexAttribArray(this._positionAttributeLocation);
+		let gl = XYZRenderer.getGl();
+		for (var attr in this._attributes) {
+			if (this._attributes[attr] > -1) {
+				attributeCounter++;
+				gl.enableVertexAttribArray(this._attributes[attr]);
+			}
 		}
-
-		if (this._normalAttributeLocation > -1) {
-			attributeCounter++;
-			XYZRenderer.getGl().enableVertexAttribArray(this._normalAttributeLocation);
-		}
-
-		if (this._texCoordAttributeLocation > -1) {
-			attributeCounter++;
-			XYZRenderer.getGl().enableVertexAttribArray(this._texCoordAttributeLocation);
-		}
-
 		// disable unused attributes
-		for (; attributeCounter < 8; attributeCounter++) XYZRenderer.getGl().disableVertexAttribArray(attributeCounter);
+		for (; attributeCounter < 8; attributeCounter++) gl.disableVertexAttribArray(attributeCounter);
 	}
 }

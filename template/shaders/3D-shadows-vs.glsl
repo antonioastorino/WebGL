@@ -10,19 +10,7 @@ varying vec3 fragPosition;
 
 mat4 mMV = mView * mModel;
 
-/*texture
-attribute vec2 vertTexCoord;
-varying vec2 fragTexCoord; // output to fragment shader
-texture*/
-
-
 void main() {
-	fragPosition = vec4( mMV * vec4(vertPosition, 1)).xyz;
-	fragNormal = vec4( mMV * vec4(vertNormal, 0)).xyz;;
-
-/*texture
-	fragTexCoord = vertTexCoord;
-texture*/
-
+	fragPosition = vec4( mModel * vec4(vertPosition, 1)).xyz;
 	gl_Position = mMVP * vec4(vertPosition, 1.0);
 }

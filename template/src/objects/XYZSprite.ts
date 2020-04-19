@@ -28,12 +28,12 @@ export class XYZSprite extends XYZMesh {
 		this._texFileName = texFileName;
 
 	}
-	
+
 	public init = async () => {
 		let texture = await XYZFileLoader.loadImage(this._texFileName);
 		let material = new XYZMaterial("");
-		material.texObject = XYZRenderer.createTextureObject(texture);
-		material.vertexCount = 6;
-		this._materials.push(material);	
+		material.setTexObject(XYZRenderer.createTextureObject(texture));
+		material.setVertexCount(6);
+		this._materials.push(material);
 	}
 }

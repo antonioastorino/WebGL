@@ -3,3 +3,4 @@ dist/
 bin/
 package.json
 .vscode
+*.tmp
