@@ -42,7 +42,7 @@ export class XYZNode {
 
 	public reset() { this._isUpdated = false; }
 
-	public setPos = (x: number, y: number, z: number) => { this._v3Pos = new XYZVec3([x, y, z]); }
+	public setPosition = (x: number, y: number, z: number) => { this._v3Pos = new XYZVec3([x, y, z]); }
 
 	private getLocalXAxis = (): XYZVec4 => { return new XYZVec4(this._modelMatrix.getMatrix()[0]); }
 	private getLocalYAxis = (): XYZVec4 => { return new XYZVec4(this._modelMatrix.getMatrix()[1]); }
