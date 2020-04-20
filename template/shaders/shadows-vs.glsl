@@ -1,8 +1,10 @@
 precision mediump float;
 
 attribute vec3 vertPosition;
+varying vec4 fragPosition;
 uniform mat4 mMVP;
 
 void main() {
-	gl_Position = mMVP * vec4(vertPosition, 1.0);
+	fragPosition = mMVP * vec4(vertPosition, 1.0);
+	gl_Position = fragPosition;
 }

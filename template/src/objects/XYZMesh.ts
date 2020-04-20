@@ -17,7 +17,6 @@ export class XYZMesh extends XYZNode {
 	private _normArrayBufferObject: WebGLBuffer | null = null;
 	private _texCoordArrayBufferObject: WebGLBuffer | null = null;
 	protected _materials: XYZMaterial[] = [];
-	private _shader: XYZShader | null = null;
 	private _castShadow: boolean = true;
 
 	protected constructor() {
@@ -26,8 +25,7 @@ export class XYZMesh extends XYZNode {
 
 	public doesCastShadow = (): boolean => { return this._castShadow; }
 
-	public draw = () => {
-		let shader = <XYZShader>this._shader;
+	public draw = (shader: XYZShader) => {
 		let gl = XYZRenderer.getGl()
 		gl.bindBuffer(gl.ARRAY_BUFFER, this._posArrayBufferObject);
 
@@ -143,39 +141,39 @@ export class XYZMesh extends XYZNode {
 		gl.bindTexture(gl.TEXTURE_2D, null);
 	}
 
-	public attachShader = (shader: XYZShader) => {
-		let gl = XYZRenderer.getGl();
-		if (shader.getDimensions() != this._dimensions) throw "Shader incompatible with object"
-		this._shader = shader;
-		gl.useProgram(shader.getShaderProgram());
-		shader.enableAttributes()
+	public attachShaders = (shaders: XYZShader[]) => {
+		for (var i in shaders) {
+			let shader = shaders[i];
 
-		if (this._vertPosArray.length < 3) throw "Vertices not defined"
-		this._numOfVertices = this._vertPosArray.length / this._dimensions
-		this._posArrayBufferObject = gl.createBuffer(); // get buffer ID
-		gl.bindBuffer(gl.ARRAY_BUFFER, this._posArrayBufferObject); // select buffer
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertPosArray), gl.STATIC_DRAW); // load data
-
-		if (this._vertNormalArray.length > 0) {
-			this._normArrayBufferObject = gl.createBuffer(); // get buffer ID
-			gl.bindBuffer(gl.ARRAY_BUFFER, this._normArrayBufferObject); // select buffer
-			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertNormalArray), gl.STATIC_DRAW); // load data
+			let gl = XYZRenderer.getGl();
+			if (shader.getDimensions() != this._dimensions) throw "Shader incompatible with object"
+			gl.useProgram(shader.getShaderProgram());
+			shader.enableAttributes()
+	
+			if (this._vertPosArray.length < 3) throw "Vertices not defined"
+			this._numOfVertices = this._vertPosArray.length / this._dimensions
+			this._posArrayBufferObject = gl.createBuffer(); // get buffer ID
+			gl.bindBuffer(gl.ARRAY_BUFFER, this._posArrayBufferObject); // select buffer
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertPosArray), gl.STATIC_DRAW); // load data
+	
+			if (this._vertNormalArray.length > 0) {
+				this._normArrayBufferObject = gl.createBuffer(); // get buffer ID
+				gl.bindBuffer(gl.ARRAY_BUFFER, this._normArrayBufferObject); // select buffer
+				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._vertNormalArray), gl.STATIC_DRAW); // load data
+			}
+	
+			if (this._texCoordArray.length > 0 && shader.isTextureEnabled()) {
+				this._texCoordArrayBufferObject = gl.createBuffer(); // get buffer ID
+				gl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordArrayBufferObject); // select buffer
+				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._texCoordArray), gl.STATIC_DRAW); // load data
+			}
+			
+			gl.bindBuffer(gl.ARRAY_BUFFER, null)
+			gl.bindTexture(gl.TEXTURE_2D, null);
+			shader.addMesh(this);
 		}
-
-		if (this._texCoordArray.length > 0 && shader.isTextureEnabled()) {
-			this._texCoordArrayBufferObject = gl.createBuffer(); // get buffer ID
-			gl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordArrayBufferObject); // select buffer
-			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._texCoordArray), gl.STATIC_DRAW); // load data
-			if (shader.sSamplerUL() != null) gl.uniform1i(shader.sSamplerUL(), 0);  // texture unit 0
-		}
-
 		this._vertPosArray = []; // release as not needed anymore
 		this._vertNormalArray = []; // release as not needed anymore
 		this._texCoordArray = []; // release as not needed anymore
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, null)
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		shader.addMesh(this);
-
 	}
 }

@@ -311,7 +311,7 @@ export class XYZShader {
 		}
 
 		this._meshList.forEach(mesh => {
-			mesh.draw();
+			mesh.draw(this);
 		});
 	}
 

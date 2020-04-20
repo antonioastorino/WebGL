@@ -39,7 +39,7 @@ export async function main() {
 	// sprite1.setScale(0.1, 0.1, 1)
 	let display1 = new XYZDisplay("");
 	await display1.init();
-	display1.attachShader(shaderSprite);
+	display1.attachShaders([shaderSprite]);
 	display1.setScale(0.3, 0.3, 3);
 	display1.setPos(-0.3, -0.3, 0);
 
@@ -47,7 +47,7 @@ export async function main() {
 	await cube1.init();
 	cube1.setScale(8, 8, 8);
 	cube1.setPos(0, 10, 0);
-	cube1.attachShader(shadowShader);
+	cube1.attachShaders([shadowShader, shaderLight]);
 
 	// let cube2 = new XYZModel("./assets/meshes/", "wooden-cube.obj");
 	// await cube2.init();
@@ -62,7 +62,7 @@ export async function main() {
 	cube3.setScale(8, 8, 8);
 	cube3.setPos(10, 10, 10);
 	// cube3.setLocalLinVel(0,0,2);
-	cube3.attachShader(shaderLight);
+	cube3.attachShaders([shadowShader, shaderLight]);
 	// cube3.setParent(cube2);
 
 	// let layer0 = new XYZModel("./assets/meshes/", "layer0.obj");
