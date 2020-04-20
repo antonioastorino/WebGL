@@ -3,6 +3,7 @@ import { XYZMatLab } from "../lib/math/XYZMatLab.js";
 import { XYZShader } from "./XYZShader.js"
 import { XYZCamera } from "../objects/XYZCamera.js";
 import { XYZNode } from "../objects/XYZNode.js";
+import { XYZVec3 } from "../lib/data-types/XYZVec3.js";
 
 export class XYZRenderer {
 	private static _gl: WebGLRenderingContext;
@@ -22,6 +23,9 @@ export class XYZRenderer {
 	public static addCamera(camera: XYZCamera) {
 		XYZRenderer._cameraList.push(camera);
 		XYZRenderer._activeCameraNumber = this._cameraList.length - 1;
+	}
+	public static getActiveCamera = (): XYZCamera => {
+		return XYZRenderer._cameraList[XYZRenderer._activeCameraNumber];
 	}
 
 	public static init = () => {
@@ -58,7 +62,6 @@ export class XYZRenderer {
 	public static setShadowShader(shader: XYZShader) { this._shadowShader = shader; }
 	public static getShadowShaderTexObject() { return this._shadowShader.getTexObject(); }
 
-
 	public static createTextureObject = (texture: HTMLImageElement): WebGLTexture => {
 		let gl = XYZRenderer._gl;
 		let texObject = gl.createTexture();
@@ -83,7 +86,7 @@ export class XYZRenderer {
 		frameBuffer: WebGLFramebuffer
 	} => {
 		let gl = XYZRenderer._gl;
-		let texObject = gl.createTexture();
+		const texObject = gl.createTexture();
 		if (texObject == null) throw "Texture object not created";
 		gl.bindTexture(gl.TEXTURE_2D, texObject);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -94,10 +97,18 @@ export class XYZRenderer {
 			gl.TEXTURE_2D, 	0, gl.RGBA, texSize, texSize,
 							0, gl.RGBA, gl.UNSIGNED_BYTE, null
 		);
-		let frameBuffer = gl.createFramebuffer();
+		const frameBuffer = gl.createFramebuffer();
+		if (frameBuffer == null) throw "Frame buffer not created"
+		if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE) throw "Error when creating framebuffer"
 		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
 		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texObject, 0);
-		if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE) throw "Error when creating framebuffer"
+		
+		// enable depth text when writing to texture
+		const depthBuffer = gl.createRenderbuffer();
+		gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer);
+		gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, texSize, texSize);
+		gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuffer);
+		
 		gl.bindTexture(gl.TEXTURE_2D, null);
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		return { texObject, frameBuffer };
@@ -108,9 +119,21 @@ export class XYZRenderer {
 		this._nodeList.forEach((node: XYZNode) => {
 			node.update(deltaTime);
 		})
-		let position = this._cameraList[this.getActiveCameraNumber()].getVec3Pos();
-		let rotation = this._cameraList[this.getActiveCameraNumber()].getMat4Rot();
-		this._mView = XYZMatLab.makeLookAtMatrix(rotation, position);
+	}
+	
+	public static goCameraView = () => {
+		let activeCamera = XYZRenderer.getActiveCamera();
+		XYZRenderer._mView = XYZMatLab.makeLookAtMatrix(
+			activeCamera.getMat4Rot(),
+			activeCamera.getVec3Pos()
+			);
+	}
+
+	public static goCustomView = (position: XYZVec3, rotation: XYZMatrix) => {
+		XYZRenderer._mView = XYZMatLab.makeLookAtMatrix(
+			rotation,
+			position
+			);
 	}
 
 	// reset the update state of every node
@@ -131,12 +154,17 @@ export class XYZRenderer {
 		gl.viewport(0, 0, 1024, 1024);
 		// gl.activeTexture(gl.TEXTURE0 + 1);
 		// gl.bindTexture(gl.TEXTURE_2D, shader.getTexObject());
+		let position = XYZRenderer.getActiveCamera().getVec3Pos();
+		let rotation = XYZRenderer.getActiveCamera().getMat4Rot();
+		position.x += 10;
+		XYZRenderer.goCustomView(position, rotation);
 		shader.drawAll();
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	}
 
 	public static drawAll = () => {
 		let gl = XYZRenderer._gl;
+		XYZRenderer.goCameraView();
 		// gl.clearColor(0.3, 0.3, 0, 1);   // clear to blue
 		// gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		XYZRenderer._shaderList.forEach(
