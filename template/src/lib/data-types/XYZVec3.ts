@@ -34,6 +34,12 @@ export class XYZVec3 extends XYZVector{
 		else throw "Wrong vector dimensions"
 	}
 
+	public makeCopy = (): XYZVec3 => {
+		let outVector = new XYZVec3(Array<number>(3));
+		for (var i in this._elements) { outVector._elements[i] = this._elements[i]; }
+		return outVector;
+	}
+
 	public getDirection = (): XYZVec3 => {
 		let norm = this.norm()
 		if (norm > 0) {

@@ -24,10 +24,10 @@ export class XYZNode {
 	private _linearVel = new XYZVec3([0, 0, 0]);
 	private _angularVel = { x: 0, y: 0, z: 1, speed: 0 };
 
-	public getVec3Pos(): XYZVec3 { return this._v3Pos; }
-	public getMat4Rot(): XYZMatrix { return this._m4Rot; }
-	public getVec3Scale(): XYZVec3 { return this._v3Scale; }
-	public getMat4Model = (): XYZMatrix => { return this._modelMatrix; }
+	public getVec3Pos(): XYZVec3 { return <XYZVec3>(this._v3Pos.makeCopy()); }
+	public getMat4Rot(): XYZMatrix { return this._m4Rot.makeCopy(); }
+	public getVec3Scale(): XYZVec3 { return <XYZVec3>this._v3Scale.makeCopy(); }
+	public getMat4Model = (): XYZMatrix => { return this._modelMatrix.makeCopy(); }
 
 	public setParent(node: XYZNode) {
 		this._parent = node;

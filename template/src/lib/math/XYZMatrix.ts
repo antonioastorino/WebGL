@@ -64,16 +64,20 @@ export class XYZMatrix {
 		var outMatrix = new XYZMatrix(this._numOfCols, this._numOfRows);
 		for (var i = 0; i < this._numOfCols; i++) { // s
 			for (var j = 0; j < this._numOfRows; j++) {
-				outMatrix.setElement(i, j, this._elements[i][j]);
+				outMatrix._elements[j][i] = this._elements[i][j];
 			}
 		}
 		return outMatrix;
 	}
 
 	makeCopy = (): XYZMatrix => {
-		var other = new XYZMatrix(this._numOfRows, this._numOfCols);
-		other._elements = this._elements;
-		return other;
+		var outMatrix = new XYZMatrix(this._numOfRows, this._numOfCols);
+		for (var i = 0; i < this._numOfCols; i++) { // s
+			for (var j = 0; j < this._numOfRows; j++) {
+				outMatrix._elements[i][j] = this._elements[i][j];
+			}
+		}
+		return outMatrix;
 	}
 
 	public get type(): string { return "matrix"; }

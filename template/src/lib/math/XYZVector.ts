@@ -1,9 +1,5 @@
-import { XYZVec2 } from "../data-types/XYZVec2.js";
-import { XYZVec3 } from "../data-types/XYZVec3.js";
-import { XYZVec4 } from "../data-types/XYZVec4.js";
-
 export class XYZVector {
-	private _elements: number[];
+	protected _elements: number[];
 	constructor(elements: number[]) {
 		this._elements = elements;
 	}
@@ -17,8 +13,9 @@ export class XYZVector {
 		return outVector;
 	}
 
-	public makeCopy = (): XYZVector | XYZVec2 | XYZVec3 | XYZVec4 => {
-		let outVector = new XYZVector(this._elements);
+	public makeCopy = (): XYZVector => {
+		let outVector = new XYZVector(Array<number>(this.size));
+		for (var i in this._elements) { outVector._elements[i] = this._elements[i]; }
 		return outVector;
 	}
 

@@ -14,6 +14,12 @@ export class XYZVec2 extends XYZVector{
 	public set x(value: number) { this.setElement(0, value); }
 	public set y(value: number) { this.setElement(1, value); }
 
+	public makeCopy = (): XYZVec2 => {
+		let outVector = new XYZVec2(Array<number>(2));
+		for (var i in this._elements) { outVector._elements[i] = this._elements[i]; }
+		return outVector;
+	}
+
 	public getDirection = (): XYZVec2 => {
 		let norm = this.norm()
 		if (norm > 0) {

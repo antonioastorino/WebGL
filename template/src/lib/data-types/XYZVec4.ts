@@ -25,6 +25,12 @@ export class XYZVec4 extends XYZVector{
 		return Math.sqrt(v3.dot(v3));
 	}
 
+	public makeCopy = (): XYZVec4 => {
+		let outVector = new XYZVec4(Array<number>(4));
+		for (var i in this._elements) { outVector._elements[i] = this._elements[i]; }
+		return outVector;
+	}
+
 	public getDirection = (): XYZVec4 => {
 		let norm = this.norm();
 		return new XYZVec4([this.x/norm, this.y/norm, this.z/norm, this.w]);
