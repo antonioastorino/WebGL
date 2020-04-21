@@ -44,7 +44,7 @@ export class XYZRenderer {
 			XYZRenderer._canvas.width = window.innerWidth;
 			XYZRenderer._canvas.height = window.innerHeight;
 			gl.viewport(0, 0, window.innerWidth, window.innerHeight);
-			XYZRenderer._mProj = XYZMatLab.makePerspectiveMatrix(XYZRenderer.getAspectRatio(), 55, 0.1, 1000);
+			XYZRenderer._mProj = XYZMatLab.makePerspectiveMatrix(XYZRenderer.getAspectRatio(), 55, 0.1, 100);
 		}
 		updateAspectRatio();
 		window.addEventListener('resize', updateAspectRatio);
@@ -66,7 +66,7 @@ export class XYZRenderer {
 		let gl = XYZRenderer._gl;
 		let texObject = gl.createTexture();
 		if (texObject == null) throw "Texture object not created";
-		gl.activeTexture(gl.TEXTURE1);
+		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, texObject);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -152,8 +152,6 @@ export class XYZRenderer {
 		gl.clearColor(.5, .1, .1, 1);   // clear to blue
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		gl.viewport(0, 0, 1024, 1024);
-		// gl.activeTexture(gl.TEXTURE0 + 1);
-		// gl.bindTexture(gl.TEXTURE_2D, shader.getTexObject());
 		let position = XYZRenderer.getActiveCamera().getVec3Pos();
 		let rotation = XYZRenderer.getActiveCamera().getMat4Rot();
 		position.x += 10;
@@ -167,9 +165,19 @@ export class XYZRenderer {
 		XYZRenderer.goCameraView();
 		// gl.clearColor(0.3, 0.3, 0, 1);   // clear to blue
 		// gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+		
+		gl.bindTexture(gl.TEXTURE_2D, XYZRenderer._shadowShader.getTexObject());
 		XYZRenderer._shaderList.forEach(
 			shader => {
 				gl.useProgram(shader.getShaderProgram()); // Set program in use before getting locations
+				let mProjUL = shader.getUnifLoc('mProj');
+				if (mProjUL != null) {
+					gl.uniformMatrix4fv(
+						mProjUL,
+						false,
+						XYZRenderer._mProj.makeFloat32Array());
+				}
 				gl.viewport(0, 0, window.innerWidth, window.innerHeight);
 				shader.drawAll();
 			}

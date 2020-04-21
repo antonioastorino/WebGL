@@ -27,7 +27,7 @@ export async function main() {
 
 	
 	// let shaderLight = await XYZEngine.makeShader("shadows", [sun1], false);
-	let shaderLight = await XYZEngine.makeShader("3D", [sun1], false);
+	let shaderLight = await XYZEngine.makeShader("test", [], true);
 	// let shaderLightAndTex = await XYZEngine.makeShader("3D", [sun1, pointLight1, pointLight2], true);
 	let shadowShader = await XYZEngine.makeShader("shadows", [pointLight1], false);
 	let shaderSprite = await XYZEngine.makeShader("2D", [], true);
@@ -41,7 +41,7 @@ export async function main() {
 	await display1.init();
 	display1.attachShaders([shaderSprite]);
 	display1.setScale(0.3, 0.3, 3);
-	display1.setPos(-0.3, -0.3, 0);
+	display1.setPos(-0.5, -0.5, 0);
 
 	let cube1 = new XYZModel("./assets/meshes/", "cube2.obj");
 	await cube1.init();

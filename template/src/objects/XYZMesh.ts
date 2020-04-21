@@ -130,7 +130,7 @@ export class XYZMesh extends XYZNode {
 			gl.drawArrays(gl.TRIANGLES, 0, this._numOfVertices);
 		}
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
+		if (shader.getType() != 'test') gl.bindTexture(gl.TEXTURE_2D, null); // we are binding the texture for shadowing
 	}
 
 	public attachShaders = (shaders: XYZShader[]) => {

@@ -18,8 +18,8 @@ export var ShaderTypes: { [id: string]: ShaderFile } = {
 		lighting: ""
 	},
 	"test": {
-		vertexShaderFile: "../../shaders/test-vs.glsl",
-		fragmentShaderFile: "../../shaders/test-fs.glsl",
+		vertexShaderFile: "../../shaders/3D-shadows-vs.glsl.tmp",
+		fragmentShaderFile: "../../shaders/3D-shadows-fs.glsl.tmp",
 		dimensions: 3,
 		lighting: "whatever"
 	},
@@ -53,6 +53,7 @@ export class XYZShader {
 		mMVP: null,
 		mView: null,
 		mModel: null,
+		mProj: null,
 		pointLightPosition: null,
 		pointLightIntensity: null,
 		dirLightDirection: null,
@@ -83,6 +84,7 @@ export class XYZShader {
 		if (ShaderTypes[shaderType] == undefined) throw "Undefined shader type";
 		this._shaderType = shaderType;
 	}
+	public getType = (): string => { return this._shaderType; }
 
 	public addLightSource = (source: XYZLightSource) => {
 		if (this._isInitialized) {
@@ -240,6 +242,7 @@ export class XYZShader {
 		let gl = XYZRenderer.getGl();
 		gl.useProgram(this._shaderProgram);
 		this.enableAttributes()
+
 		if (this._uniforms['pointLightPosition'] != null
 			&& this._uniforms['pointLightIntensity'] != null) {
 			let pointLightPosArray: number[] = [];
