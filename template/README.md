@@ -9,6 +9,8 @@ There are two main shaders:
 - 3D, for all three-dimensional objects.
 The 3D shader is modified at run time, depending on the presence of lights in the scene or if the texture is enabled.
 Other shaders may be present for testing.
+#### In progress.
+I am currently working on shadow mapping while learning about it.
 
 ### Input devices
 Due to the impossibility to capture the mouse pointer in a web application, only the keyboard is adopted as a controller.
