@@ -2,11 +2,15 @@
 ## Introduction
 Inspired by [this fantastic tutorial](https://www.youtube.com/watch?v=kB0ZVUrI4Aw&list=PLjcVFFANLS5zH_PeKC6I8p0Pt1hzph_rt), I am creating a template for 3D WebGL projects from scratch and avoiding as much as possible the use of external libraries.
 
+![./doc/preview.png](doc/preview.png)
+
 ## Description
 ### Shaders
 There are two main shaders:
+
 - 2D, for sprites (a textured quad), which are always located in front of everything else
 - 3D, for all three-dimensional objects.
+
 The 3D shader is modified at run time, depending on the presence of lights in the scene or if the texture is enabled.
 Other shaders may be present for testing.
 
