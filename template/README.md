@@ -20,7 +20,7 @@ The state of the keys in use is detected and stored by the XYZKeyboard class. Th
 The method updatePlayer() in the XYZNode class implements the actions.
 
 ### Players
-There is only one keyboard handler but many objects can be defined as players, in which case the will all move synchronously.
+There is only one keyboard handler but many objects can be defined as players, in which case they will all move synchronously.
 
 ### Meshes
 Meshes are normally loaded from the ```assets``` folder where they must be saved as standard ```.obj``` files (in ```./assets/objects/```), along with their corresponding ```.mtl``` files (in ```./assets/materials/```). If present, texture files must be saved in the ```./assets/textures/``` folder. If a different path for the object file is specified, say ```<custom_path>```, the corresponding material and textures must be located in ```<custom_path>/../materials/``` and ```<custom_path>/../textures/```, respectively.
